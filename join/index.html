@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#00daf3">
+  <title>Join a savings circle — ROSCA Thrift &amp; Savings</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { overflow-x: hidden; }
+    .page { min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── Header ─────────────────────────────────────────────── */
+    .header {
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--outline-variant);
+      position: sticky;
+      top: 0;
+      background: rgba(17, 20, 20, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 300;
+    }
+    .header__brand { display: flex; flex-direction: column; line-height: 1.15; }
+    .header__brand-top { font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--on-surface-variant); }
+    .header__brand-bottom { font-size: 16px; font-weight: 800; letter-spacing: 0.02em; color: var(--brand-primary); }
+    .header__nav { display: flex; gap: 20px; font-size: 14px; font-weight: 600; align-items: center; }
+    .header__nav a { color: var(--on-surface-variant); text-decoration: none; transition: color var(--transition-fast); }
+    .header__nav a:hover { color: var(--brand-primary); text-decoration: none; }
+    .header__nav a.header__cta { color: #0a0a0c; background: var(--brand-primary); padding: 8px 16px; border-radius: var(--radius); }
+    .header__nav a.header__cta:hover { filter: brightness(1.1); }
+    .header__nav button.header__ghost {
+      border: 1px solid var(--outline-variant);
+      padding: 7px 15px;
+      border-radius: var(--radius);
+      color: var(--on-surface);
+      background: transparent;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .header__nav button.header__ghost:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    @media (max-width: 820px) { .header__nav a:not(.header__cta) { display: none; } }
+    @media (max-width: 480px) {
+      .header { padding: 14px 16px; }
+      .header__brand-bottom { font-size: 14px; }
+      .header__nav { gap: 10px; }
+      .header__nav a.header__cta,
+      .header__nav button.header__ghost { padding: 6px 12px; font-size: 13px; }
+    }
+
+    /* ── Login dropdown (anchored) ─────────────────────────────── */
+    .login-dropdown {
+      position: fixed;
+      z-index: 400;
+      width: 360px;
+      max-width: calc(100vw - 32px);
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.7);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: opacity 160ms ease-out, transform 160ms ease-out, visibility 0s linear 160ms;
+    }
+    .login-dropdown.is-open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      transition: opacity 160ms ease-out, transform 160ms ease-out, visibility 0s;
+    }
+    .login-dropdown::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 24px;
+      width: 10px;
+      height: 10px;
+      background: var(--surface-container-low);
+      border-top: 1px solid var(--outline-variant);
+      border-left: 1px solid var(--outline-variant);
+      transform: rotate(45deg);
+    }
+    .login-dropdown__title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0 0 4px;
+      color: var(--on-surface);
+    }
+    .login-dropdown__subtitle {
+      font-size: 13px;
+      color: var(--on-surface-variant);
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+    .login-dropdown .form-row { margin-bottom: 12px; }
+    .login-dropdown .form-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-bottom: 5px;
+    }
+    .login-dropdown .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--surface-container-lowest);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      color: var(--on-surface);
+      font-family: inherit;
+      font-size: 14px;
+      transition: all var(--transition-fast);
+    }
+    .login-dropdown .form-input:focus {
+      outline: none;
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 3px rgba(0, 218, 243, 0.15);
+    }
+    .login-dropdown .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 12px;
+    }
+    .login-dropdown .form-actions a {
+      font-size: 12px;
+      color: var(--brand-primary);
+      text-decoration: none;
+    }
+    .login-dropdown .form-actions a:hover { text-decoration: underline; }
+    .login-dropdown .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 20px;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .login-dropdown .btn--primary { background: var(--brand-primary); color: #0a0a0c; }
+    .login-dropdown .btn--primary:hover:not(:disabled) { filter: brightness(1.1); }
+    .login-dropdown .btn--primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .login-dropdown .btn--block { width: 100%; }
+    .login-dropdown .form-status {
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      margin-top: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      display: none;
+      white-space: pre-line;
+    }
+    .login-dropdown .form-status.is-visible { display: block; }
+    .login-dropdown .form-status--success { background: rgba(78, 222, 163, 0.1); border: 1px solid var(--success); color: var(--success); }
+    .login-dropdown .form-status--error { background: rgba(255, 180, 171, 0.1); border: 1px solid var(--error); color: var(--error); }
+    .login-dropdown .form-status--info { background: rgba(0, 218, 243, 0.08); border: 1px solid var(--brand-primary); color: var(--brand-primary); }
+
+    /* ── Loading / Error states ───────────────────────────── */
+    .state-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 70vh;
+      text-align: center;
+      padding: 32px;
+    }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--outline-variant);
+      border-top-color: var(--brand-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .state-center h2 { font-size: 24px; margin-bottom: 12px; }
+    .state-center p { color: var(--on-surface-variant); max-width: 420px; line-height: 1.6; }
+
+    /* ── Hero ──────────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      padding: 120px 24px 100px;
+      overflow: hidden;
+      text-align: center;
+      min-height: 640px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero__media { position: absolute; inset: 0; z-index: 0; }
+    .hero__media img, .hero__media video {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: 0.28;
+      filter: saturate(0.8);
+    }
+    .hero__overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 30%, rgba(0, 218, 243, 0.15) 0%, transparent 60%),
+        linear-gradient(180deg, rgba(17, 20, 20, 0.55) 0%, rgba(17, 20, 20, 0.92) 100%);
+      z-index: 1;
+    }
+    .hero__content { position: relative; z-index: 2; max-width: 820px; margin: 0 auto; }
+    .hero__eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px;
+      background: rgba(0, 218, 243, 0.1);
+      border: 1px solid rgba(0, 218, 243, 0.3);
+      border-radius: var(--radius-full);
+      color: var(--brand-primary);
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 28px;
+      backdrop-filter: blur(8px);
+    }
+    .hero__eyebrow .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--brand-primary);
+      box-shadow: 0 0 8px var(--brand-primary);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .hero h1 { font-size: 58px; line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 24px; font-weight: 800; }
+    .hero h1 .highlight { color: var(--brand-primary); }
+    .hero__subtitle { font-size: 19px; color: var(--on-surface-variant); line-height: 1.6; margin-bottom: 36px; max-width: 640px; margin-left: auto; margin-right: auto; }
+    .hero__actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 48px; }
+    .hero__stats {
+      display: flex; gap: 36px; justify-content: center; flex-wrap: wrap;
+      margin-top: 40px; padding-top: 32px;
+      border-top: 1px solid rgba(64, 72, 74, 0.5);
+    }
+    .hero__stat { text-align: center; }
+    .hero__stat-value { font-size: 32px; font-weight: 800; color: var(--brand-primary); line-height: 1; letter-spacing: -0.02em; display: block; }
+    .hero__stat-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--on-surface-variant); margin-top: 6px; display: block; }
+    @media (max-width: 640px) {
+      .hero { padding: 72px 20px 56px; min-height: auto; }
+      .hero h1 { font-size: 34px; }
+      .hero__subtitle { font-size: 16px; }
+      .hero__stats { gap: 20px; }
+      .hero__stat-value { font-size: 24px; }
+    }
+
+    /* ── Buttons ────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 14px 28px;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      font-family: inherit; font-size: 15px; font-weight: 600; line-height: 1;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn:hover { text-decoration: none; }
+    .btn--primary { background: var(--brand-primary); color: #0a0a0c; }
+    .btn--primary:hover:not(:disabled) {
+      filter: brightness(1.1);
+      box-shadow: 0 0 0 4px rgba(0, 218, 243, 0.15);
+      transform: translateY(-1px);
+      opacity: 1;
+    }
+    .btn--primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; filter: none; box-shadow: none; }
+    .btn--ghost { background: rgba(30, 32, 33, 0.6); color: var(--on-surface); border-color: var(--outline-variant); backdrop-filter: blur(8px); }
+    .btn--ghost:hover:not(:disabled) { background: var(--surface-container); border-color: var(--outline); opacity: 1; }
+
+    /* ── Sections ──────────────────────────────────────────── */
+    .section { padding: 96px 24px; border-top: 1px solid var(--outline-variant); position: relative; }
+    .section--alt { background: var(--surface-container-lowest); }
+    .section--center { text-align: center; }
+    .section__inner { max-width: 1100px; margin: 0 auto; }
+    .section__inner--narrow { max-width: 900px; }
+    .section__eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brand-primary); margin-bottom: 12px; }
+    .section h2 { font-size: 40px; letter-spacing: -0.025em; margin-bottom: 16px; line-height: 1.15; font-weight: 800; }
+    .section__lede { font-size: 18px; color: var(--on-surface-variant); max-width: 640px; line-height: 1.65; margin-bottom: 48px; }
+    .section--center .section__lede { margin-left: auto; margin-right: auto; }
+    .section p, .section li { color: var(--on-surface-variant); line-height: 1.75; }
+    .section ul { padding-left: 20px; }
+    .section ul li { margin-bottom: 8px; }
+    @media (max-width: 640px) {
+      .section { padding: 64px 20px; }
+      .section h2 { font-size: 28px; }
+    }
+
+    .feature-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+    @media (min-width: 720px) { .feature-grid { grid-template-columns: repeat(3, 1fr); } }
+    .feature {
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      transition: all var(--transition);
+      display: flex;
+      flex-direction: column;
+    }
+    .feature:hover { transform: translateY(-4px); border-color: rgba(0, 218, 243, 0.4); box-shadow: 0 20px 40px -20px rgba(0, 218, 243, 0.15); }
+    .feature__media { aspect-ratio: 16 / 10; overflow: hidden; position: relative; }
+    .feature__media img { width: 100%; height: 100%; object-fit: cover; transition: transform 600ms ease-out; }
+    .feature:hover .feature__media img { transform: scale(1.06); }
+    .feature__media::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 30%, rgba(17, 20, 20, 0.8) 100%); }
+    .feature__body { padding: 24px; flex: 1; display: flex; flex-direction: column; }
+    .feature__num { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brand-primary); margin-bottom: 8px; }
+    .feature h3 { color: var(--on-surface); font-size: 18px; margin: 0 0 10px; letter-spacing: -0.01em; }
+    .feature p { font-size: 14px; margin: 0; line-height: 1.6; }
+
+    .split { display: grid; grid-template-columns: 1fr; gap: 48px; align-items: center; }
+    @media (min-width: 900px) {
+      .split { grid-template-columns: 1fr 1fr; gap: 80px; }
+      .split--reverse .split__media { order: 2; }
+    }
+    .split__media { border-radius: var(--radius-xl); overflow: hidden; aspect-ratio: 4 / 3; border: 1px solid var(--outline-variant); }
+    .split__media img { width: 100%; height: 100%; object-fit: cover; }
+    .split__body h3 { font-size: 26px; color: var(--on-surface); margin-bottom: 16px; letter-spacing: -0.02em; }
+    .split__body p { margin-bottom: 16px; font-size: 15px; line-height: 1.75; color: var(--on-surface-variant); }
+    .split__body p:last-child { margin-bottom: 0; }
+
+    .accordion { margin-top: 32px; }
+    .accordion__item {
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-lg);
+      margin-bottom: 12px;
+      background: var(--surface-container-low);
+      overflow: hidden;
+      transition: border-color var(--transition-fast);
+    }
+    .accordion__item:hover { border-color: rgba(0, 218, 243, 0.3); }
+    .accordion__item[open] { background: var(--surface-container); border-color: rgba(0, 218, 243, 0.3); }
+    .accordion__summary {
+      padding: 18px 22px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--on-surface);
+      gap: 12px;
+    }
+    .accordion__summary::-webkit-details-marker { display: none; }
+    .accordion__summary::after { content: '+'; font-size: 22px; font-weight: 300; color: var(--brand-primary); line-height: 1; flex-shrink: 0; }
+    .accordion__item[open] .accordion__summary::after { content: '−'; }
+    .accordion__content { padding: 0 22px 22px; color: var(--on-surface-variant); font-size: 15px; line-height: 1.75; white-space: pre-wrap; }
+    .accordion__content p { margin-bottom: 12px; }
+    .accordion__content p:last-child { margin-bottom: 0; }
+
+    /* ── Consent gate ─────────────────────────────────────── */
+    .consent-gate {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px;
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-xl);
+    }
+    .consent-gate h3 { font-size: 20px; margin: 0 0 8px; color: var(--on-surface); }
+    .consent-gate__sub { font-size: 14px; color: var(--on-surface-variant); margin-bottom: 28px; line-height: 1.6; }
+    .consent-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 18px;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      background: var(--surface-container-lowest);
+    }
+    .consent-item:hover { border-color: rgba(0, 218, 243, 0.4); }
+    .consent-item.is-checked { border-color: var(--brand-primary); background: rgba(0, 218, 243, 0.06); }
+    .consent-item input[type="checkbox"] { margin-top: 3px; accent-color: var(--brand-primary); width: 18px; height: 18px; flex-shrink: 0; cursor: pointer; }
+    .consent-item__body { flex: 1; }
+    .consent-item__title { font-size: 15px; font-weight: 600; color: var(--on-surface); margin-bottom: 4px; }
+    .consent-item__hint { font-size: 13px; color: var(--on-surface-variant); line-height: 1.55; }
+    .consent-item__hint a { color: var(--brand-primary); }
+    .consent-actions { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+    .consent-actions .btn { flex: 1; min-width: 160px; }
+    .consent-locked-msg { text-align: center; font-size: 13px; color: var(--on-surface-variant); margin-top: 16px; }
+    @media (max-width: 640px) { .consent-gate { padding: 24px; } }
+
+    /* ── Footer ──────────────────────────────────────────── */
+    .footer { padding: 56px 24px 32px; border-top: 1px solid var(--outline-variant); margin-top: auto; background: var(--surface-container-lowest); }
+    .footer__inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; }
+    @media (min-width: 720px) { .footer__inner { grid-template-columns: 2fr 1fr 1fr; gap: 64px; align-items: start; } }
+    .footer__brand-col { display: flex; flex-direction: column; gap: 8px; }
+    .footer__brand { font-size: 20px; font-weight: 800; color: var(--brand-primary); letter-spacing: -0.01em; }
+    .footer__tagline { font-size: 13px; color: var(--on-surface-variant); max-width: 320px; line-height: 1.6; }
+    .footer__col-title { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--on-surface-variant); margin-bottom: 16px; }
+    .footer__col-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer__col-links a { color: var(--on-surface); font-size: 14px; text-decoration: none; transition: color var(--transition-fast); }
+    .footer__col-links a:hover { color: var(--brand-primary); }
+    .footer__bottom { max-width: 1100px; margin: 40px auto 0; padding-top: 24px; border-top: 1px solid var(--outline-variant); display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--on-surface-variant); }
+    @media (min-width: 720px) { .footer__bottom { flex-direction: row; justify-content: space-between; align-items: center; } }
+
+    .back-to-top {
+      position: fixed; bottom: 24px; right: 24px; width: 48px; height: 48px; border-radius: 50%;
+      background: var(--brand-primary); color: #0a0a0c; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(0, 218, 243, 0.35);
+      opacity: 0; pointer-events: none; transition: opacity 250ms ease-out, transform 250ms ease-out; transform: translateY(10px); z-index: 500;
+    }
+    .back-to-top.is-visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    .back-to-top:hover { filter: brightness(1.1); transform: translateY(-2px); }
+    .back-to-top svg { width: 20px; height: 20px; }
+    @media (max-width: 480px) { .back-to-top { bottom: 16px; right: 16px; width: 42px; height: 42px; } }
+
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 700ms ease-out, transform 700ms ease-out; }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+    .reveal--delay-1 { transition-delay: 100ms; }
+    .reveal--delay-2 { transition-delay: 200ms; }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- LOADING -->
+  <div class="state-center" id="loading-state">
+    <div class="spinner"></div>
+    <h2>Loading your community…</h2>
+    <p>Fetching details</p>
+  </div>
+
+  <!-- ERROR -->
+  <div class="state-center" id="error-state" style="display: none;">
+    <h2 id="error-title">Something went wrong</h2>
+    <p id="error-body">We couldn't load this community.</p>
+    <div id="error-extra-actions" style="margin-top: 24px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;"></div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main-content" style="display: none;">
+
+    <header class="header">
+      <div class="header__brand">
+        <span class="header__brand-top" id="brand-branch">Loading…</span>
+        <span class="header__brand-bottom">ROSCA Thrift &amp; Savings</span>
+      </div>
+      <nav class="header__nav">
+        <a href="#how-it-works">How it works</a>
+        <a href="#about-branch">About</a>
+        <a href="#branch-rules">Rules</a>
+        <button type="button" class="header__ghost" data-login-trigger>Log in</button>
+        <a href="#consent" class="header__cta">Join</a>
+      </nav>
+    </header>
+
+    <!-- Anchored login dropdown -->
+    <div class="login-dropdown" id="login-dropdown" role="dialog" aria-hidden="true">
+      <h2 class="login-dropdown__title">Log in</h2>
+      <p class="login-dropdown__subtitle">Access your savings circle.</p>
+
+      <form id="login-form" novalidate>
+        <div class="form-row">
+          <label class="form-label" for="login-phone">Phone number</label>
+          <input class="form-input" type="tel" id="login-phone" required placeholder="+447912345678" autocomplete="tel" />
+        </div>
+        <div class="form-row">
+          <label class="form-label" for="login-password">Password</label>
+          <input class="form-input" type="password" id="login-password" required placeholder="Your password" autocomplete="current-password" />
+        </div>
+        <div class="form-actions">
+          <a href="/auth/forgot-password.html?from=saver">Forgot password?</a>
+        </div>
+        <button type="submit" class="btn btn--primary btn--block" id="login-submit">Log in</button>
+        <div class="form-status" id="login-status"></div>
+      </form>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero__media">
+        <video autoplay muted loop playsinline poster="/assets/images/hero-community.jpg">
+          <source src="/assets/videos/hero-loop.mp4" type="video/mp4">
+          <img src="/assets/images/hero-community.jpg" alt="Church community">
+        </video>
+      </div>
+      <div class="hero__overlay"></div>
+
+      <div class="hero__content">
+        <div class="hero__eyebrow">
+          <span class="dot"></span>
+          <span>You've been invited</span>
+        </div>
+        <h1>Join <span class="highlight" id="hero-branch-name">this community</span>'s<br>savings circle.</h1>
+        <p class="hero__subtitle">
+          A rotating savings circle on ROSCA Thrift &amp; Savings — a digital
+          ERP application that records every contribution, verifies every receipt, and
+          shows every member the same transparent picture.
+        </p>
+        <div class="hero__actions">
+          <a href="#consent" class="btn btn--primary">Join the circle</a>
+          <button type="button" class="btn btn--ghost" data-login-trigger>Already a member? Log in</button>
+        </div>
+
+        <div class="hero__stats">
+          <div class="hero__stat"><span class="hero__stat-value">12</span><span class="hero__stat-label">Members per circle</span></div>
+          <div class="hero__stat"><span class="hero__stat-value">12</span><span class="hero__stat-label">Months per tenure</span></div>
+          <div class="hero__stat"><span class="hero__stat-value">1.5%</span><span class="hero__stat-label">Platform fee</span></div>
+          <div class="hero__stat"><span class="hero__stat-value">2%</span><span class="hero__stat-label">Annual TVC</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section" id="how-it-works">
+      <div class="section__inner">
+        <div class="section__eyebrow">The mechanic</div>
+        <h2>What a savings circle is</h2>
+        <p class="section__lede">
+          A ROSCA — Rotating Savings and Credit Association — is a savings
+          tradition used across the world. A small group contributes a fixed
+          amount every month. Each month, one member receives the whole pool.
+          Over 12 months, everyone contributes the same total and receives
+          the pool exactly once.
+        </p>
+
+        <div class="feature-grid">
+          <div class="feature reveal">
+            <div class="feature__media">
+              <img src="/assets/images/how-1-people.jpg" alt="Community of savers" loading="lazy">
+            </div>
+            <div class="feature__body">
+              <div class="feature__num">01 — Members</div>
+              <h3>12 people, one circle</h3>
+              <p>A circle is exactly 12 verified members. Every member contributes the same amount every month. After 12 months, everyone has contributed twelve times and received once.</p>
+            </div>
+          </div>
+          <div class="feature reveal reveal--delay-1">
+            <div class="feature__media">
+              <img src="/assets/images/how-2-money.jpg" alt="Bank transfer on phone" loading="lazy">
+            </div>
+            <div class="feature__body">
+              <div class="feature__num">02 — Payout</div>
+              <h3>One collection per month</h3>
+              <p>Each month, one member receives the whole pot. Slot numbers are assigned randomly — no favouritism, no negotiation. Slot 1 collects in month 1, slot 12 in month 12.</p>
+            </div>
+          </div>
+          <div class="feature reveal reveal--delay-2">
+            <div class="feature__media">
+              <img src="/assets/images/how-3-money.jpg" alt="Money exchange" loading="lazy">
+            </div>
+            <div class="feature__body">
+              <div class="feature__num">03 — Fairness</div>
+              <h3>Fair to everyone</h3>
+              <p>Early receivers pay a small time-value premium, later receivers receive a small bonus. The adjustment is 2% per year — the same principle that makes any savings scheme fair.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT THIS COMMUNITY (Dynamic from DB) -->
+    <section class="section section--alt" id="about-branch">
+      <div class="section__inner">
+        <div class="section__eyebrow">About this community</div>
+        <h2>About <span id="about-branch-name">this community</span></h2>
+        <div class="split reveal" style="margin-top: 32px;">
+          <div class="split__media">
+            <img src="/assets/images/about-handshake.jpg" alt="Community handshake" loading="lazy">
+          </div>
+          <div class="split__body" id="about-body">
+            <p>Loading…</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMMUNITY RULES (Dynamic from DB) -->
+    <section class="section" id="branch-rules">
+      <div class="section__inner section__inner--narrow">
+        <div class="section__eyebrow">Community rules</div>
+        <h2>Terms of this community</h2>
+        <p class="section__lede">
+          The rules set by <span id="rules-branch-name">this community</span>'s admin.
+          You must agree to these to join.
+        </p>
+        <div class="accordion">
+          <details class="accordion__item">
+            <summary class="accordion__summary">Read the full Terms of this community</summary>
+            <div class="accordion__content" id="terms-body">Loading…</div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMMUNITY PRIVACY (Dynamic from DB) -->
+    <section class="section section--alt" id="branch-privacy">
+      <div class="section__inner section__inner--narrow">
+        <div class="section__eyebrow">Community privacy</div>
+        <h2>How this community handles your data</h2>
+        <p class="section__lede">
+          How <span id="privacy-branch-name">this community</span> processes your
+          personal data, combined with the platform's own Privacy Policy.
+        </p>
+        <div class="accordion">
+          <details class="accordion__item">
+            <summary class="accordion__summary">Read the full Privacy Notice of this community</summary>
+            <div class="accordion__content" id="privacy-body">Loading…</div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONSENT GATE -->
+    <section class="section section--center" id="consent">
+      <div class="section__inner">
+        <div class="section__eyebrow" style="display: inline-block;">Before you join</div>
+        <h2>Agree to continue</h2>
+        <p class="section__lede" style="text-align: center;">
+          Tick all three boxes to unlock Register.
+        </p>
+
+        <div class="consent-gate" style="text-align: left;">
+          <h3>Consent to participate</h3>
+          <p class="consent-gate__sub">You must read and agree to all three documents before you can create an account.</p>
+
+          <label class="consent-item" for="consent-branch-terms">
+            <input type="checkbox" id="consent-branch-terms" />
+            <div class="consent-item__body">
+              <div class="consent-item__title">Community Partner Terms of Service</div>
+              <div class="consent-item__hint">Rules set by <span class="js-branch-name">this community</span> — contribution amounts, deadlines, renewal, disputes. <a href="#branch-rules">Read above ↑</a></div>
+            </div>
+          </label>
+
+          <label class="consent-item" for="consent-branch-privacy">
+            <input type="checkbox" id="consent-branch-privacy" />
+            <div class="consent-item__body">
+              <div class="consent-item__title">Community Partner Privacy Notice</div>
+              <div class="consent-item__hint">How <span class="js-branch-name">this community</span> handles your personal data. <a href="#branch-privacy">Read above ↑</a></div>
+            </div>
+          </label>
+
+          <label class="consent-item" for="consent-platform">
+            <input type="checkbox" id="consent-platform" />
+            <div class="consent-item__body">
+              <div class="consent-item__title">Platform Terms &amp; Privacy</div>
+              <div class="consent-item__hint">The platform's own Terms of Service and Privacy Policy. <a href="/join/terms.html" class="js-platform-link">Terms</a> · <a href="/join/privacy.html" class="js-platform-link">Privacy</a></div>
+            </div>
+          </label>
+
+          <div class="consent-actions">
+            <button type="button" class="btn btn--primary" id="btn-register" disabled>Create my account</button>
+          </div>
+          <div class="consent-locked-msg" id="consent-msg">Tick all three boxes above to continue.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer__inner">
+        <div class="footer__brand-col">
+          <div class="footer__brand">ROSCA Thrift &amp; Savings</div>
+          <p class="footer__tagline">The digital ERP application for church community savings circles. Operated by Thrifty Technologies, United Kingdom.</p>
+        </div>
+        <div>
+          <div class="footer__col-title">This community partner</div>
+          <div class="footer__col-links">
+            <a href="#how-it-works">How it works</a>
+            <a href="#about-branch">About</a>
+            <a href="#branch-rules">Rules</a>
+            <a href="#consent">Join</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer__col-title">Community Support</div>
+          <div class="footer__col-links" id="footer-contact-links">
+            <a href="/join/terminology.html" class="js-platform-link">Terminology</a>
+            <a href="/join/terms.html" class="js-platform-link">Terms of Service</a>
+            <a href="/join/privacy.html" class="js-platform-link">Privacy Policy</a>
+            <!-- Dynamic contact phone/email injected here -->
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <div>© 2026 Thrifty Technologies. All rights reserved.</div>
+        <div>Digital ERP application for community savings circles.</div>
+      </div>
+    </footer>
+
+  </div> <!-- /main-content -->
+</div> <!-- /page -->
+
+<button class="back-to-top" id="back-to-top" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script src="/assets/js/config.js"></script>
+<script src="/assets/js/api.js"></script>
+<script>
+  (function () {
+    'use strict';
+
+    const api = window.ROSCA_API.api;
+    const homeForRole = window.ROSCA_API.homeForRole;
+
+    const params = new URLSearchParams(window.location.search);
+    const branchSlug = params.get('branch') || window.location.pathname.split('/').filter(Boolean).pop();
+
+    const loadingState = document.getElementById('loading-state');
+    const errorState = document.getElementById('error-state');
+    const mainContent = document.getElementById('main-content');
+    const backToTop = document.getElementById('back-to-top');
+
+    async function showError(title, body) {
+      loadingState.style.display = 'none';
+      mainContent.style.display = 'none';
+      errorState.style.display = 'flex';
+      document.getElementById('error-title').textContent = title;
+      if (body) document.getElementById('error-body').textContent = body;
+
+      const actionsContainer = document.getElementById('error-extra-actions');
+      actionsContainer.innerHTML = ''; // Clear previous actions
+
+      // 1. Check for a local JWT
+      let isOwnAdmin = false;
+      if (window.ROSCA_API && window.ROSCA_API.getAccessToken()) {
+        try {
+          const token = window.ROSCA_API.getAccessToken();
+          const payload = JSON.parse(atob(token.split('.')[1]));
+
+          if (payload.role === 'BRANCH_ADMIN' && payload.branchId) {
+            // Fetch their community to see if it matches this link
+            const b = await api('/api/branches/id/' + encodeURIComponent(payload.branchId));
+            if (b.slug === branchSlug) {
+              isOwnAdmin = true;
+            }
+          }
+        } catch (e) {
+          // Token is bad, ignore
+        }
+      }
+
+      // 2. Render appropriate actions
+      if (isOwnAdmin) {
+        actionsContainer.innerHTML =
+          '<a href="/branch/dashboard.html" class="btn btn--primary">Return to your Dashboard</a>';
+      } else {
+        // Try to fetch the contact phone from the public status endpoint
+        let contactPhone = null;
+        try {
+          const status = await api('/api/branches/' + encodeURIComponent(branchSlug) + '/status');
+          contactPhone = status.contactPhone;
+        } catch (e) {
+          // Ignore if fetch fails
+        }
+
+        if (contactPhone) {
+          actionsContainer.innerHTML =
+            '<div style="text-align: center;">' +
+              '<p style="font-size: 14px; color: var(--on-surface-variant); margin-bottom: 12px;">' +
+                'Please contact the community partner admin directly:' +
+              '</p>' +
+              '<a href="tel:' + escapeHtml(contactPhone) + '" class="btn btn--primary">Call ' + escapeHtml(contactPhone) + '</a>' +
+            '</div>';
+        } else {
+          actionsContainer.innerHTML =
+            '<a href="/" class="btn btn--ghost">Back to home</a>';
+        }
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+      });
+    }
+
+    function formatText(raw) {
+      if (!raw) return '';
+      const escaped = escapeHtml(raw);
+      return escaped.split(/\n\n+/).map(function (para) {
+        return para.split('\n').map(function (line) {
+          if (/^\d+\.\s+[A-Z]/.test(line)) return '<h3>' + line + '</h3>';
+          if (/^[-•]\s+/.test(line)) return '<p style="padding-left: 16px;">• ' + line.replace(/^[-•]\s+/, '') + '</p>';
+          return '<p>' + line + '</p>';
+        }).join('');
+      }).join('');
+    }
+
+    async function load() {
+      if (!branchSlug) {
+        return await showError('No community specified', 'This link is missing a community identifier.');
+      }
+
+      // Wire up platform links to carry the current branch slug forward
+      if (branchSlug) {
+        document.querySelectorAll('.js-platform-link').forEach(function(link) {
+          const href = link.getAttribute('href');
+          if (href) {
+            link.setAttribute('href', href + '?branch=' + encodeURIComponent(branchSlug));
+          }
+        });
+      }
+
+      try {
+        const b = await api('/api/branches/' + encodeURIComponent(branchSlug) + '/public');
+        render(b);
+      } catch (err) {
+        const code = err && err.code;
+        if (code === 'NOT_FOUND') {
+          return await showError('Community not found', 'This community does not exist on the platform. Check the link you were given.');
+        }
+        if (code === 'BRANCH_NOT_ACTIVE') {
+          return await showError('Community is not accepting members', 'This community is currently inactive. Contact the community partner admin.');
+        }
+        if (code === 'BRANCH_NOT_APPROVED') {
+          return await showError('Community is pending approval', 'This community has not been approved by the platform yet. Check back soon.');
+        }
+        if (code === 'BRANCH_NOT_KYC_VERIFIED') {
+          return await showError(
+            'Community is not yet fully verified',
+            'This community is approved but its bank details have not yet been verified. Please contact the community partner admin directly.'
+          );
+        }
+        await showError('Could not load community', err && err.message ? err.message : 'Unknown error');
+      }
+    }
+
+    function render(b) {
+      const branchName = (b.branding && b.branding.displayName) || b.name;
+
+      // Set text
+      document.getElementById('brand-branch').textContent = branchName;
+      document.title = 'Join ' + branchName + ' — ROSCA Thrift & Savings';
+      document.getElementById('hero-branch-name').textContent = branchName;
+      document.getElementById('about-branch-name').textContent = branchName;
+      document.getElementById('rules-branch-name').textContent = branchName;
+      document.getElementById('privacy-branch-name').textContent = branchName;
+      document.querySelectorAll('.js-branch-name').forEach(function(el){ el.textContent = branchName; });
+
+      // Dynamically Render Partner Contact Info in Footer
+      const contactLinksContainer = document.getElementById('footer-contact-links');
+      let contactHtml = '<a href="/join/terminology.html?branch=' + encodeURIComponent(branchSlug) + '">Terminology</a>' +
+                        '<a href="/join/terms.html?branch=' + encodeURIComponent(branchSlug) + '">Terms of Service</a>' +
+                        '<a href="/join/privacy.html?branch=' + encodeURIComponent(branchSlug) + '">Privacy Policy</a>';
+      
+      if (b.contactPhone) {
+        contactHtml += '<a href="tel:' + escapeHtml(b.contactPhone) + '">📞 Call Admin: ' + escapeHtml(b.contactPhone) + '</a>';
+      }
+      if (b.contactEmail) {
+        contactHtml += '<a href="mailto:' + escapeHtml(b.contactEmail) + '">✉️ Email Admin</a>';
+      }
+      contactLinksContainer.innerHTML = contactHtml;
+
+      // Set content (About, Terms, Privacy)
+      document.getElementById('about-body').innerHTML = formatText(b.aboutText);
+      document.getElementById('terms-body').innerHTML = formatText(b.branchTerms);
+      document.getElementById('privacy-body').innerHTML = formatText(b.branchPrivacy);
+
+      // Brand colors
+      if (b.branding && b.branding.primaryColor) {
+        document.documentElement.style.setProperty('--brand-primary', b.branding.primaryColor);
+      }
+
+      // Show page
+      loadingState.style.display = 'none';
+      errorState.style.display = 'none';
+      mainContent.style.display = 'block';
+
+      requestAnimationFrame(function () {
+        document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('is-visible'); });
+      });
+
+      wireLogin(branchSlug, b.id);
+      wireConsent(branchSlug);
+    }
+
+    // ── Anchored login dropdown ──────────────────────────────────
+    const dropdown = document.getElementById('login-dropdown');
+    let currentTrigger = null;
+
+    function positionDropdown(trigger) {
+      const rect = trigger.getBoundingClientRect();
+      dropdown.style.top = (rect.bottom + 12) + 'px';
+      const dropWidth = 360;
+      const desiredLeft = rect.right - dropWidth;
+      const maxLeft = window.innerWidth - dropWidth - 16;
+      const left = Math.max(16, Math.min(desiredLeft, maxLeft));
+      dropdown.style.left = left + 'px';
+      dropdown.style.right = 'auto';
+    }
+
+    function openDropdown(trigger) {
+      currentTrigger = trigger;
+      positionDropdown(trigger);
+      dropdown.classList.add('is-open');
+      dropdown.setAttribute('aria-hidden', 'false');
+      setTimeout(function () { document.getElementById('login-phone').focus(); }, 60);
+    }
+
+    function closeDropdown() {
+      dropdown.classList.remove('is-open');
+      dropdown.setAttribute('aria-hidden', 'true');
+      currentTrigger = null;
+    }
+
+    function toggleDropdown(trigger) {
+      if (dropdown.classList.contains('is-open') && currentTrigger === trigger) closeDropdown();
+      else openDropdown(trigger);
+    }
+
+    document.querySelectorAll('[data-login-trigger]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleDropdown(btn);
+      });
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!dropdown.classList.contains('is-open')) return;
+      if (dropdown.contains(e.target)) return;
+      if (e.target.closest('[data-login-trigger]')) return;
+      closeDropdown();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeDropdown();
+    });
+
+    window.addEventListener('scroll', function () {
+      if (currentTrigger && dropdown.classList.contains('is-open')) positionDropdown(currentTrigger);
+    }, { passive: true });
+    window.addEventListener('resize', function () {
+      if (currentTrigger && dropdown.classList.contains('is-open')) positionDropdown(currentTrigger);
+    });
+
+    // ── Login submit ────────────────────────────────────────────
+    function wireLogin(slug, branchId) {
+      const loginForm = document.getElementById('login-form');
+      const loginStatus = document.getElementById('login-status');
+      const loginSubmit = document.getElementById('login-submit');
+
+      function setLoginStatus(message, kind) {
+        loginStatus.textContent = message;
+        loginStatus.className = 'form-status is-visible form-status--' + kind;
+      }
+      function clearLoginStatus() {
+        loginStatus.className = 'form-status';
+        loginStatus.textContent = '';
+      }
+
+      loginForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        clearLoginStatus();
+
+        const phone = document.getElementById('login-phone').value.trim();
+        const password = document.getElementById('login-password').value;
+
+        if (!/^\+[1-9]\d{6,14}$/.test(phone)) {
+          return setLoginStatus('Phone must be in E.164 format, e.g. +447912345678.', 'error');
+        }
+        if (!password) {
+          return setLoginStatus('Password is required.', 'error');
+        }
+
+        loginSubmit.disabled = true;
+        loginSubmit.textContent = 'Logging in…';
+
+        try {
+          const data = await api('/api/auth/login', {
+            method: 'POST',
+            body: { phone: phone, password: password },
+          });
+
+          const role = data.user.role;
+          if (role !== 'SAVER') {
+            window.ROSCA_API.clearTokens();
+            if (role === 'BRANCH_ADMIN' || role === 'SUPER_ADMIN') {
+              return setLoginStatus('This login is for savers. Community partner admins should log in from the platform landing page.', 'error');
+            }
+            return setLoginStatus('This login is for savers only.', 'error');
+          }
+
+          // Verify the saver belongs to this community
+          try {
+            const branch = await api('/api/branches/' + encodeURIComponent(slug));
+            if (data.user.branchId !== branch.id) {
+              window.ROSCA_API.clearTokens();
+              return setLoginStatus('You are not a member of this community. Please log in from your own community page.', 'error');
+            }
+          } catch (_) {
+            if (branchId && data.user.branchId !== branchId) {
+              window.ROSCA_API.clearTokens();
+              return setLoginStatus('You are not a member of this community. Please log in from your own community page.', 'error');
+            }
+          }
+
+          window.ROSCA_API.setTokens(data.tokens.accessToken, data.tokens.refreshToken);
+          setLoginStatus('✓ Logged in. Redirecting…', 'success');
+
+          setTimeout(function () {
+            window.location.href = homeForRole(role);
+          }, 700);
+        } catch (err) {
+          const code = err && err.code;
+          if (code === 'AUTH_INVALID_CREDENTIALS') {
+            setLoginStatus('Invalid phone or password. Try again.', 'error');
+          } else if (code === 'AUTH_ACCOUNT_SUSPENDED') {
+            setLoginStatus('This account is suspended. Contact your community partner admin.', 'error');
+          } else if (code === 'AUTH_PHONE_NOT_VERIFIED') {
+            setLoginStatus('Your phone is not verified yet. Redirecting…', 'info');
+            setTimeout(function () {
+              window.location.href = '/auth/verify.html?phone=' + encodeURIComponent(phone) + '&next=' + encodeURIComponent('/saver/dashboard.html');
+            }, 1500);
+          } else if (code === 'RATE_LIMIT_EXCEEDED') {
+            setLoginStatus('Too many attempts. Please wait a minute and try again.', 'error');
+          } else {
+            setLoginStatus((err && err.message) || 'Login failed. Please try again.', 'error');
+          }
+          loginSubmit.disabled = false;
+          loginSubmit.textContent = 'Log in';
+        }
+      });
+    }
+
+    // ── Consent gate ────────────────────────────────────────────
+    function wireConsent(slug) {
+      const cbBranchTerms = document.getElementById('consent-branch-terms');
+      const cbBranchPrivacy = document.getElementById('consent-branch-privacy');
+      const cbPlatform = document.getElementById('consent-platform');
+      const btnRegister = document.getElementById('btn-register');
+      const msg = document.getElementById('consent-msg');
+
+      const all = [cbBranchTerms, cbBranchPrivacy, cbPlatform];
+
+      function update() {
+        all.forEach(function (cb) { cb.closest('.consent-item').classList.toggle('is-checked', cb.checked); });
+        const ready = all.every(function (cb) { return cb.checked; });
+        btnRegister.disabled = !ready;
+        if (ready) {
+          msg.textContent = 'You can now create your account.';
+          msg.style.color = 'var(--brand-primary)';
+        } else {
+          msg.textContent = 'Tick all three boxes above to continue.';
+          msg.style.color = 'var(--on-surface-variant)';
+        }
+      }
+
+      all.forEach(function (cb) { cb.addEventListener('change', update); });
+
+      btnRegister.addEventListener('click', function () {
+        sessionStorage.setItem('rosca_consent', JSON.stringify({
+          branchSlug: slug, branchTerms: true, branchPrivacy: true, platform: true,
+          recordedAt: new Date().toISOString()
+        }));
+        window.location.href = '/saver/register.html?branch=' + encodeURIComponent(slug);
+      });
+
+      update();
+    }
+
+    // ── Back to top ─────────────────────────────────────────────
+    let ticking = false;
+    window.addEventListener('scroll', function () {
+      if (!ticking) {
+        window.requestAnimationFrame(function () {
+          if (window.scrollY > 600) backToTop.classList.add('is-visible');
+          else backToTop.classList.remove('is-visible');
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+    backToTop.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+
+    load();
+  })();
+</script>
+
+</body>
+</html>

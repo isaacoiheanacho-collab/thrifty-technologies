@@ -1,0 +1,1838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#00daf3">
+  <title>Saver Dashboard — ROSCA Thrift &amp; Savings</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+
+  <style>
+    body { overflow-x: hidden; }
+    .app { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+
+    /* ── Sidebar ─────────────────────────────────────────── */
+    .sidebar {
+      background: var(--surface-container-lowest);
+      border-right: 1px solid var(--outline-variant);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .sidebar__brand {
+      padding: 0 8px 24px;
+      border-bottom: 1px solid var(--outline-variant);
+      margin-bottom: 20px;
+    }
+    .sidebar__brand-top {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-bottom: 4px;
+    }
+    .sidebar__brand-name {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--brand-primary);
+      letter-spacing: 0.02em;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+    .sidebar__nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      color: var(--on-surface-variant);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      text-align: left;
+      width: 100%;
+    }
+    .nav-item:hover { background: var(--surface-container-low); color: var(--on-surface); }
+    .nav-item.is-active {
+      background: rgba(0, 218, 243, 0.1);
+      color: var(--brand-primary);
+      border-left: 2px solid var(--brand-primary);
+      padding-left: 10px;
+    }
+    .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .sidebar__footer {
+      border-top: 1px solid var(--outline-variant);
+      padding-top: 16px;
+      margin-top: 16px;
+    }
+    .sidebar__user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      border-radius: var(--radius);
+      margin-bottom: 8px;
+    }
+    .sidebar__avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--brand-primary);
+      color: #0a0a0c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .sidebar__user-info { overflow: hidden; flex: 1; }
+    .sidebar__user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--on-surface);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sidebar__user-role {
+      font-size: 11px;
+      color: var(--on-surface-variant);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      color: var(--error);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      width: 100%;
+      text-align: left;
+    }
+    .logout-btn:hover { background: rgba(255, 180, 171, 0.08); }
+    .logout-btn svg { width: 18px; height: 18px; }
+
+    /* ── Main ───────────────────────────────────────────── */
+    .main { min-width: 0; display: flex; flex-direction: column; }
+    .topbar {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--outline-variant);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      background: rgba(17, 20, 20, 0.85);
+      backdrop-filter: blur(16px);
+      z-index: 100;
+    }
+    .topbar__hamburger {
+      display: none;
+      background: transparent;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      color: var(--on-surface);
+      padding: 8px;
+      cursor: pointer;
+    }
+    .topbar__hamburger svg { width: 20px; height: 20px; display: block; }
+    .topbar__title { font-size: 18px; font-weight: 700; color: var(--on-surface); letter-spacing: -0.01em; }
+    .topbar__subtitle { font-size: 13px; color: var(--on-surface-variant); margin-top: 2px; }
+    .topbar__actions { display: flex; align-items: center; gap: 12px; }
+    .topbar__avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--brand-primary);
+      color: #0a0a0c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .content {
+      padding: 32px 24px 64px;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      flex: 1;
+    }
+
+    .section { display: none; }
+    .section.is-active { display: block; }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .page-header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 4px; }
+    .page-header p { font-size: 14px; color: var(--on-surface-variant); margin: 0; }
+
+    .card {
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .card__title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--on-surface);
+      margin: 0 0 16px;
+      letter-spacing: -0.01em;
+    }
+    .card--accent { border-color: var(--brand-primary); background: rgba(0, 218, 243, 0.03); }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat {
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+    .stat__label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-bottom: 8px;
+    }
+    .stat__value {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--on-surface);
+      line-height: 1;
+    }
+    .stat__value--accent { color: var(--brand-primary); }
+    .stat__value--warning { color: var(--warning); }
+    .stat__value--success { color: var(--success); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn--primary { background: var(--brand-primary); color: #0a0a0c; }
+    .btn--primary:hover:not(:disabled) { filter: brightness(1.1); }
+    .btn--ghost { background: transparent; color: var(--on-surface); border-color: var(--outline-variant); }
+    .btn--ghost:hover:not(:disabled) { background: var(--surface-container); }
+    .btn--danger { background: transparent; color: var(--error); border-color: rgba(255, 180, 171, 0.4); }
+    .btn--danger:hover:not(:disabled) { background: rgba(255, 180, 171, 0.08); }
+    .btn--sm { padding: 6px 12px; font-size: 12px; }
+
+    .form-row { margin-bottom: 16px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-bottom: 6px;
+    }
+    .form-input, .form-textarea {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--surface-container-lowest);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      color: var(--on-surface);
+      font-family: inherit;
+      font-size: 14px;
+      transition: all var(--transition-fast);
+    }
+    .form-input:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      background: var(--surface-container);
+    }
+    .form-input[readonly] {
+      background: var(--surface-container);
+      color: var(--on-surface-variant);
+      cursor: not-allowed;
+    }
+    .form-textarea { min-height: 100px; resize: vertical; line-height: 1.6; }
+    .form-input:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 3px rgba(0, 218, 243, 0.15);
+    }
+    .form-hint { font-size: 12px; color: var(--on-surface-variant); margin-top: 4px; display: block; }
+
+    .table-wrap {
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--outline-variant);
+      background: var(--surface-container);
+    }
+    .table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(64, 72, 74, 0.4);
+      color: var(--on-surface);
+      vertical-align: middle;
+    }
+    .table tbody tr:last-child td { border-bottom: none; }
+    .table tbody tr:hover { background: rgba(0, 218, 243, 0.03); }
+    .table__actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .badge--success { background: rgba(78, 222, 163, 0.15); color: var(--success); }
+    .badge--warning { background: rgba(245, 226, 163, 0.15); color: var(--warning); }
+    .badge--error { background: rgba(255, 180, 171, 0.15); color: var(--error); }
+    .badge--info { background: rgba(0, 218, 243, 0.15); color: var(--brand-primary); }
+    .badge--neutral { background: var(--surface-container-high); color: var(--on-surface-variant); }
+
+    .empty {
+      text-align: center;
+      padding: 48px 24px;
+      border: 1px dashed var(--outline-variant);
+      border-radius: var(--radius-lg);
+      color: var(--on-surface-variant);
+    }
+    .empty__icon { font-size: 42px; opacity: 0.3; margin-bottom: 12px; }
+    .empty h3 { font-size: 16px; font-weight: 700; color: var(--on-surface); margin-bottom: 6px; }
+    .empty p { font-size: 13px; margin: 0; max-width: 400px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+
+    #toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      pointer-events: none;
+    }
+    .toast {
+      pointer-events: auto;
+      min-width: 260px;
+      max-width: 400px;
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      background: var(--surface-container-high);
+      border: 1px solid var(--outline-variant);
+      color: var(--on-surface);
+      font-size: 14px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+    .toast--success { border-color: var(--success); }
+    .toast--error { border-color: var(--error); }
+    .toast--info { border-color: var(--brand-primary); }
+
+    .drawer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 299;
+    }
+    .drawer-overlay.is-open { display: block; }
+
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar {
+        position: fixed;
+        top: 0; left: 0; bottom: 0;
+        width: 280px;
+        height: 100vh;
+        transform: translateX(-100%);
+        transition: transform 250ms ease-out;
+        z-index: 300;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+      }
+      .sidebar.is-open { transform: translateX(0); }
+      .topbar__hamburger { display: block; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <div class="sidebar__brand-top">Saver</div>
+      <div class="sidebar__brand-name" id="sidebar-branch-name">Loading…</div>
+    </div>
+
+    <nav class="sidebar__nav">
+      <button class="nav-item is-active" data-section="overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Overview
+      </button>
+      <button class="nav-item" data-section="contribution">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        My Contribution
+      </button>
+      <button class="nav-item" data-section="tenant">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+        Tenant Status
+      </button>
+      <button class="nav-item" data-section="ledger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 4 4 5-7"/></svg>
+        Ledger &amp; Receipts
+      </button>
+      <button class="nav-item" data-section="payouts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        My Collections
+      </button>
+      <button class="nav-item" data-section="renewal" id="nav-renewal" style="display: none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+        Renewal Vote
+      </button>
+      <button class="nav-item" data-section="kyc" id="nav-kyc">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.66 0 3.22.45 4.56 1.24"/></svg>
+        Identity Verification
+      </button>
+      <button class="nav-item" data-section="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </button>
+    </nav>
+
+    <div class="sidebar__footer">
+      <div class="sidebar__user">
+        <a href="#" id="sidebar-avatar-link" target="_blank" class="sidebar__avatar" style="overflow: hidden; padding: 0; display: flex; text-decoration: none;">
+          <img id="sidebar-avatar-img" src="" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; display: none;" />
+          <span id="sidebar-avatar-initials" style="color: #0a0a0c;">S</span>
+        </a>
+        <div class="sidebar__user-info">
+          <div class="sidebar__user-name" id="sidebar-user-name">Loading…</div>
+          <div class="sidebar__user-role">Saver</div>
+        </div>
+      </div>
+      <button class="logout-btn" id="logout-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Log out
+      </button>
+    </div>
+  </aside>
+
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+
+  <div class="main">
+    <div class="topbar">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button class="topbar__hamburger" id="hamburger" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div>
+          <div class="topbar__title" id="topbar-title">Overview</div>
+          <div class="topbar__subtitle" id="topbar-subtitle">Saver dashboard</div>
+        </div>
+      </div>
+      <div class="topbar__actions">
+        <div class="topbar__avatar" id="topbar-avatar">S</div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div class="banner banner--info" id="no-tenant-banner" style="display: none; padding: 16px 20px; border-radius: var(--radius-lg); margin-bottom: 24px; background: rgba(0, 218, 243, 0.06); border: 1px solid rgba(0, 218, 243, 0.35); color: var(--brand-primary);">
+        <div style="font-weight: 700; margin-bottom: 4px;">You are not yet in a circle</div>
+        Your branch admin will place you into a savings circle once 12 verified members are ready. Check back soon.
+      </div>
+
+      <!-- ═══ OVERVIEW ═══ -->
+      <section class="section is-active" id="section-overview">
+        <div class="page-header">
+          <div>
+            <h1 id="overview-welcome">Welcome back</h1>
+            <p>Here's your savings circle status.</p>
+          </div>
+        </div>
+
+        <div id="overview-body" style="display: none;">
+          
+          <div class="banner banner--warning" id="filling-banner" style="display: none; padding: 16px 20px; border-radius: var(--radius-lg); margin-bottom: 24px; background: rgba(245, 226, 163, 0.08); border: 1px solid rgba(245, 226, 163, 0.4); color: var(--warning);">
+            <div style="font-weight: 700; margin-bottom: 4px;">Your circle is filling up</div>
+            You are in a circle, but we are waiting for more members to join before contributions begin. You will be notified when the circle activates.
+          </div>
+
+          <div class="stat-grid">
+            <div class="stat"><div class="stat__label">Your Slot</div><div class="stat__value stat__value--accent" id="stat-slot">—</div></div>
+            <div class="stat"><div class="stat__label">Current Cycle</div><div class="stat__value" id="stat-cycle">—</div></div>
+            <div class="stat"><div class="stat__label">Tenure</div><div class="stat__value" id="stat-tenure">—</div></div>
+            <div class="stat"><div class="stat__label">Status</div><div class="stat__value stat__value--success" id="stat-status" style="font-size: 20px; margin-top: 4px;">—</div></div>
+          </div>
+
+          <div class="stat-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 16px;">
+            <div class="stat"><div class="stat__label">Members</div><div class="stat__value" id="stat-members">—</div></div>
+            <div class="stat"><div class="stat__label">Contributed</div><div class="stat__value stat__value--success" id="stat-contributed">—</div></div>
+            <div class="stat"><div class="stat__label">Pending</div><div class="stat__value stat__value--warning" id="stat-pending">—</div></div>
+            <div class="stat"><div class="stat__label">Your Slot</div><div class="stat__value" id="stat-payout">—</div></div>
+          </div>
+
+          <!-- FINANCIAL CARDS -->
+          <div class="stat-grid" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="stat" style="border-color: var(--outline);">
+              <div class="stat__label">Gross Pool</div>
+              <div class="stat__value" id="stat-gross-pool" style="font-size: 28px;">£0.00</div>
+              <div style="font-size: 12px; color: var(--on-surface-variant); margin-top: 4px;">Total contributions for this cycle</div>
+            </div>
+            <div class="stat" style="border-color: var(--brand-primary); background: rgba(0,218,243,0.03);">
+              <div class="stat__label" id="net-payout-label">Your Net Payout</div>
+              <div class="stat__value stat__value--accent" id="stat-net-payout" style="font-size: 28px;">£0.00</div>
+              <div style="font-size: 12px; color: var(--on-surface-variant); margin-top: 4px;">After TVC & Platform Fee</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="overview-empty" class="empty">
+          <div class="empty__icon">◎</div>
+          <h3>Waiting for your circle</h3>
+          <p>Your branch admin will assign you to a circle when enough members have joined.</p>
+        </div>
+      </section>
+
+      <!-- ═══ CONTRIBUTION ═══ -->
+      <section class="section" id="section-contribution">
+        <div class="page-header">
+          <div>
+            <h1>My Contribution</h1>
+            <p>Pay into the circle and upload your receipt.</p>
+          </div>
+        </div>
+
+        <!-- ALWAYS show the bank details if we can load them -->
+        <div class="card card--accent" id="pool-account-card" style="display: none;">
+          <div class="card__title">Where to send your contribution</div>
+          <p style="color: var(--on-surface-variant); font-size: 14px; margin-bottom: 16px;">
+            Transfer your monthly contribution to your branch's pool account below. Use the reference on your intent card.
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+            <div><div class="stat__label">Account Holder</div><div id="pool-holder" style="font-size: 15px; font-weight: 600;">—</div></div>
+            <div><div class="stat__label">Bank Name</div><div id="pool-bank" style="font-size: 15px; font-weight: 600;">—</div></div>
+            <div><div class="stat__label">Sort Code</div><div id="pool-sort" style="font-size: 15px; font-weight: 600;">—</div></div>
+            <div><div class="stat__label">Account Number</div><div id="pool-number" style="font-size: 15px; font-weight: 600;">—</div></div>
+          </div>
+        </div>
+
+        <div id="contribution-content" style="display: none;">
+          <!-- Intent Card -->
+          <div class="card">
+            <div class="card__title">Your current intent</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
+              <div><div class="stat__label">Amount Due</div><div id="contrib-amount" style="font-size: 20px; font-weight: 700; color: var(--brand-primary);">—</div></div>
+              <div><div class="stat__label">Reference</div><div id="contrib-reference" style="font-family: monospace; font-size: 16px; font-weight: 700; letter-spacing: 0.05em;">—</div></div>
+              <div><div class="stat__label">Deadline</div><div id="contrib-deadline" style="font-size: 15px;">—</div></div>
+              <div><div class="stat__label">Status</div><div id="contrib-status" class="badge badge--warning" style="margin-top: 4px;">PENDING</div></div>
+            </div>
+            <p style="color: var(--on-surface-variant); font-size: 14px; margin: 0;">
+              Use the reference above when transferring from your bank. Then upload a screenshot of the transfer below.
+            </p>
+          </div>
+
+          <!-- Receipt Upload -->
+          <div class="card" id="receipt-upload-card">
+            <div class="card__title">Upload Receipt</div>
+            <form id="receipt-form">
+              <div class="form-grid">
+                <div class="form-row">
+                  <label class="form-label" for="rec-amount">Amount (pence)</label>
+                  <input class="form-input" type="number" id="rec-amount" readonly />
+                  <span class="form-hint">Set by the intent.</span>
+                </div>
+                <div class="form-row">
+                  <label class="form-label" for="rec-reference">Reference on transfer</label>
+                  <input class="form-input" type="text" id="rec-reference" readonly />
+                  <span class="form-hint">Set by the intent.</span>
+                </div>
+                <div class="form-row">
+                  <label class="form-label" for="rec-name">Your name on the transfer</label>
+                  <input class="form-input" type="text" id="rec-name" readonly />
+                  <span class="form-hint">Locked to your registration name.</span>
+                </div>
+                <div class="form-row">
+                  <label class="form-label" for="rec-file">Receipt image</label>
+                  <input class="form-input" type="file" id="rec-file" accept="image/png, image/jpeg, image/heic" required />
+                </div>
+              </div>
+              <div id="receipt-form-note" style="font-size: 13px; color: var(--on-surface-variant); margin-top: 8px; text-align: right;"></div>
+              <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+                <button type="submit" class="btn btn--primary" id="receipt-submit">Upload Receipt</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        
+        <div id="contribution-empty" class="empty" style="display: none;">
+          <div class="empty__icon">✓</div>
+          <h3>All caught up!</h3>
+          <p>You have no pending contributions for this cycle.</p>
+        </div>
+      </section>
+
+      <!-- ═══ TENANT STATUS ═══ -->
+      <section class="section" id="section-tenant">
+        <div class="page-header">
+          <div>
+            <h1>Circle Status</h1>
+            <p>See how the other 11 members are doing.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="table" id="tenant-table">
+            <thead><tr><th>Slot</th><th>Member</th><th>Status</th><th>Amount</th></tr></thead>
+            <tbody><tr><td colspan="4" style="text-align: center; padding: 40px; color: var(--on-surface-variant);">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ═══ LEDGER & RECEIPTS ═══ -->
+      <section class="section" id="section-ledger">
+        <div class="page-header">
+          <div>
+            <h1>Ledger &amp; Receipts</h1>
+            <p>The shared ledger for your circle.</p>
+          </div>
+        </div>
+
+        <!-- The Math Breakdown -->
+        <div class="card" id="payout-math-card" style="display: none; margin-bottom: 24px;">
+          <div class="card__title">Cycle Payout Calculation</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            
+            <div style="background: var(--surface-container-lowest); padding: 16px; border-radius: var(--radius); border: 1px solid var(--outline-variant);">
+              <div style="font-size: 12px; color: var(--on-surface-variant); text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">Gross Pool</div>
+              <div style="font-size: 20px; font-weight: 700;" id="math-gross">£0.00</div>
+              <div style="font-size: 12px; color: var(--on-surface-variant); margin-top: 8px;">12 members × £1,000 contribution</div>
+            </div>
+
+            <div style="background: var(--surface-container-lowest); padding: 16px; border-radius: var(--radius); border: 1px solid var(--outline-variant);">
+              <div style="font-size: 12px; color: var(--on-surface-variant); text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">Time-Value Contribution (TVC)</div>
+              <div style="font-size: 20px; font-weight: 700; color: var(--warning);" id="math-tvc">£0.00</div>
+              <div style="font-size: 12px; color: var(--on-surface-variant); margin-top: 8px;">2.0% p.a. adjustment</div>
+            </div>
+
+            <div style="background: var(--surface-container-lowest); padding: 16px; border-radius: var(--radius); border: 1px solid var(--outline-variant);">
+              <div style="font-size: 12px; color: var(--on-surface-variant); text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">Pot After TVC</div>
+              <div style="font-size: 20px; font-weight: 700;" id="math-pot-tvc">£0.00</div>
+            </div>
+
+            <div style="background: var(--surface-container-lowest); padding: 16px; border-radius: var(--radius); border: 1px solid var(--outline-variant);">
+              <div style="font-size: 12px; color: var(--on-surface-variant); text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">Platform Fee</div>
+              <div style="font-size: 20px; font-weight: 700; color: var(--error);" id="math-fee">£0.00</div>
+              <div style="font-size: 12px; color: var(--on-surface-variant); margin-top: 8px;">1.5% of pot after TVC</div>
+            </div>
+
+          </div>
+          
+          <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--outline-variant); display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 16px; font-weight: 700;">Final Net Payout:</span>
+            <span style="font-size: 24px; font-weight: 800; color: var(--brand-primary);" id="math-net">£0.00</span>
+          </div>
+
+          <!-- The Formula Explanation -->
+          <div style="margin-top: 24px; padding: 16px; background: var(--surface-container-lowest); border-radius: var(--radius); border: 1px solid var(--outline-variant); font-size: 13px; color: var(--on-surface-variant); line-height: 1.8;">
+            <strong style="color: var(--on-surface); display: block; margin-bottom: 12px;">Payout Mathematical Formula</strong>
+            
+            <div style="margin-bottom: 8px; font-family: monospace; color: var(--brand-primary);">
+              P_net = P + [ ( (N + 1) / 2 - T ) × M × r × N ]
+            </div>
+            
+            <p style="margin-bottom: 16px; font-size: 12px;">
+              <strong>Where:</strong><br>
+              P = Base Pool (N × M)<br>
+              N = Number of members<br>
+              M = Monthly contribution<br>
+              T = Recipient's position (Slot)<br>
+              r = Monthly TVC rate (Annual Rate ÷ 12)
+            </p>
+
+            <div id="math-calculation-strings" style="padding-top: 12px; border-top: 1px dashed var(--outline-variant);">
+              <!-- Dynamic calculation will be injected here -->
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrap" style="margin-bottom: 32px;">
+          <table class="table" id="ledger-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Pool</th>
+                <th>Type</th>
+                <th>Reference</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody><tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--on-surface-variant);">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card__title">Receipt Gallery</div>
+          <div id="receipts-gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px;">
+            <p style="color: var(--on-surface-variant); font-size: 13px;">Loading…</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ PAYOUTS ═══ -->
+      <section class="section" id="section-payouts">
+        <div class="page-header">
+          <div>
+            <h1>My Collections</h1>
+            <p>History of collections to you.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="table" id="payouts-table">
+            <thead>
+              <tr>
+                <th>Reference</th>
+                <th>Tenant</th>
+                <th>Tenure</th>
+                <th>Cycle</th>
+                <th>Net Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody><tr><td colspan="6" style="text-align: center; padding: 40px; color: var(--on-surface-variant);">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ═══ RENEWAL ═══ -->
+      <section class="section" id="section-renewal">
+        <div class="page-header">
+          <div>
+            <h1>Renewal Vote</h1>
+            <p>Vote to continue for another year.</p>
+          </div>
+        </div>
+        <div id="renewal-content" class="card" style="display: none;">
+          <div class="card__title">Should this circle renew for tenure 2?</div>
+          <p style="color: var(--on-surface-variant); font-size: 14px; margin-bottom: 24px;" id="renewal-status-text">Loading…</p>
+          <div style="display: flex; gap: 12px;" id="renewal-actions">
+            <button class="btn btn--primary" data-vote="YES">Vote YES</button>
+            <button class="btn btn--danger" data-vote="NO">Vote NO</button>
+          </div>
+        </div>
+        <div id="renewal-empty" class="empty" style="display: none;">
+          <div class="empty__icon">◎</div>
+          <h3>No active vote</h3>
+          <p>Voting will open when cycle 12 is complete.</p>
+        </div>
+      </section>
+
+      <!-- ═══ KYC ═══ -->
+      <section class="section" id="section-kyc">
+        <div class="page-header">
+          <div>
+            <h1>Identity Verification (KYC)</h1>
+            <p>Verify your identity and bank details to receive payouts.</p>
+          </div>
+        </div>
+
+        <div id="kyc-pending-state" class="card" style="display: none;">
+          <div class="card__title">Verification Pending</div>
+          <p style="color: var(--on-surface-variant); font-size: 14px;">
+            Your details have been submitted and are awaiting review by your Branch Admin. 
+            You cannot participate in payouts until you are approved.
+          </p>
+        </div>
+
+        <div id="kyc-approved-state" class="card card--accent" style="display: none;">
+          <div class="card__title" style="color: var(--success);">✓ Identity Verified</div>
+          <p style="color: var(--on-surface-variant); font-size: 14px;">
+            Your identity and bank details have been approved. Your profile name and phone number are now locked to protect the ledger.
+          </p>
+        </div>
+
+        <form id="kyc-form" style="display: none;">
+          <div class="card">
+            <div class="card__title">Personal Details</div>
+            <div class="form-grid">
+              <div class="form-row">
+                <label class="form-label" for="kyc-legal-name">Full Legal Name</label>
+                <input class="form-input" type="text" id="kyc-legal-name" disabled />
+                <span class="form-hint">Locked to your registration name.</span>
+              </div>
+              <div class="form-row">
+                <label class="form-label" for="kyc-selfie">Profile Photo / Selfie</label>
+                <input class="form-input" type="file" id="kyc-selfie" accept="image/png, image/jpeg" required />
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card__title">Bank Account (For Payouts)</div>
+            <p style="color: var(--on-surface-variant); font-size: 13px; margin-bottom: 16px;">
+              The Account Name must match your Legal Name above.
+            </p>
+            <div class="form-grid">
+              <div class="form-row">
+                <label class="form-label" for="kyc-account-name">Account Holder Name</label>
+                <input class="form-input" type="text" id="kyc-account-name" readonly />
+                <span class="form-hint">Locked to match your Legal Name.</span>
+              </div>
+              <div class="form-row">
+                <label class="form-label" for="kyc-bank-name">Bank Name</label>
+                <select class="form-input" id="kyc-bank-name" required>
+                  <option value="" disabled selected>Select your bank...</option>
+                  <option value="Barclays">Barclays</option>
+                  <option value="HSBC">HSBC</option>
+                  <option value="Lloyds">Lloyds</option>
+                  <option value="Monzo">Monzo</option>
+                  <option value="Nationwide">Nationwide</option>
+                  <option value="NatWest">NatWest</option>
+                  <option value="Revolut">Revolut</option>
+                  <option value="Santander">Santander</option>
+                  <option value="Starling">Starling</option>
+                  <option value="TSB">TSB</option>
+                  <option value="Halifax">Halifax</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label class="form-label" for="kyc-sort-code">Sort Code</label>
+                <input class="form-input" type="text" id="kyc-sort-code" required placeholder="00-00-00" maxlength="8" />
+                <span class="form-hint">6 digits (e.g. 040004)</span>
+              </div>
+              <div class="form-row">
+                <label class="form-label" for="kyc-account-number">Account Number</label>
+                <input class="form-input" type="text" id="kyc-account-number" required placeholder="12345678" maxlength="8" inputmode="numeric" />
+                <span class="form-hint">8 digits</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+            <button type="submit" class="btn btn--primary" id="kyc-submit">Submit for Verification</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ═══ SETTINGS ═══ -->
+      <section class="section" id="section-settings">
+        <div class="page-header"><div><h1>Settings</h1><p>Your account and preferences.</p></div></div>
+
+        <form id="profile-form">
+          <div class="card">
+            <div class="card__title">Your profile</div>
+            <div class="form-grid">
+              <div class="form-row">
+                <label class="form-label" for="sf-fullname">Full name</label>
+                <input class="form-input" type="text" id="sf-fullname" disabled />
+                <span class="form-hint">Locked for security. Contact admin to change.</span>
+              </div>
+              <div class="form-row">
+                <label class="form-label" for="sf-phone">Phone</label>
+                <input class="form-input" type="tel" id="sf-phone" disabled />
+                <span class="form-hint">Phone changes require Branch Admin approval.</span>
+              </div>
+              <div class="form-row">
+                <label class="form-label" for="sf-email">Email</label>
+                <input class="form-input" type="email" id="sf-email" />
+              </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+              <button type="submit" class="btn btn--primary" id="save-profile">Save profile</button>
+            </div>
+          </div>
+        </form>
+
+        <form id="password-form">
+          <div class="card">
+            <div class="card__title">Change password</div>
+            <div class="form-row">
+              <label class="form-label" for="sf-cur-pw">Current password</label>
+              <input class="form-input" type="password" id="sf-cur-pw" autocomplete="current-password" />
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="sf-new-pw">New password</label>
+              <input class="form-input" type="password" id="sf-new-pw" autocomplete="new-password" />
+              <span class="form-hint">At least 10 chars, 1 number, 1 symbol.</span>
+            </div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+              <button type="submit" class="btn btn--primary" id="change-password">Update password</button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="/assets/js/config.js"></script>
+<script src="/assets/js/api.js"></script>
+<script>
+  (function () {
+    'use strict';
+
+    const api = window.ROSCA_API.api;
+    const state = { user: null, tenant: null, myIntent: null, branch: null };
+    let lastLedgerLoadAt = 0;
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+      });
+    }
+    function formatDate(s) {
+      if (!s) return '—';
+      try { return new Date(s).toLocaleString('en-GB', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (_) { return s; }
+    }
+    function formatDateShort(s) {
+      if (!s) return '—';
+      try { return new Date(s).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' }); } catch (_) { return s; }
+    }
+    function penceToGbp(s) {
+      if (s == null || s === '') return '£0';
+      const n = Number(s);
+      if (!isFinite(n)) return '£0';
+      return '£' + (n / 100).toFixed(2);
+    }
+    function toast(message, kind) {
+      kind = kind || 'info';
+      const el = document.createElement('div');
+      el.className = 'toast toast--' + kind;
+      el.textContent = message;
+      document.getElementById('toast-container').appendChild(el);
+      setTimeout(function () { el.remove(); }, 4000);
+    }
+
+    const sectionTitles = {
+      'overview': 'Overview',
+      'contribution': 'My Contribution',
+      'tenant': 'Tenant Status',
+      'ledger': 'Ledger & Receipts',
+      'payouts': 'My Collections',
+      'renewal': 'Renewal Vote',
+      'kyc': 'Identity Verification',
+      'settings': 'Settings',
+    };
+
+    function showSection(key) {
+      document.querySelectorAll('.section').forEach(function (el) { el.classList.remove('is-active'); });
+      document.querySelectorAll('.nav-item').forEach(function (el) { el.classList.remove('is-active'); });
+      const section = document.getElementById('section-' + key);
+      if (section) section.classList.add('is-active');
+      const navItem = document.querySelector('.nav-item[data-section="' + key + '"]');
+      if (navItem) navItem.classList.add('is-active');
+      document.getElementById('topbar-title').textContent = sectionTitles[key] || 'Dashboard';
+
+      if (key === 'overview') loadOverview();
+      else if (key === 'contribution') loadContribution();
+      else if (key === 'tenant') loadTenantStatus();
+      else if (key === 'ledger') loadLedger();
+      else if (key === 'payouts') loadPayouts();
+      else if (key === 'renewal') loadRenewal();
+      else if (key === 'kyc') loadKyc();
+      else if (key === 'settings') loadSettings();
+      closeDrawer();
+    }
+
+    document.querySelectorAll('.nav-item').forEach(function (el) {
+      el.addEventListener('click', function () { showSection(el.dataset.section); });
+    });
+
+    const sidebar = document.getElementById('sidebar');
+    const drawerOverlay = document.getElementById('drawer-overlay');
+    function openDrawer() { sidebar.classList.add('is-open'); drawerOverlay.classList.add('is-open'); }
+    function closeDrawer() { sidebar.classList.remove('is-open'); drawerOverlay.classList.remove('is-open'); }
+    document.getElementById('hamburger').addEventListener('click', openDrawer);
+    drawerOverlay.addEventListener('click', closeDrawer);
+
+    document.getElementById('logout-btn').addEventListener('click', async function () {
+      let redirectUrl = '/';
+
+      try {
+        // We need to fetch the branch slug before we destroy the session
+        if (state.user && state.user.branchId) {
+          const branch = await api('/api/branches/id/' + state.user.branchId);
+          if (branch && branch.slug) {
+            redirectUrl = '/join/index.html?branch=' + encodeURIComponent(branch.slug);
+          }
+        }
+      } catch (e) {
+        console.error('Could not resolve branch slug for logout redirect');
+      }
+
+      window.ROSCA_API.clearTokens();
+      window.location.href = redirectUrl;
+    });
+
+    function initials(name) {
+      if (!name) return 'S';
+      return name.trim().split(/\s+/).map(function (s) { return s[0]; }).slice(0, 2).join('').toUpperCase();
+    }
+
+    // ── KYC Input formatters ─────────────────────────────────────
+    const kycSortCodeInput = document.getElementById('kyc-sort-code');
+    const kycAcctNumInput = document.getElementById('kyc-account-number');
+
+    if (kycSortCodeInput) {
+      kycSortCodeInput.addEventListener('input', function (e) {
+        // Remove all non-digits
+        let val = this.value.replace(/\D/g, '');
+        // Limit to 6 digits
+        val = val.slice(0, 6);
+        // Add dashes after 2 and 4 digits
+        let formatted = val;
+        if (val.length > 2 && val.length <= 4) {
+          formatted = val.slice(0, 2) + '-' + val.slice(2);
+        } else if (val.length > 4) {
+          formatted = val.slice(0, 2) + '-' + val.slice(2, 4) + '-' + val.slice(4);
+        }
+        this.value = formatted;
+      });
+    }
+
+    if (kycAcctNumInput) {
+      kycAcctNumInput.addEventListener('input', function (e) {
+        // Remove all non-digits
+        this.value = this.value.replace(/\D/g, '').slice(0, 8);
+      });
+    }
+
+    // ── Boot: load user + tenant ─────────────────────────────
+    async function loadMe() {
+      if (!window.ROSCA_API.getAccessToken()) { window.location.href = '/?login=1'; return false; }
+      try {
+        const user = await api('/api/users/me');
+        state.user = user;
+
+        if (user.role !== 'SAVER') {
+          if (user.role === 'SUPER_ADMIN') window.location.href = '/super-admin/dashboard.html';
+          else if (user.role === 'BRANCH_ADMIN') window.location.href = '/branch/dashboard.html';
+          return false;
+        }
+
+        const ini = initials(user.fullName);
+        document.getElementById('topbar-avatar').textContent = ini;
+        document.getElementById('sidebar-avatar-initials').textContent = ini;
+        document.getElementById('sidebar-user-name').textContent = user.fullName;
+        document.getElementById('overview-welcome').textContent = 'Welcome back, ' + user.fullName.split(' ')[0];
+
+        // Fetch the real branch name using the user's branchId
+        if (user.branchId) {
+          try {
+            const branch = await api('/api/branches/id/' + user.branchId);
+            document.getElementById('sidebar-branch-name').textContent = 
+              (branch.branding && branch.branding.displayName) || branch.name;
+            state.branch = branch;
+          } catch (err) {
+            console.error('Could not load branch name', err);
+          }
+        }
+
+        // Attempt to load tenant
+        try {
+          const tenantData = await api('/api/tenants/me');
+          if (tenantData && tenantData.tenant) {
+            state.tenant = tenantData.tenant;
+            document.getElementById('topbar-subtitle').textContent = 'Slot ' + tenantData.mySlot;
+            document.getElementById('overview-body').style.display = 'block';
+            document.getElementById('overview-empty').style.display = 'none';
+            
+            if (state.tenant.renewalState && state.tenant.renewalState !== 'NONE') {
+              document.getElementById('nav-renewal').style.display = 'flex';
+            }
+          } else {
+            document.getElementById('no-tenant-banner').style.display = 'block';
+            document.getElementById('overview-body').style.display = 'none';
+            document.getElementById('overview-empty').style.display = 'block';
+          }
+        } catch (err) {
+          console.error('Tenant load failed', err);
+        }
+
+        // Load KYC Profile Photo
+        try {
+          const kyc = await api('/api/kyc/me');
+          if (kyc && kyc.selfieUrl) {
+            const img = document.getElementById('sidebar-avatar-img');
+            const initials = document.getElementById('sidebar-avatar-initials');
+            const link = document.getElementById('sidebar-avatar-link');
+            
+            img.src = kyc.selfieUrl;
+            img.style.display = 'block';
+            initials.style.display = 'none';
+            if (link) link.href = kyc.selfieUrl; // <-- This makes it clickable
+            
+            // Also update the topbar avatar
+            const topImg = document.getElementById('topbar-avatar');
+            if (topImg) {
+              topImg.innerHTML = '<a href="' + kyc.selfieUrl + '" target="_blank"><img src="' + kyc.selfieUrl + '" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" /></a>';
+            }
+          }
+        } catch (_) {}
+
+        return true;
+      } catch (err) {
+        console.error(err);
+        window.ROSCA_API.clearTokens();
+        window.location.href = '/?login=1';
+        return false;
+      }
+    }
+
+    // ── Overview ─────────────────────────────────────────────
+    async function loadOverview() {
+      if (!state.tenant) return;
+      try {
+        const res = await api('/api/tenants/me');
+        state.tenant = res.tenant;
+        
+        document.getElementById('stat-slot').textContent = res.mySlot;
+        document.getElementById('stat-cycle').textContent = res.tenant.currentCycle;
+        document.getElementById('stat-tenure').textContent = res.tenant.currentTenure;
+        document.getElementById('stat-status').textContent = res.tenant.status;
+
+        if (res.tenant.status === 'FILLING') {
+          document.getElementById('filling-banner').style.display = 'block';
+        } else {
+          document.getElementById('filling-banner').style.display = 'none';
+        }
+
+        // Fetch actual contributions for this cycle
+        try {
+          const cycleData = await api('/api/tenants/me/contributions');
+          const members = cycleData.members || [];
+          const confirmed = members.filter(m => m.intentState === 'CONFIRMED');
+          const total = members.length;
+
+          const actualPence = confirmed.reduce(
+            (sum, m) => sum + (m.contributionAmountPence ? Number(m.contributionAmountPence) : 0),
+            0,
+          );
+
+          document.getElementById('stat-members').textContent = total + ' / 12';
+          document.getElementById('stat-contributed').textContent =
+            res.tenant.status === 'FILLING' ? '—' : confirmed.length + ' / ' + total;
+          document.getElementById('stat-pending').textContent =
+            res.tenant.status === 'FILLING' ? '—' : (total - confirmed.length) + ' / ' + total;
+
+          // Gross Pool = REAL money in the pool right now
+          document.getElementById('stat-gross-pool').textContent = penceToGbp(actualPence);
+
+          // Net Payout — only show if cycle is complete
+          const netPayoutEl = document.getElementById('stat-net-payout');
+          const netPayoutLabel = netPayoutEl.previousElementSibling;
+
+          if (res.cycleComplete && res.payoutIntent) {
+            if (res.payoutIntent.isMyTurn) {
+              netPayoutEl.textContent = penceToGbp(Number(res.payoutIntent.netAmountPence || 0));
+              netPayoutEl.style.color = 'var(--brand-primary)';
+              netPayoutEl.style.fontSize = '28px';
+              netPayoutLabel.textContent = 'Your Net Payout';
+            } else {
+              netPayoutEl.textContent = penceToGbp(Number(res.payoutIntent.netAmountPence || 0));
+              netPayoutEl.style.color = 'var(--on-surface)';
+              netPayoutEl.style.fontSize = '28px';
+              netPayoutLabel.textContent =
+                'Cycle ' + res.tenant.currentCycle + ' Payout: ' + res.payoutIntent.recipientName;
+            }
+          } else {
+            netPayoutEl.textContent = '—';
+            netPayoutEl.style.color = 'var(--on-surface-variant)';
+            netPayoutEl.style.fontSize = '20px';
+            netPayoutLabel.textContent = 'Payout available when cycle completes';
+          }
+        } catch (err) {
+          console.error('Failed to load circle health stats', err);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // ── Contribution ─────────────────────────────────────────
+    async function loadContribution() {
+      const poolCard = document.getElementById('pool-account-card');
+      const content = document.getElementById('contribution-content');
+      const empty = document.getElementById('contribution-empty');
+
+      try {
+        // Fetch branch pool account (saver-accessible endpoint)
+        try {
+          const poolAcct = await api('/api/saver/pool-account');
+          if (poolAcct && poolAcct.status === 'APPROVED') {
+            poolCard.style.display = 'block';
+            document.getElementById('pool-holder').textContent = poolAcct.account_holder_name || '—';
+            document.getElementById('pool-bank').textContent = poolAcct.bank_name || '—';
+            document.getElementById('pool-sort').textContent = poolAcct.sort_code || '—';
+            document.getElementById('pool-number').textContent = poolAcct.account_number || '—';
+          } else {
+            poolCard.style.display = 'none';
+          }
+        } catch (_) {
+          poolCard.style.display = 'none';
+        }
+
+        // Attempt to fetch intent
+        const intent = await api('/api/contributions/me/current');
+        state.myIntent = intent;
+
+        if (!intent) {
+          content.style.display = 'none';
+          empty.style.display = 'block';
+          return;
+        }
+
+        content.style.display = 'block';
+        empty.style.display = 'none';
+
+        document.getElementById('contrib-amount').textContent = penceToGbp(intent.expectedAmountPence);
+        document.getElementById('contrib-reference').textContent = intent.reference;
+        document.getElementById('contrib-deadline').textContent = formatDateShort(intent.deadlineAt);
+        
+        const statusBadge = document.getElementById('contrib-status');
+        statusBadge.textContent = intent.state;
+        statusBadge.className = 'badge badge--' + (intent.state === 'CONFIRMED' ? 'success' : intent.state === 'PENDING' ? 'warning' : 'neutral');
+
+        document.getElementById('rec-amount').value = intent.expectedAmountPence;
+        document.getElementById('rec-reference').value = intent.reference;
+        document.getElementById('rec-name').value = state.user ? state.user.fullName : '';
+
+        // Show the upload card always (so the saver can see their info).
+        // But disable the upload button if they can't upload again.
+        document.getElementById('receipt-upload-card').style.display = 'block';
+
+        const btn = document.getElementById('receipt-submit');
+        const fileInput = document.getElementById('rec-file');
+        const formNote = document.getElementById('receipt-form-note');
+
+        if (intent.state === 'CONFIRMED' || intent.state === 'LATE') {
+          // Contribution already confirmed — no upload possible
+          btn.disabled = true;
+          btn.textContent = 'Contribution Confirmed';
+          fileInput.disabled = true;
+          if (formNote) formNote.textContent = 'Your contribution has been confirmed. Thank you.';
+        } else if (intent.hasReceipt) {
+          // Receipt already uploaded, awaiting review
+          btn.disabled = true;
+          btn.textContent = 'Receipt Awaiting Approval';
+          fileInput.disabled = true;
+          if (formNote) formNote.textContent = 'Your receipt has been submitted. Your Branch Admin will verify it shortly.';
+        } else {
+          // Normal state — can upload
+          btn.disabled = false;
+          btn.textContent = 'Upload Receipt';
+          fileInput.disabled = false;
+          if (formNote) formNote.textContent = '';
+        }
+      } catch (err) {
+        content.style.display = 'none';
+        empty.style.display = 'block';
+        
+        if (err.code === 'CONTRIB_KYC_REQUIRED') {
+          empty.querySelector('h3').textContent = 'Identity Verification Required';
+          empty.querySelector('p').textContent = 'Your Branch Admin must approve your KYC before you can contribute. Please go to the Identity Verification tab.';
+        } else {
+          empty.querySelector('h3').textContent = 'Contributions are not yet open';
+          empty.querySelector('p').textContent = err.message || 'We will let you know when it is time to contribute.';
+        }
+      }
+    }
+
+    document.getElementById('receipt-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const btn = document.getElementById('receipt-submit');
+      btn.disabled = true; btn.textContent = 'Uploading…';
+
+      let succeeded = false;
+      try {
+        const fileInput = document.getElementById('rec-file');
+        if (!fileInput.files.length) throw new Error('Please select a file.');
+
+        const fd = new FormData();
+        fd.append('intentId', state.myIntent.id);
+        fd.append('claimedAmount', document.getElementById('rec-amount').value);
+        fd.append('claimedReference', document.getElementById('rec-reference').value);
+        fd.append('claimedSenderName', document.getElementById('rec-name').value);
+        fd.append('receipt', fileInput.files[0]);
+
+        await api('/api/contributions/me/receipt', { method: 'POST', body: fd });
+        succeeded = true;
+        toast('Receipt uploaded! Awaiting admin approval.', 'success');
+        loadContribution();
+      } catch (err) {
+        toast('Upload failed: ' + err.message, 'error');
+      } finally {
+        if (!succeeded) {
+          // Only reset on failure. On success, loadContribution() re-renders
+          // the button into the "Receipt Awaiting Approval" state — we must
+          // not re-enable it here or the Saver can double-upload during the
+          // window between this finally and the async re-render completing.
+          btn.disabled = false;
+          btn.textContent = 'Upload Receipt';
+        }
+      }
+    });
+
+    // ── Tenant Status ─────────────────────────────────────────
+    async function loadTenantStatus() {
+      const tbody = document.querySelector('#tenant-table tbody');
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--on-surface-variant);">Loading…</td></tr>';
+      try {
+        const data = await api('/api/tenants/me/contributions');
+        const members = data.members || [];
+        if (!members.length) {
+          tbody.innerHTML = '<tr><td colspan="4"><div class="empty"><div class="empty__icon">◎</div><h3>No data yet</h3></div></td></tr>';
+          return;
+        }
+        tbody.innerHTML = members.map(function (m) {
+          const badge = m.intentState === 'CONFIRMED' ? 'success' : m.hasReceipt ? 'warning' : 'neutral';
+          const amt = m.contributionAmountPence ? penceToGbp(m.contributionAmountPence) : '—';
+          return '<tr>' +
+            '<td><span class="badge badge--neutral">' + m.slotNumber + '</span></td>' +
+            '<td>' + escapeHtml(m.fullName) + (m.isMe ? ' (you)' : '') + '</td>' +
+            '<td><span class="badge badge--' + badge + '">' + (m.intentState || 'PENDING') + '</span></td>' +
+            '<td>' + amt + '</td>' +
+          '</tr>';
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err.message) + '</td></tr>';
+      }
+    }
+
+    // ── Ledger & Receipts ─────────────────────────────────────
+    let ledgerLoadedOnce = false;
+
+    async function loadLedger() {
+      const tbody = document.querySelector('#ledger-table tbody');
+      const gallery = document.getElementById('receipts-gallery');
+      const mathCard = document.getElementById('payout-math-card');
+
+      // Only show the "Loading…" placeholders on the very first render.
+      // On subsequent refreshes we keep the existing DOM and swap it
+      // atomically once the fetch completes — this is what kills the flicker.
+      if (!ledgerLoadedOnce) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--on-surface-variant);">Loading…</td></tr>';
+        gallery.innerHTML = '<p style="color:var(--on-surface-variant);font-size:13px;">Loading…</p>';
+        mathCard.style.display = 'none';
+      }
+
+      try {
+        // Fetch the tenant data to get the payout intent
+        const tenantRes = await api('/api/tenants/me');
+        
+        if (tenantRes && tenantRes.payoutIntent && tenantRes.cycleComplete) {
+          const p = tenantRes.payoutIntent;
+          mathCard.style.display = 'block';
+          
+          const grossPence = Number(p.grossPence || 0);
+          const tvcPence = Number(p.tvcAdjustmentPence || 0);
+          const potAfterTvcPence = Number(p.potAfterTvcPence || 0);
+          const feePence = Number(p.platformFeePence || 0);
+          const netPence = Number(p.netAmountPence || 0);
+          
+          document.getElementById('math-gross').textContent = penceToGbp(grossPence);
+          
+          const tvcGbp = tvcPence / 100;
+          const tvcSign = tvcGbp >= 0 ? '+' : '-';
+          document.getElementById('math-tvc').textContent = tvcSign + ' £' + Math.abs(tvcGbp).toFixed(2);
+          document.getElementById('math-tvc').style.color = tvcGbp >= 0 ? 'var(--success)' : 'var(--error)';
+          
+          document.getElementById('math-pot-tvc').textContent = penceToGbp(potAfterTvcPence);
+          document.getElementById('math-fee').textContent = '- ' + penceToGbp(feePence);
+          document.getElementById('math-net').textContent = penceToGbp(netPence);
+
+          // --- Build the dynamic formula strings ---
+          const isMyTurn = tenantRes.payoutIntent.isMyTurn;
+          const recipientName = tenantRes.payoutIntent.recipientName;
+          const recipientSlot = tenantRes.payoutIntent.recipientSlot;
+          const T = recipientSlot; // The slot being calculated is the recipient's slot
+          const mySlot = tenantRes.mySlot;
+          
+          // Update the title of the card to clarify whose math this is
+          const cardTitle = document.querySelector('#payout-math-card .card__title');
+          if (isMyTurn) {
+            cardTitle.textContent = "Your Cycle Payout Calculation";
+          } else {
+            cardTitle.textContent = `Cycle ${tenantRes.tenant.currentCycle} Payout Calculation (For ${recipientName}, Slot ${recipientSlot})`;
+          }
+
+          const N = 12; 
+          const M = 1000; 
+          const annualRate = 0.02;
+          const r = annualRate / 12;
+          const pivot = (N + 1) / 2; // 6.5
+
+          const grossGbpNum = grossPence / 100;
+          const tvcGbpNum = tvcPence / 100;
+
+          // Update the math strings to use the recipient's slot (T) but mention the viewer's slot
+          let directionText = "";
+          if (T < pivot) {
+            directionText = `(${recipientName} collects early, so adjustment is subtracted)`;
+          } else if (T > pivot) {
+            directionText = `(${recipientName} collects late, so adjustment is added)`;
+          } else {
+            directionText = `(At the midpoint, no adjustment)`;
+          }
+
+          const calcStringsHtml = `
+            <div style="margin-bottom: 8px; font-size: 13px;">
+              <strong>Calculation for Cycle ${tenantRes.tenant.currentCycle} Recipient:</strong><br>
+              P = ${N} × £${M} = £${grossGbpNum.toFixed(2)}<br>
+              pivot = (${N} + 1) / 2 = ${pivot}<br>
+              T = ${T} (${recipientName}'s Slot)<br>
+              r = ${annualRate} / 12 = ${r.toFixed(6)}<br>
+              <span style="color: var(--on-surface-variant);">Adjustment = (${T} - ${pivot}) × £${M} × ${r.toFixed(6)} × ${N} = ${tvcGbpNum >= 0 ? '+' : ''}£${tvcGbpNum.toFixed(2)}</span> ${directionText}<br>
+              <span style="color: var(--brand-primary); font-weight: 600;">P_net = £${grossGbpNum.toFixed(2)} + (${tvcGbpNum >= 0 ? '+' : ''}£${tvcGbpNum.toFixed(2)}) = £${(netPence/100).toFixed(2)}</span>
+            </div>
+          `;
+          
+          document.getElementById('math-calculation-strings').innerHTML = calcStringsHtml;
+        } else {
+          // Hide the math card if it's not the user's turn
+          mathCard.style.display = 'none';
+        }
+
+        // Rest of the ledger fetching logic
+        const entries = await api('/api/tenants/me/ledger');
+        if (!entries.length) {
+          tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty__icon">◎</div><h3>Empty ledger</h3></div></td></tr>';
+        } else {
+          tbody.innerHTML = entries.map(function (e) {
+            const isCredit = e.entryType === 'CREDIT';
+            const badge = isCredit ? 'success' : 'warning';
+            
+            // Highlight TVC entries so they stand out
+            const isTvc = e.accountType === 'TVC';
+            const poolLabel = isTvc 
+              ? '<span style="color: var(--brand-primary); font-weight: 600;">TVC Pool</span>' 
+              : 'Main Pool';
+            
+            // For TVC, a CREDIT means money moved *into* the TVC pool (early collector penalty)
+            // A DEBIT means money moved *out* of the TVC pool (late collector bonus)
+            let description = e.description || '';
+            if (isTvc) {
+              description = isCredit 
+                ? 'Time-Value Contribution (Early Collector)' 
+                : 'Time-Value Contribution (Late Collector)';
+            }
+
+            return '<tr>' +
+              '<td>' + formatDateShort(e.createdAt) + '</td>' +
+              '<td>' + poolLabel + '</td>' +
+              '<td><span class="badge badge--' + badge + '">' + e.entryType + '</span></td>' +
+              '<td>' +
+                '<code>' + escapeHtml(e.reference) + '</code>' +
+                (isTvc ? '<div style="font-size: 11px; color: var(--on-surface-variant); margin-top: 4px;">' + description + '</div>' : '') +
+              '</td>' +
+              '<td style="color:var(--' + (isCredit ? 'success' : 'error') + '); font-weight: 600;">' + (isCredit ? '+' : '-') + ' ' + penceToGbp(e.amountPence) + '</td>' +
+            '</tr>';
+          }).join('');
+        }
+
+        const receipts = await api('/api/tenants/me/receipts');
+        if (!receipts.length) {
+          gallery.innerHTML = '<p style="color:var(--on-surface-variant);font-size:13px;">No receipts uploaded yet.</p>';
+        } else {
+          gallery.innerHTML = receipts.map(function (r) {
+            // Determine label based on receipt type
+            let label = 'Contribution';
+            let refCode = r.intentReference || '';
+            
+            if (r.purpose === 'PAYOUT') {
+              label = 'Payout Receipt';
+              refCode = r.payoutReference || '';
+            } else if (r.purpose === 'PLATFORM_FEE') {
+              label = 'Platform Fee Receipt';
+              refCode = '';
+            }
+
+            return '<div style="border: 1px solid var(--outline-variant); border-radius: var(--radius); overflow: hidden; background: var(--surface-container-lowest);">' +
+              '<a href="' + escapeHtml(r.objectUrl) + '" target="_blank" rel="noopener">' +
+                '<img src="' + escapeHtml(r.objectUrl) + '" alt="Receipt" style="width: 100%; height: 120px; object-fit: cover;" />' +
+              '</a>' +
+              '<div style="padding: 8px; text-align: center; border-top: 1px solid var(--outline-variant);">' +
+                '<div style="font-size: 11px; font-weight: 700; color: ' + (r.purpose === 'PAYOUT' ? 'var(--brand-primary)' : 'var(--on-surface)') + '; text-transform: uppercase;">' + label + '</div>' +
+                (refCode ? '<div style="font-size: 10px; color: var(--on-surface-variant); margin-top: 2px; font-family: monospace;">' + escapeHtml(refCode) + '</div>' : '') +
+                '<div style="font-size: 10px; color: var(--on-surface-variant); margin-top: 2px;">By: ' + escapeHtml(r.uploadedByName || 'Member') + '</div>' +
+              '</div>' +
+            '</div>';
+          }).join('');
+        }
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err.message) + '</td></tr>';
+        gallery.innerHTML = '<p style="color:var(--error);font-size:13px;">Failed to load receipts.</p>';
+      } finally {
+        ledgerLoadedOnce = true;
+        lastLedgerLoadAt = Date.now();
+      }
+    }
+
+    // ── Payouts ──────────────────────────────────────────────
+    async function loadPayouts() {
+      const tbody = document.querySelector('#payouts-table tbody');
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--on-surface-variant);">Loading…</td></tr>';
+      try {
+        const list = await api('/api/tenants/me/payouts/me');
+        if (!list.length) {
+          tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty__icon">◎</div><h3>No collections yet</h3><p>You will receive a collection once it is your turn.</p></div></td></tr>';
+          return;
+        }
+        tbody.innerHTML = list.map(function (p) {
+          const badge = p.state === 'CONFIRMED' ? 'success' : p.state === 'FAILED' ? 'error' : 'warning';
+          
+          // Format the amounts
+          const netGbp = p.netAmountGbp;
+          const feeGbp = (Number(p.platformFeePence) / 100).toFixed(2);
+          const grossGbp = (Number(p.grossPence) / 100).toFixed(2);
+          const tvcGbp = (Number(p.tvcAdjustmentPence) / 100).toFixed(2);
+
+          return '<tr>' +
+            '<td><code>' + escapeHtml(p.reference) + '</code></td>' +
+            '<td><strong>' + escapeHtml(p.tenantName || 'Unknown') + '</strong></td>' +
+            '<td>' + p.tenure + '</td>' +
+            '<td>' + p.cycle + '</td>' +
+            '<td>' +
+              '<div style="font-size: 16px; font-weight: 700; color: var(--brand-primary); margin-bottom: 4px;">' +
+                'Net: £' + netGbp +
+              '</div>' +
+              '<div style="font-size: 12px; color: var(--error); margin-bottom: 2px;">' +
+                'Platform fee: -£' + feeGbp +
+              '</div>' +
+              '<div style="font-size: 12px; color: var(--on-surface-variant);">' +
+                'Gross: £' + grossGbp + ' | TVC: ' + (tvcGbp >= 0 ? '+' : '') + '£' + tvcGbp +
+              '</div>' +
+            '</td>' +
+            '<td><span class="badge badge--' + badge + '">' + p.state + '</span></td>' +
+          '</tr>';
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err.message) + '</td></tr>';
+      }
+    }
+
+    // ── Renewal ──────────────────────────────────────────────
+    async function loadRenewal() {
+      const content = document.getElementById('renewal-content');
+      const empty = document.getElementById('renewal-empty');
+      try {
+        const data = await api('/api/tenants/me/renewal');
+        if (!data) {
+          content.style.display = 'none'; empty.style.display = 'block';
+          return;
+        }
+        content.style.display = 'block'; empty.style.display = 'none';
+        
+        const text = document.getElementById('renewal-status-text');
+        const actions = document.getElementById('renewal-actions');
+        const status = data.status;
+
+        if (status.renewalState === 'VOTING') {
+          text.textContent = 'Voting is open! All 12 members must agree to renew.';
+          actions.style.display = 'flex';
+          actions.querySelectorAll('button').forEach(function(b) {
+            b.disabled = data.myVote !== 'PENDING';
+            b.textContent = data.myVote === 'PENDING' ? (b.dataset.vote === 'YES' ? 'Vote YES' : 'Vote NO') : 'Voted: ' + data.myVote;
+          });
+        } else if (status.renewalState === 'REPLACING') {
+          text.textContent = 'A member declined renewal. The admin is finding a replacement.';
+          actions.style.display = 'none';
+        } else {
+          text.textContent = 'Renewal state: ' + status.renewalState;
+          actions.style.display = 'none';
+        }
+      } catch (err) {
+        content.style.display = 'none'; empty.style.display = 'block';
+      }
+    }
+
+    document.querySelectorAll('#renewal-actions button').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        const vote = btn.dataset.vote;
+        if (!confirm('Are you sure you want to vote ' + vote + '?')) return;
+        btn.disabled = true;
+        try {
+          await api('/api/tenants/me/renewal/vote', { method: 'POST', body: { vote: vote } });
+          toast('Vote submitted', 'success');
+          loadRenewal();
+        } catch (err) {
+          toast('Vote failed: ' + err.message, 'error');
+          btn.disabled = false;
+        }
+      });
+    });
+
+    // ── KYC ──────────────────────────────────────────────────
+    async function loadKyc() {
+      const form = document.getElementById('kyc-form');
+      const pendingState = document.getElementById('kyc-pending-state');
+      const approvedState = document.getElementById('kyc-approved-state');
+
+      form.style.display = 'none';
+      pendingState.style.display = 'none';
+      approvedState.style.display = 'none';
+
+      try {
+        const kyc = await api('/api/kyc/me');
+        
+        if (!kyc) {
+          // No KYC submitted yet
+          form.style.display = 'block';
+          if (state.user) {
+            // Populate the locked legal name
+            document.getElementById('kyc-legal-name').value = state.user.fullName || '';
+            // Lock the account name to match exactly
+            document.getElementById('kyc-account-name').value = state.user.fullName || '';
+          }
+        } else if (kyc.status === 'PENDING') {
+          pendingState.style.display = 'block';
+        } else if (kyc.status === 'APPROVED') {
+          approvedState.style.display = 'block';
+        } else if (kyc.status === 'REJECTED') {
+          form.style.display = 'block';
+          toast('Your previous KYC was rejected: ' + kyc.rejectionReason + '. Please re-submit.', 'error');
+          if (state.user) {
+            document.getElementById('kyc-legal-name').value = kyc.legalName || state.user.fullName;
+            // Force account name to match legal name on rejection retry
+            document.getElementById('kyc-account-name').value = kyc.legalName || state.user.fullName;
+          }
+        }
+      } catch (err) {
+        form.style.display = 'block'; // Fallback if KYC record doesn't exist yet
+      }
+    }
+
+    document.getElementById('kyc-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const btn = document.getElementById('kyc-submit');
+      btn.disabled = true; btn.textContent = 'Submitting…';
+
+      try {
+        const fileInput = document.getElementById('kyc-selfie');
+        if (!fileInput.files.length) throw new Error('Please select a profile photo.');
+
+        // Strip out any dashes or spaces from the sort code before sending
+        const rawSort = document.getElementById('kyc-sort-code').value;
+        const cleanSort = rawSort.replace(/[\s-]/g, '');
+
+        if (cleanSort.length !== 6) {
+            throw new Error('Sort code must be exactly 6 digits (e.g. 040004).');
+        }
+
+        const fd = new FormData();
+        fd.append('selfie', fileInput.files[0]);
+        
+        // Force both to match exactly, ignoring whatever the user might have typed before it was locked
+        const exactName = state.user.fullName.trim();
+        fd.append('legalName', exactName);
+        fd.append('accountName', exactName);
+
+        fd.append('bankName', document.getElementById('kyc-bank-name').value.trim());
+        fd.append('accountNumber', document.getElementById('kyc-account-number').value.trim());
+        fd.append('sortCode', cleanSort);
+
+        await api('/api/kyc', { method: 'POST', body: fd });
+        toast('Verification submitted! Awaiting Branch Admin approval.', 'success');
+        loadKyc();
+      } catch (err) {
+        toast('Submission failed: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Submit for Verification';
+      }
+    });
+
+    // ── Settings ─────────────────────────────────────────────
+    function loadSettings() {
+      if (!state.user) return;
+      document.getElementById('sf-fullname').value = state.user.fullName || '';
+      document.getElementById('sf-phone').value = state.user.phone || '';
+      document.getElementById('sf-email').value = state.user.email || '';
+    }
+
+    document.getElementById('profile-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const btn = document.getElementById('save-profile');
+      btn.disabled = true; btn.textContent = 'Saving…';
+      try {
+        const body = { fullName: document.getElementById('sf-fullname').value.trim() };
+        const email = document.getElementById('sf-email').value.trim();
+        if (email) body.email = email;
+        state.user = await api('/api/users/me', { method: 'PATCH', body: body });
+        toast('Profile saved', 'success');
+      } catch (err) {
+        toast('Save failed: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Save profile';
+      }
+    });
+
+    document.getElementById('password-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const btn = document.getElementById('change-password');
+      btn.disabled = true; btn.textContent = 'Updating…';
+      try {
+        await api('/api/users/me/password', {
+          method: 'PATCH',
+          body: {
+            currentPassword: document.getElementById('sf-cur-pw').value,
+            newPassword: document.getElementById('sf-new-pw').value,
+          },
+        });
+        toast('Password updated. You will be logged out.', 'success');
+        setTimeout(function () {
+          window.ROSCA_API.clearTokens();
+          window.location.href = '/?login=1';
+        }, 1500);
+      } catch (err) {
+        toast('Update failed: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = 'Update password';
+      }
+    });
+
+    // ── Silent refresh — no blanket poll ─────────────────────────
+    // The old code polled every 45s and re-blanked the DOM each time,
+    // which caused the visible flicker. Instead:
+    //   1. Tab-focus refresh is debounced to >30s.
+    //   2. Real-time refresh is driven by Socket.IO notification events.
+    //      The backend already emits `notification:new` from
+    //      realtime.service.ts — the dashboard just wasn't listening.
+
+    const REFRESHABLE_KINDS = new Set([
+      'CONTRIBUTION_CONFIRMED',
+      'PAYOUT_CONFIRMED',
+      'PAYOUT_RECEIPT_UPLOADED',
+      'FEE_CONFIRMED',
+      'CYCLE_ADVANCED',
+      'TENANT_ACTIVATED',
+    ]);
+
+    function refreshActiveSectionIfStale() {
+      if (!state.user) return;
+      const active = document.querySelector('.section.is-active');
+      if (!active) return;
+
+      if (active.id === 'section-overview') {
+        loadOverview();
+      } else if (active.id === 'section-ledger') {
+        if (Date.now() - lastLedgerLoadAt < 30_000) return;
+        loadLedger();
+      }
+    }
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden || !state.user) return;
+      refreshActiveSectionIfStale();
+    });
+
+    // Hook Socket.IO. api.js already exposes the token; socket.js on the
+    // backend authenticates via handshake.auth.token and emits to a
+    // per-user room. We only need to connect if the page loaded the
+    // socket.io client — guard the reference so the dashboard still works
+    // if the client script is absent.
+    if (typeof window.io === 'function' && window.ROSCA_API && window.ROSCA_API.getAccessToken) {
+      try {
+        const socket = window.io(window.ROSCA_CONFIG.API_BASE, {
+          auth: { token: window.ROSCA_API.getAccessToken() },
+          transports: ['websocket', 'polling'],
+        });
+
+        socket.on('notification:new', function (payload) {
+          if (!payload || !payload.kind) return;
+          if (!REFRESHABLE_KINDS.has(payload.kind)) return;
+
+          const active = document.querySelector('.section.is-active');
+          if (!active) return;
+
+          if (active.id === 'section-ledger') loadLedger();
+          else if (active.id === 'section-overview') loadOverview();
+        });
+      } catch (err) {
+        console.warn('[dashboard] Socket.IO init failed; real-time refresh disabled', err);
+      }
+    }
+
+    // ── Boot ─────────────────────────────────────────────────
+    (async function boot() {
+      const ok = await loadMe();
+      if (!ok) return;
+      showSection('overview');
+    })();
+
+  })();
+</script>
+
+</body>
+</html>

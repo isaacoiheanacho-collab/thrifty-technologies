@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#00daf3">
+  <title>ROSCA Thrift &amp; Savings — Digital Micro-Finance</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+
+  <style>
+    /* ── Homepage Specific Layout Styles ──────────────────────── */
+    html { scroll-behavior: smooth; }
+    body { overflow-x: hidden; background-color: #0b0e11; color: #e1e3e5; font-family: 'Inter', sans-serif; }
+    .page { min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* Header */
+    .header { padding: 20px 48px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: rgba(17, 20, 20, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); z-index: 300; }
+    .header__brand { display: flex; flex-direction: column; line-height: 1.15; flex-shrink: 0; }
+    .header__brand-top { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #8e9196; }
+    .header__brand-bottom { font-size: 16px; font-weight: 800; letter-spacing: 0.02em; color: #00daf3; }
+    
+    .header__right-group { display: flex; align-items: center; gap: 40px; margin-left: auto; padding-right: 20px; }
+    .header__nav { display: flex; gap: 32px; font-size: 14px; font-weight: 500; align-items: center; }
+    .header__nav a { color: #c4c7c9; text-decoration: none; transition: color 0.2s ease; }
+    .header__nav a:hover { color: #00daf3; }
+    
+    .header__actions { display: flex; gap: 16px; align-items: center; }
+    .header__login { color: #ffffff; font-weight: 600; text-decoration: none; font-size: 14px; padding: 10px 16px; background: transparent; border: 1px solid #33383f; border-radius: 6px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+    .header__login:hover { color: #00daf3; border-color: #00daf3; }
+    .header__cta { background: #00daf3; color: #00363d; font-weight: 700; border-radius: 6px; padding: 10px 20px; font-size: 14px; text-decoration: none; }
+
+    /* ── Login dropdown (anchored, floating) ───────────────────── */
+    .login-dropdown {
+      position: fixed;
+      z-index: 400;
+      width: 360px;
+      max-width: calc(100vw - 32px);
+      background: var(--surface-container-low, #11151a);
+      border: 1px solid var(--outline-variant, #252b33);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 218, 243, 0.06);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: opacity 160ms ease-out, transform 160ms ease-out, visibility 0s linear 160ms;
+    }
+    .login-dropdown.is-open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      transition: opacity 160ms ease-out, transform 160ms ease-out, visibility 0s;
+    }
+    .login-dropdown::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 24px;
+      width: 10px;
+      height: 10px;
+      background: var(--surface-container-low, #11151a);
+      border-top: 1px solid var(--outline-variant, #252b33);
+      border-left: 1px solid var(--outline-variant, #252b33);
+      transform: rotate(45deg);
+    }
+    .login-dropdown__tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #00daf3;
+      background: rgba(0, 218, 243, 0.1);
+      border: 1px solid rgba(0, 218, 243, 0.3);
+      padding: 3px 9px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+    }
+    .login-dropdown__title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0 0 4px;
+      color: #ffffff;
+    }
+    .login-dropdown__subtitle {
+      font-size: 13px;
+      color: #8e9196;
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+    .login-dropdown .form-row { margin-bottom: 12px; }
+    .login-dropdown .form-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8e9196;
+      margin-bottom: 5px;
+    }
+    .login-dropdown .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      background: #080a0c;
+      border: 1px solid #20252c;
+      border-radius: 6px;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .login-dropdown .form-input:focus {
+      outline: none;
+      border-color: #00daf3;
+      box-shadow: 0 0 0 3px rgba(0, 218, 243, 0.15);
+    }
+    .login-dropdown .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 12px;
+    }
+    .login-dropdown .form-actions a {
+      font-size: 12px;
+      color: #00daf3;
+      text-decoration: none;
+    }
+    .login-dropdown .form-actions a:hover { text-decoration: underline; }
+    .login-dropdown .btn-dropdown-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 20px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      white-space: nowrap;
+      width: 100%;
+    }
+    .login-dropdown .btn-dropdown-action:hover:not(:disabled) { filter: brightness(1.1); }
+    .login-dropdown .btn-dropdown-action:disabled { opacity: 0.5; cursor: not-allowed; }
+    .login-dropdown .form-status {
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-top: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      display: none;
+      white-space: pre-line;
+    }
+    .login-dropdown .form-status.is-visible { display: block; }
+    .login-dropdown .form-status--success { background: rgba(78, 222, 163, 0.1); border: 1px solid #4edea3; color: #4edea3; }
+    .login-dropdown .form-status--error { background: rgba(255, 180, 171, 0.1); border: 1px solid #ffb4ab; color: #ffb4ab; }
+    .login-dropdown .form-status--info { background: rgba(0, 218, 243, 0.08); border: 1px solid #00daf3; color: #00daf3; }
+    .login-dropdown__foot {
+      text-align: center;
+      font-size: 12px;
+      color: #8e9196;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #20252c;
+    }
+    .login-dropdown__foot a { color: #00daf3; font-weight: 600; text-decoration: none; }
+    .login-dropdown__foot a:hover { text-decoration: underline; }
+
+    /* Hero Section with Video Background */
+    .hero { position: relative; padding: 60px 48px 100px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .hero__media { position: absolute; inset: 0; z-index: 0; }
+    .hero__media video, .hero__media img { width: 100%; height: 100%; object-fit: cover; opacity: 0.25; filter: saturate(0.8); }
+    .hero__overlay { position: absolute; inset: 0; background: radial-gradient(circle at 70% 30%, rgba(0, 218, 243, 0.08) 0%, transparent 60%), linear-gradient(180deg, rgba(11, 14, 17, 0.6) 0%, rgba(11, 14, 17, 0.95) 100%); z-index: 1; }
+    
+    .hero__container { position: relative; z-index: 2; max-width: 1320px; margin: 0 auto; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; align-items: center; width: 100%; }
+    
+    .hero__content { max-width: 620px; text-align: left; }
+    .hero__eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; background: rgba(0, 218, 243, 0.08); border: 1px solid rgba(0, 218, 243, 0.25); border-radius: 20px; color: #00daf3; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 28px; }
+    .hero__eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: #00daf3; box-shadow: 0 0 8px #00daf3; }
+    
+    .hero h1 { font-size: 50px; line-height: 1.08; letter-spacing: -0.02em; margin-bottom: 24px; font-weight: 800; color: #ffffff; }
+    .hero h1 .highlight { color: #00daf3; }
+    .hero__subtitle { font-size: 16px; color: #9ea3a8; line-height: 1.6; margin-bottom: 36px; max-width: 540px; }
+    .hero__actions { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 56px; }
+    
+    .btn { padding: 12px 24px; font-size: 14px; font-weight: 700; border-radius: 6px; text-decoration: none; display: inline-block; transition: opacity 0.2s; cursor: pointer; }
+    .btn:hover { opacity: 0.9; }
+    .btn--primary { background: #00daf3; color: #00363d; border: none; }
+    .btn--ghost { background: transparent; color: #ffffff; border: 1px solid #33383f; }
+
+    .hero__stats { display: flex; gap: 48px; padding-top: 32px; border-top: 1px solid #1f242b; flex-wrap: wrap; }
+    .stat-item { display: flex; flex-direction: column; gap: 6px; }
+    .stat-value { font-size: 36px; font-weight: 800; color: #00daf3; line-height: 1; }
+    .stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #72777e; }
+
+    /* Visual Mockups */
+    .hero__visual { 
+      position: relative; 
+      width: 100%; 
+      height: 580px; 
+      display: flex; 
+      justify-content: center; 
+      align-items: flex-start;
+    }
+
+    .mockup-phone {
+      width: 290px;
+      height: 540px;
+      background: #11151a;
+      border: 6px solid #20252c;
+      border-radius: 36px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .mockup-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .mockup-title { font-size: 14px; font-weight: 800; color: #fff; }
+    .mockup-avatar { width: 28px; height: 28px; border-radius: 50%; background: #333; }
+    
+    .mockup-welcome { margin-bottom: 12px; }
+    .mockup-welcome h4 { font-size: 18px; font-weight: 800; color: #fff; margin: 0 0 4px; }
+    .mockup-welcome p { font-size: 11px; color: #72777e; margin: 0; }
+
+    .mockup-card { background: #181d24; border-radius: 12px; padding: 12px 16px; border: 1px solid #252b33; }
+    .mockup-card-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; color: #72777e; text-transform: uppercase; margin-bottom: 4px; }
+    .mockup-card-value { font-size: 20px; font-weight: 800; color: #00daf3; }
+    .mockup-card-value--lg { font-size: 24px; color: #fff; }
+
+    .mockup-landscape {
+      position: absolute;
+      bottom: 60px;
+      right: -20px;
+      width: 380px;
+      height: 210px;
+      background: #0f1318;
+      border: 5px solid #20252c;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+      z-index: 2;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .mockup-table-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .mockup-table { width: 100%; border-collapse: collapse; font-size: 9px; }
+    .mockup-table th { text-align: left; color: #72777e; padding: 4px 0; border-bottom: 1px solid #20252c; }
+    .mockup-table td { padding: 5px 0; border-bottom: 1px solid #161b22; color: #c4c7c9; }
+    .mockup-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 8px; font-weight: 700; }
+    .mockup-badge--success { background: rgba(0, 218, 243, 0.15); color: #00daf3; }
+
+    /* Section Globals */
+    .section { padding: 96px 48px; border-top: 1px solid #1a1e24; position: relative; }
+    .section--alt { background: #080a0c; }
+    .section__inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 2; }
+    .section__eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #00daf3; margin-bottom: 16px; display: block; }
+    .section h2 { font-size: 38px; letter-spacing: -0.02em; margin-bottom: 16px; font-weight: 800; color: #fff; }
+    .section__lede { font-size: 16px; color: #8e9196; max-width: 640px; line-height: 1.6; margin-bottom: 48px; }
+    .section__lede--wide { max-width: 800px; }
+
+    /* Grids & Cards */
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+    
+    /* Mobile First Section 3-Column Layout */
+    .grid-mobile-section { display: grid; grid-template-columns: 1fr 340px 1fr; gap: 40px; align-items: center; }
+
+    .feature-card { background: #11151a; border: 1px solid #1f242b; border-radius: 12px; overflow: hidden; transition: all 0.2s ease; display: flex; flex-direction: column; }
+    .feature-card:hover { border-color: rgba(0, 218, 243, 0.3); transform: translateY(-4px); }
+    .feature-media { aspect-ratio: 16 / 10; overflow: hidden; position: relative; }
+    .feature-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 600ms ease-out; }
+    .feature-card:hover .feature-media img { transform: scale(1.06); }
+    .feature-media::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 30%, rgba(17, 20, 20, 0.8) 100%); }
+    .feature-body { padding: 28px; flex: 1; display: flex; flex-direction: column; }
+    
+    .feature-icon { width: 48px; height: 48px; border-radius: 8px; background: rgba(0, 218, 243, 0.1); border: 1px solid rgba(0, 218, 243, 0.2); display: flex; align-items: center; justify-content: center; color: #00daf3; margin-bottom: 24px; }
+    .feature-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #fff; }
+    .feature-card p { font-size: 14px; color: #8e9196; line-height: 1.6; margin: 0; }
+
+    .step-card { background: #11151a; border: 1px solid #1f242b; border-radius: 12px; padding: 32px 24px; position: relative; overflow: hidden; }
+    .step-card .num { font-size: 64px; font-weight: 900; color: rgba(255,255,255,0.03); position: absolute; top: 10px; right: 20px; line-height: 1; }
+    .step-icon { width: 40px; height: 40px; border-radius: 8px; background: rgba(0, 218, 243, 0.1); color: #00daf3; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+    .step-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: #fff; }
+    .step-card p { font-size: 13px; color: #8e9196; line-height: 1.5; margin: 0; }
+
+    /* PWA & Highlights */
+    .pwa-list { display: flex; flex-direction: column; gap: 16px; }
+    .pwa-item { display: flex; gap: 16px; align-items: flex-start; background: #11151a; border: 1px solid #1f242b; border-radius: 10px; padding: 20px; }
+    .pwa-item__icon { width: 32px; height: 32px; border-radius: 8px; background: rgba(0, 218, 243, 0.1); color: #00daf3; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .pwa-item h4 { font-size: 16px; font-weight: 700; margin-bottom: 4px; color: #fff; }
+    .pwa-item p { font-size: 14px; color: #8e9196; margin: 0; line-height: 1.5; }
+
+    /* Mobile First Photo Container */
+    .mobile-photo-container {
+      width: 100%;
+      max-width: 340px;
+      height: 520px;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin: 0 auto;
+    }
+    .mobile-photo-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Pricing & CTA */
+    .cta-box { background: linear-gradient(135deg, rgba(0,218,243,0.08), rgba(123,97,255,0.04)); border: 1px solid rgba(0,218,243,0.3); border-radius: 16px; padding: 48px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+    .cta-box h2 { font-size: 36px; margin-bottom: 16px; color: #fff; }
+    .cta-box p { font-size: 16px; color: #8e9196; margin-bottom: 32px; line-height: 1.6; }
+    
+    .pricing-table { display: flex; flex-direction: column; gap: 0; background: #0b0e11; border: 1px solid #1f242b; border-radius: 12px; padding: 24px; }
+    .pricing-row { display: flex; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
+    .pricing-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .pricing-row span:first-child { color: #8e9196; }
+    .pricing-row span:last-child { color: #fff; font-weight: 700; }
+    .pricing-row.highlight span:last-child { color: #00daf3; font-size: 18px; }
+
+    /* Footer */
+    .footer { padding: 56px 24px 32px; border-top: 1px solid var(--outline-variant, #252b33); background: var(--surface-container-lowest, #080a0c); margin-top: auto; }
+    .footer__inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; }
+    @media (min-width: 720px) { .footer__inner { grid-template-columns: 2fr 1fr 1fr; gap: 64px; align-items: start; } }
+    .footer__brand-col { display: flex; flex-direction: column; gap: 8px; }
+    .footer__brand { font-size: 20px; font-weight: 800; color: var(--brand-primary, #00daf3); letter-spacing: -0.01em; }
+    .footer__tagline { font-size: 13px; color: var(--on-surface-variant, #8e9196); max-width: 320px; line-height: 1.6; }
+    .footer__col-title { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--on-surface-variant, #8e9196); margin-bottom: 16px; }
+    .footer__col-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer__col-links a { color: var(--on-surface, #e1e3e5); font-size: 14px; text-decoration: none; transition: color 0.2s; }
+    .footer__col-links a:hover { color: var(--brand-primary, #00daf3); }
+    .footer__bottom { max-width: 1100px; margin: 40px auto 0; padding-top: 24px; border-top: 1px solid var(--outline-variant, #252b33); display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--on-surface-variant, #8e9196); }
+    @media (min-width: 720px) { .footer__bottom { flex-direction: row; justify-content: space-between; align-items: center; } }
+
+    @media (max-width: 1200px) {
+      .grid-mobile-section { grid-template-columns: 1fr; text-align: center; gap: 40px; }
+      .grid-mobile-section .pwa-list { text-align: left; }
+    }
+
+    @media (max-width: 1024px) {
+      .hero__container { grid-template-columns: 1fr; text-align: center; gap: 40px; }
+      .hero__content { margin: 0 auto; }
+      .hero__actions, .hero__stats { justify-content: center; }
+      .hero__visual { height: auto; min-height: 480px; }
+      .mockup-landscape { right: 50%; transform: translateX(50%); bottom: -20px; width: 340px; }
+      .header__right-group { margin-left: 0; gap: 16px; padding-right: 0; }
+      .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+      .cta-box { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- 1. HEADER (Navigation updated: removed "How it works", maintained branch/partner paths, using login dropdown) -->
+  <header class="header">
+    <div class="header__brand">
+      <span class="header__brand-top">Thrifty Technologies</span>
+      <span class="header__brand-bottom">ROSCA Thrift &amp; Savings</span>
+    </div>
+    <div class="header__right-group">
+      <nav class="header__nav">
+        <a href="/">Home</a>
+        <a href="/about.html">About</a>
+        <a href="/partner.html">Partner</a>
+      </nav>
+      <div class="header__actions">
+        <button type="button" class="header__login" data-login-trigger>Log in</button>
+        <a href="/branch/register.html" class="header__cta">Become a Community Partner</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Anchored login dropdown ────────────────────────────── -->
+  <div class="login-dropdown" id="login-dropdown" role="dialog" aria-label="Log in" aria-hidden="true">
+    <span class="login-dropdown__tag">Community Admin</span>
+    <h2 class="login-dropdown__title">Log in</h2>
+    <p class="login-dropdown__subtitle">Access your community platform.</p>
+
+    <form id="login-form" novalidate>
+      <div class="form-row">
+        <label class="form-label" for="login-phone">Phone number</label>
+        <input
+          class="form-input"
+          type="tel"
+          id="login-phone"
+          required
+          placeholder="+447912345678"
+          autocomplete="tel"
+        />
+      </div>
+
+      <div class="form-row">
+        <label class="form-label" for="login-password">Password</label>
+        <input
+          class="form-input"
+          type="password"
+          id="login-password"
+          required
+          placeholder="Your password"
+          autocomplete="current-password"
+        />
+      </div>
+
+      <div class="form-actions">
+        <a href="/auth/forgot-password.html?from=partner">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="btn-dropdown-action btn--primary" id="login-submit">
+        Log in
+      </button>
+
+      <div class="form-status" id="login-status"></div>
+    </form>
+
+    <div class="login-dropdown__foot">
+      Don't have a community partner account?
+      <a href="/branch/register.html">Create one</a>
+    </div>
+  </div>
+
+  <!-- 2. HERO SECTION with Video Background -->
+  <section class="hero">
+    <div class="hero__media">
+      <video autoplay muted loop playsinline poster="/assets/images/hero-community.jpg">
+        <source src="/assets/videos/hero-loop.mp4" type="video/mp4">
+        <img src="/assets/images/hero-community.jpg" alt="Community">
+      </video>
+    </div>
+    <div class="hero__overlay"></div>
+
+    <div class="hero__container">
+      <div class="hero__content">
+        <div class="hero__eyebrow">
+          <span class="dot"></span> Built for independent ROSCA communities
+        </div>
+        
+        <h1>
+          Your community finance &amp; traditional saving circle is built on trust.<br>
+          <span class="highlight">End-to-end digitized.</span>
+        </h1>
+        
+        <p class="hero__subtitle">
+          ROSCA Thrift &amp; Savings is the software that runs rotating savings circles for independent community partners and savings groups. Every contribution, every payout, every receipt — recorded, verified, and visible to every member.
+        </p>
+        
+        <div class="hero__actions">
+          <a href="/branch/register.html" class="btn btn--primary">Become a Community Partner</a>
+          <button type="button" class="btn btn--ghost" data-login-trigger>Log in</button>
+        </div>
+
+        <div class="hero__stats">
+          <div class="stat-item">
+            <span class="stat-value">12</span>
+            <span class="stat-label">Members per circle</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">12</span>
+            <span class="stat-label">Months per tenure</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">1.5%</span>
+            <span class="stat-label">Platform fee</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">2%</span>
+            <span class="stat-label">TVC per annum</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISUAL UI MOCKUPS -->
+      <div class="hero__visual">
+        <div class="mockup-phone">
+          <div class="mockup-header">
+            <span class="mockup-title">Overview</span>
+            <div class="mockup-avatar"></div>
+          </div>
+          <div class="mockup-welcome">
+            <h4>Welcome back, Samuel</h4>
+            <p>Here's your savings circle status.</p>
+          </div>
+          <div class="mockup-card">
+            <div class="mockup-card-label">Your Slot</div>
+            <div class="mockup-card-value">1</div>
+          </div>
+          <div class="mockup-card">
+            <div class="mockup-card-label">Current Cycle</div>
+            <div class="mockup-card-value">2</div>
+          </div>
+          <div class="mockup-card">
+            <div class="mockup-card-label">Tenure</div>
+            <div class="mockup-card-value">3</div>
+          </div>
+          <div class="mockup-card">
+            <div class="mockup-card-label">Payout Available</div>
+            <div class="mockup-card-value mockup-card-value--lg">$12,030.00</div>
+          </div>
+          <div class="mockup-card">
+            <div class="mockup-card-label">Total Saved</div>
+            <div class="mockup-card-value" style="color: #00daf3;">$11,000</div>
+          </div>
+        </div>
+
+        <div class="mockup-landscape">
+          <div class="mockup-table-title">Ledger &amp; Receipts</div>
+          <table class="mockup-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Reference</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>11-10-2020</td>
+                <td>$1,000</td>
+                <td><span class="mockup-badge mockup-badge--success">Paid</span></td>
+                <td>TXN-90812</td>
+              </tr>
+              <tr>
+                <td>12-10-2020</td>
+                <td>$1,000</td>
+                <td><span class="mockup-badge mockup-badge--success">Paid</span></td>
+                <td>TXN-90813</td>
+              </tr>
+              <tr>
+                <td>13-10-2020</td>
+                <td>$1,000</td>
+                <td><span class="mockup-badge mockup-badge--success">Paid</span></td>
+                <td>TXN-90814</td>
+              </tr>
+              <tr>
+                <td>14-10-2020</td>
+                <td>$12,030</td>
+                <td><span class="mockup-badge mockup-badge--success">Payout</span></td>
+                <td>TXN-90815</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. STEPS -->
+  <section class="section section--alt">
+    <div class="section__inner">
+      <span class="section__eyebrow">Getting Started</span>
+      <h2>Four steps to become a Community Partner</h2>
+      <p class="section__lede">Simple, transparent, and takes less than five minutes.</p>
+
+      <div class="grid-4">
+        <div class="step-card">
+          <span class="num">01</span>
+          <div class="step-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          </div>
+          <h3>Create Account</h3>
+          <p>Sign up with your phone. Quick, simple, and fully secure.</p>
+        </div>
+        <div class="step-card">
+          <span class="num">02</span>
+          <div class="step-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>Verify Identity</h3>
+          <p>Complete KYC with your Platform Super Admin. Unlock full features.</p>
+        </div>
+        <div class="step-card">
+          <span class="num">03</span>
+          <div class="step-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+              <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+              <line x1="6" y1="6" x2="6.01" y2="6"></line>
+              <line x1="6" y1="18" x2="6.01" y2="18"></line>
+            </svg>
+          </div>
+          <h3>Set-Up Your Sub-Platform</h3>
+          <p>Configure and customize your dedicated sub-platform environment in minutes.</p>
+        </div>
+        <div class="step-card">
+          <span class="num">04</span>
+          <div class="step-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <line x1="20" y1="8" x2="20" y2="14"></line>
+              <line x1="17" y1="11" x2="23" y2="11"></line>
+            </svg>
+          </div>
+          <h3>Start Onboarding</h3>
+          <p>Onboard your co-savers and track circle progress.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. MECHANIC & PLATFORM -->
+  <section class="section">
+    <div class="section__inner">
+      <span class="section__eyebrow">The Mechanic</span>
+      <h2>What a savings circle is</h2>
+      <p class="section__lede section__lede--wide">
+        A ROSCA — Rotating Savings and Credit Association — is a savings tradition used across the world. A small group contributes a fixed amount every month. Each month, one member receives the whole pool. Over 12 months, everyone contributes the same total and receives the pool exactly once.
+      </p>
+
+      <div class="grid-3" style="margin-bottom: 64px;">
+        <div class="feature-card">
+          <div class="feature-media">
+            <img src="/assets/images/how-1-people.jpg" alt="Community of savers" loading="lazy">
+          </div>
+          <div class="feature-body">
+            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #00daf3; margin-bottom: 8px;">01 — Members</span>
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #fff;">12 people, one circle</h3>
+            <p>A circle is exactly 12 verified co-savers. Every member contributes the same amount every month. After 12 months, everyone has contributed twelve times and received once.</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-media">
+            <img src="/assets/images/how-2-money.jpg" alt="Bank transfer on phone" loading="lazy">
+          </div>
+          <div class="feature-body">
+            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #00daf3; margin-bottom: 8px;">02 — Payout</span>
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #fff;">One collection per month</h3>
+            <p>Each month, one member receives the whole pot. Slot numbers are assigned randomly — no favouritism, no negotiation. Slot 1 collects in month 1, slot 12 in month 12.</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-media">
+            <img src="/assets/images/how-3-money.jpg" alt="Money exchange" loading="lazy">
+          </div>
+          <div class="feature-body">
+            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #00daf3; margin-bottom: 8px;">03 — Fairness</span>
+            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #fff;">Fair to everyone</h3>
+            <p>Early receivers pay a small time-value premium, later receivers receive a small bonus. The adjustment is 2% per year — the same principle that makes any savings scheme fair.</p>
+          </div>
+        </div>
+      </div>
+
+      <span class="section__eyebrow" style="margin-top: 64px;">The Platform</span>
+      <h2>What we add</h2>
+      <p class="section__lede section__lede--wide">
+        The ROSCA mechanic is ancient. What's missing is a proper ledger. On paper, disputes happen. On WhatsApp, receipts get lost. With cash, there's no audit trail. We fix that.
+      </p>
+
+      <div class="grid-3">
+        <div class="feature-card">
+          <div class="feature-body">
+            <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg></div>
+            <h3>Verified members</h3>
+            <p>Every member completes identity verification. Full legal name, address, bank details. No anonymous participants.</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-body">
+            <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16v12H4z"/><path d="M8 10h2M8 14h6"/></svg></div>
+            <h3>Referenced transfers</h3>
+            <p>Contributions and payouts carry a unique reference so anyone can trace which transfer belongs to which cycle.</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-body">
+            <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg></div>
+            <h3>Append-only ledger</h3>
+            <p>Once a transaction is recorded, it cannot be edited or deleted — by anyone, including the platform operator.</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-body">
+            <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></div>
+            <h3>Shared visibility</h3>
+            <p>All 12 members see the same contributions, receipts, and progress. No private balances.</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-body">
+            <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+            <h3>Real-time notifications</h3>
+            <p>Members get pushed updates when contributions are confirmed, when payouts happen, and when it's their turn.</p>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-body">
+            <div class="feature-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
+            <h3>We never touch money</h3>
+            <p>Funds stay in your community's own bank account. We reconcile what happened — we don't hold or move funds.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. MOBILE-FIRST & SECURITY -->
+  <section class="section section--alt">
+    <div class="section__inner">
+      <div class="grid-mobile-section">
+        <div>
+          <span class="section__eyebrow">Mobile-First Platform</span>
+          <h2>Built for convenience</h2>
+          <p class="section__lede" style="margin-bottom: 0;">
+            ROSCA Thrift brings mobile-first convenience to your finances with real-time alerts, biometric security, and instant transfers — all in one app.
+          </p>
+        </div>
+        
+        <div class="mobile-photo-container">
+          <img src="/assets/images/mobile%20first.jpg" alt="Mobile First Platform Experience" loading="lazy">
+        </div>
+
+        <div class="pwa-list">
+          <div class="pwa-item">
+            <div class="pwa-item__icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+            <div>
+              <h4>Real-Time Notifications</h4>
+              <p>Receive instant push notifications for contributions, payouts, and group activity.</p>
+            </div>
+          </div>
+          <div class="pwa-item">
+            <div class="pwa-item__icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <div>
+              <h4>Secure by design, with your bank in control</h4>
+              <p>Payments use your local bank transfer, your personal banking app’s security protects every transaction—ROSCA Thrift never touches your bank account directly.</p>
+            </div>
+          </div>
+          <div class="pwa-item">
+            <div class="pwa-item__icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+            <div>
+              <h4>Your circle, without borders—Anywhere, Anytime</h4>
+              <p>Manage your ROSCA group across cities, countries, or continents—with instant contributions and payouts.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. PRICING & CTA (Updated to remove co-saver registration button, focusing solely on Community Partner signup & login) -->
+  <section class="section">
+    <div class="section__inner">
+      <div class="cta-box">
+        <div>
+          <span class="section__eyebrow" style="color: #00daf3;">Start Today — Free</span>
+          <h2>Ready to run your community branch?</h2>
+          <p>Become a Community Partner in two minutes. Create your branch, invite your members, and start your first circle.</p>
+          <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+            <a href="/branch/register.html" class="btn btn--primary">Become a Community Partner</a>
+            <button type="button" class="btn btn--ghost" data-login-trigger>Log in</button>
+          </div>
+        </div>
+        
+        <div class="pricing-table">
+          <div style="font-weight: 700; margin-bottom: 16px; color: #fff;">Join thousands of members already saving together</div>
+          <div class="pricing-row"><span>Interest rate</span><span>0%</span></div>
+          <div class="pricing-row"><span>Platform fee on contributions</span><span>NO</span></div>
+          <div class="pricing-row highlight"><span>Maintenance fee (per circle)</span><span>1.5%</span></div>
+          <div class="pricing-row"><span>KYC required</span><span>Yes — via community partner</span></div>
+          <div class="pricing-row"><span>Available on</span><span>Web &amp; Mobile</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. STANDARDIZED FOOTER (Retained exactly across all files) -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__brand-col">
+        <div class="footer__brand">ROSCA Thrift &amp; Savings</div>
+        <p class="footer__tagline">
+          The digital ledger for church community savings circles.
+          Operated by Thrifty Technologies, United Kingdom.
+        </p>
+      </div>
+      <div>
+        <div class="footer__col-title">Platform</div>
+        <div class="footer__col-links">
+          <a href="/terminology.html">Terminology</a>
+          <a href="/branch/register.html">Become a branch admin</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer__col-title">Legal</div>
+        <div class="footer__col-links">
+          <a href="/terms.html">Terms of Service</a>
+          <a href="/privacy.html">Privacy Policy</a>
+          <a href="/contact.html">Contact us</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <div>© 2026 Thrifty Technologies. All rights reserved.</div>
+      <div>Built for church communities across the UK.</div>
+    </div>
+  </footer>
+
+</div>
+
+<script src="/assets/js/config.js"></script>
+<script src="/assets/js/api.js"></script>
+<script>
+  (function () {
+    'use strict';
+
+    const api = window.ROSCA_API.api;
+    const homeForRole = window.ROSCA_API.homeForRole;
+
+    const dropdown = document.getElementById('login-dropdown');
+    const loginForm = document.getElementById('login-form');
+    const loginStatus = document.getElementById('login-status');
+    const loginSubmit = document.getElementById('login-submit');
+    const phoneInput = document.getElementById('login-phone');
+
+    // ── Dropdown open / close ───────────────────────────────────
+    function positionDropdown(trigger) {
+      const rect = trigger.getBoundingClientRect();
+      dropdown.style.top = (rect.bottom + 12) + 'px';
+
+      const dropWidth = 360;
+      const desiredLeft = rect.right - dropWidth;
+      const maxLeft = window.innerWidth - dropWidth - 16;
+      const left = Math.max(16, Math.min(desiredLeft, maxLeft));
+      dropdown.style.left = left + 'px';
+      dropdown.style.right = 'auto';
+
+      const arrowLeft = rect.left + (rect.width / 2) - left - 5;
+      const clampedArrow = Math.max(16, Math.min(arrowLeft, dropWidth - 26));
+      dropdown.style.setProperty('--arrow-left', clampedArrow + 'px');
+    }
+
+    let currentTrigger = null;
+
+    function openDropdown(trigger) {
+      currentTrigger = trigger;
+      positionDropdown(trigger);
+      dropdown.classList.add('is-open');
+      dropdown.setAttribute('aria-hidden', 'false');
+      setTimeout(function () {
+        phoneInput.focus();
+      }, 60);
+    }
+
+    function closeDropdown() {
+      dropdown.classList.remove('is-open');
+      dropdown.setAttribute('aria-hidden', 'true');
+      currentTrigger = null;
+    }
+
+    function toggleDropdown(trigger) {
+      if (dropdown.classList.contains('is-open') && currentTrigger === trigger) {
+        closeDropdown();
+      } else {
+        openDropdown(trigger);
+      }
+    }
+
+    document.querySelectorAll('[data-login-trigger]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleDropdown(btn);
+      });
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!dropdown.classList.contains('is-open')) return;
+      if (dropdown.contains(e.target)) return;
+      if (e.target.closest('[data-login-trigger]')) return;
+      closeDropdown();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeDropdown();
+    });
+
+    function reposition() {
+      if (currentTrigger && dropdown.classList.contains('is-open')) {
+        positionDropdown(currentTrigger);
+      }
+    }
+    window.addEventListener('scroll', reposition, { passive: true });
+    window.addEventListener('resize', reposition);
+
+    // ── Login submit ────────────────────────────────────────────
+    function setLoginStatus(message, kind) {
+      loginStatus.textContent = message;
+      loginStatus.className = 'form-status is-visible form-status--' + kind;
+    }
+    function clearLoginStatus() {
+      loginStatus.className = 'form-status';
+      loginStatus.textContent = '';
+    }
+
+    loginForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      clearLoginStatus();
+
+      const phone = phoneInput.value.trim();
+      const password = document.getElementById('login-password').value;
+
+      if (!/^\+[1-9]\d{6,14}$/.test(phone)) {
+        return setLoginStatus('Phone must be in E.164 format, e.g. +447912345678.', 'error');
+      }
+      if (!password) {
+        return setLoginStatus('Password is required.', 'error');
+      }
+
+      loginSubmit.disabled = true;
+      loginSubmit.textContent = 'Logging in…';
+
+      try {
+        const data = await api('/api/auth/login', {
+          method: 'POST',
+          body: { phone: phone, password: password },
+        });
+
+        const role = data.user.role;
+        if (role !== 'BRANCH_ADMIN' && role !== 'SUPER_ADMIN') {
+          window.ROSCA_API.clearTokens();
+          return setLoginStatus(
+            'This login is for community admins and the platform operator. ' +
+            'If you are a co-saver, please log in from your community page.',
+            'error'
+          );
+        }
+
+        window.ROSCA_API.setTokens(data.tokens.accessToken, data.tokens.refreshToken);
+        setLoginStatus('✓ Logged in. Redirecting…', 'success');
+
+        setTimeout(function () {
+          window.location.href = homeForRole(role);
+        }, 700);
+      } catch (err) {
+        const code = err && err.code;
+        if (code === 'AUTH_INVALID_CREDENTIALS') {
+          setLoginStatus('Invalid phone or password. Try again.', 'error');
+        } else if (code === 'AUTH_ACCOUNT_SUSPENDED') {
+          setLoginStatus('This account is suspended. Contact support.', 'error');
+        } else if (code === 'AUTH_PHONE_NOT_VERIFIED') {
+          setLoginStatus('Your phone is not verified yet. Redirecting…', 'info');
+          setTimeout(function () {
+            window.location.href =
+              '/auth/verify.html?phone=' + encodeURIComponent(phone) +
+              '&next=' + encodeURIComponent('/partner/dashboard.html');
+          }, 1500);
+        } else if (code === 'RATE_LIMIT_EXCEEDED') {
+          setLoginStatus('Too many attempts. Please wait a minute and try again.', 'error');
+        } else {
+          setLoginStatus((err && err.message) || 'Login failed. Please try again.', 'error');
+        }
+        loginSubmit.disabled = false;
+        loginSubmit.textContent = 'Log in';
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>

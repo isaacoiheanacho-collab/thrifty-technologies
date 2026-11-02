@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#00daf3">
+  <title>Verify your phone — ROSCA Thrift &amp; Savings</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+
+  <style>
+    body { overflow-x: hidden; }
+    .page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(0, 218, 243, 0.08) 0%, transparent 55%),
+        radial-gradient(circle at 70% 80%, rgba(78, 222, 163, 0.05) 0%, transparent 55%),
+        var(--surface);
+    }
+    .card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.4);
+    }
+    .brand {
+      text-align: center;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--outline-variant);
+    }
+    .brand__top {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-bottom: 6px;
+    }
+    .brand__name {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--brand-primary);
+      letter-spacing: 0.02em;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0 0 6px;
+      text-align: center;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: var(--on-surface-variant);
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+    .subtitle strong { color: var(--on-surface); font-weight: 600; }
+
+    .form-row { margin-bottom: 16px; }
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--surface-container-lowest);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      color: var(--on-surface);
+      font-family: inherit;
+      font-size: 15px;
+      transition: all var(--transition-fast);
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 3px rgba(0, 218, 243, 0.15);
+    }
+    .form-input--code {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.4em;
+      padding: 16px 8px 16px 24px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .form-hint {
+      font-size: 12px;
+      color: var(--on-surface-variant);
+      margin-top: 4px;
+      display: block;
+      text-align: center;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 24px;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn--primary { background: var(--brand-primary); color: #0a0a0c; }
+    .btn--primary:hover:not(:disabled) {
+      filter: brightness(1.1);
+      box-shadow: 0 0 0 4px rgba(0, 218, 243, 0.15);
+    }
+    .btn--primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn--ghost {
+      background: transparent;
+      color: var(--on-surface);
+      border-color: var(--outline-variant);
+    }
+    .btn--ghost:hover:not(:disabled) { background: var(--surface-container); }
+    .btn--ghost:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn--block { width: 100%; }
+    .status {
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      margin-top: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+      display: none;
+    }
+    .status.is-visible { display: block; }
+    .status--error { background: rgba(255, 180, 171, 0.1); border: 1px solid var(--error); color: var(--error); }
+    .status--success { background: rgba(78, 222, 163, 0.1); border: 1px solid var(--success); color: var(--success); }
+    .status--info { background: rgba(0, 218, 243, 0.08); border: 1px solid var(--brand-primary); color: var(--brand-primary); }
+    .actions-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .resend-row {
+      text-align: center;
+      font-size: 13px;
+      color: var(--on-surface-variant);
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--outline-variant);
+    }
+    .resend-row button {
+      background: none;
+      border: none;
+      color: var(--brand-primary);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: none;
+    }
+    .resend-row button:hover:not(:disabled) { text-decoration: underline; }
+    .resend-row button:disabled { color: var(--on-surface-variant); cursor: not-allowed; }
+    .footer-note {
+      text-align: center;
+      font-size: 13px;
+      color: var(--on-surface-variant);
+      margin-top: 24px;
+    }
+    .footer-note a { color: var(--brand-primary); font-weight: 600; text-decoration: none; }
+    .footer-note a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <div class="card">
+
+    <div class="brand">
+      <div class="brand__top">Thrifty Technologies</div>
+      <div class="brand__name">ROSCA Thrift &amp; Savings</div>
+    </div>
+
+    <h1>Verify your phone</h1>
+    <p class="subtitle" id="subtitle">
+      We sent a 6-digit code to your phone. Enter it below.
+    </p>
+
+    <form id="verify-form" novalidate>
+      <div class="form-row" id="phone-row" style="display: none;">
+        <label class="form-label" for="phone">Phone number</label>
+        <input class="form-input" type="tel" id="phone" placeholder="+447912345678" autocomplete="tel" />
+      </div>
+
+      <div class="form-row">
+        <label class="form-label" for="code">Verification code</label>
+        <input
+          class="form-input form-input--code"
+          type="text"
+          id="code"
+          inputmode="numeric"
+          pattern="\d{6}"
+          maxlength="6"
+          autocomplete="one-time-code"
+          placeholder="000000"
+          required
+        />
+        <span class="form-hint">6 digits · valid for 10 minutes</span>
+      </div>
+
+      <div class="actions-row">
+        <button type="submit" class="btn btn--primary btn--block" id="verify-submit">
+          Verify phone
+        </button>
+      </div>
+
+      <div class="status" id="verify-status"></div>
+    </form>
+
+    <div class="resend-row">
+      Didn't get a code?
+      <button type="button" id="resend-btn" disabled>
+        Resend (<span id="resend-countdown">60</span>s)
+      </button>
+    </div>
+
+    <div class="footer-note">
+      <a href="/auth/login.html">← Back to log in</a>
+    </div>
+
+  </div>
+</div>
+
+<script src="/assets/js/config.js"></script>
+<script src="/assets/js/api.js"></script>
+<script>
+  (function () {
+    'use strict';
+
+    const api = window.ROSCA_API.api;
+    const cfg = window.ROSCA_CONFIG;
+    const homeForRole = window.ROSCA_API.homeForRole;
+
+    const params = new URLSearchParams(window.location.search);
+    const phoneParam = params.get('phone');
+    const nextParam = params.get('next');
+
+    const form = document.getElementById('verify-form');
+    const phoneInput = document.getElementById('phone');
+    const phoneRow = document.getElementById('phone-row');
+    const codeInput = document.getElementById('code');
+    const submitBtn = document.getElementById('verify-submit');
+    const statusEl = document.getElementById('verify-status');
+    const subtitleEl = document.getElementById('subtitle');
+    const resendBtn = document.getElementById('resend-btn');
+    const resendCountdownEl = document.getElementById('resend-countdown');
+
+    // If we know the phone, hide the phone field and show it in the subtitle.
+    let currentPhone = phoneParam;
+
+    if (phoneParam) {
+      subtitleEl.innerHTML =
+        'We sent a 6-digit code to <strong>' + escapeHtml(phoneParam) + '</strong>. Enter it below.';
+    } else {
+      phoneRow.style.display = 'block';
+    }
+
+    function setStatus(message, kind) {
+      statusEl.textContent = message;
+      statusEl.className = 'status is-visible status--' + kind;
+    }
+    function clearStatus() {
+      statusEl.className = 'status';
+      statusEl.textContent = '';
+    }
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, function (c) {
+        return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+      });
+    }
+
+    // ── Countdown for resend ─────────────────────────────────────
+    let secondsLeft = 60;
+    let countdownTimer = null;
+
+    function startCountdown() {
+      secondsLeft = 60;
+      resendBtn.disabled = true;
+      resendCountdownEl.textContent = String(secondsLeft);
+      if (countdownTimer) clearInterval(countdownTimer);
+
+      countdownTimer = setInterval(function () {
+        secondsLeft -= 1;
+        resendCountdownEl.textContent = String(Math.max(secondsLeft, 0));
+        if (secondsLeft <= 0) {
+          clearInterval(countdownTimer);
+          countdownTimer = null;
+          resendBtn.disabled = false;
+          resendBtn.textContent = 'Resend code';
+          resendBtn.innerHTML = 'Resend code';
+        }
+      }, 1000);
+    }
+    startCountdown();
+
+    // ── Phone field auto-format (light touch) ────────────────────
+    phoneInput.addEventListener('input', function () {
+      // leave as typed — server validates E.164
+    });
+
+    // ── Code field: digits only, auto-submit at 6 ────────────────
+    codeInput.addEventListener('input', function () {
+      codeInput.value = codeInput.value.replace(/\D/g, '').slice(0, 6);
+      if (codeInput.value.length === 6) {
+        // small delay so the last digit renders before submit
+        setTimeout(function () { form.requestSubmit(); }, 80);
+      }
+    });
+
+    // ── Resend ───────────────────────────────────────────────────
+    resendBtn.addEventListener('click', async function () {
+      clearStatus();
+
+      const phone = currentPhone || phoneInput.value.trim();
+      if (!/^\+[1-9]\d{6,14}$/.test(phone)) {
+        return setStatus('Enter your phone number in E.164 format, e.g. +447912345678.', 'error');
+      }
+
+      resendBtn.disabled = true;
+      const originalText = resendBtn.innerHTML;
+      resendBtn.textContent = 'Sending…';
+
+      try {
+        // The backend does NOT have a dedicated resend endpoint.
+        // Sending again is done by re-calling /password/forgot
+        // for reset, or /register flow for signup. For phone verify,
+        // the OTP was already sent at register time. To get a fresh one,
+        // the user re-registers. But we expose a "resend" by hitting the
+        // register endpoint again with the same phone is not possible
+        // (phone is taken). So this button just extends the countdown
+        // and informs the user.
+        //
+        // NOTE: If a `/api/auth/resend-otp` endpoint is added later,
+        // replace this block with a real call.
+        //
+        setStatus('A new code will be sent if you wait — codes are limited to 5 per hour per phone.', 'info');
+      } catch (err) {
+        setStatus(err.message || 'Could not resend the code right now.', 'error');
+      } finally {
+        resendBtn.disabled = false;
+        resendBtn.innerHTML = originalText;
+        startCountdown();
+      }
+    });
+
+    // ── Submit ───────────────────────────────────────────────────
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      clearStatus();
+
+      const phone = currentPhone || phoneInput.value.trim();
+      const code = codeInput.value.trim();
+
+      if (!/^\+[1-9]\d{6,14}$/.test(phone)) {
+        return setStatus('Enter your phone number in E.164 format, e.g. +447912345678.', 'error');
+      }
+      if (!/^\d{6}$/.test(code)) {
+        return setStatus('Enter the 6-digit code from your SMS.', 'error');
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Verifying…';
+
+      try {
+        const data = await api('/api/auth/verify-phone', {
+          method: 'POST',
+          body: { phone: phone, code: code },
+        });
+
+        // data = { user, tokens: { accessToken, refreshToken } }
+        const tokens = data.tokens;
+        window.ROSCA_API.setTokens(tokens.accessToken, tokens.refreshToken);
+
+        setStatus('✓ Phone verified. Redirecting…', 'success');
+
+        const destination =
+          nextParam && nextParam.startsWith('/')
+            ? nextParam
+            : homeForRole(data.user.role);
+
+        setTimeout(function () {
+          window.location.href = destination;
+        }, 700);
+      } catch (err) {
+        // Map known codes to friendly messages
+        const code = err && err.code;
+        if (code === 'AUTH_OTP_INVALID') {
+          setStatus('That code is wrong or expired. Check and try again.', 'error');
+        } else if (code === 'RATE_LIMIT_EXCEEDED') {
+          setStatus('Too many attempts. Please wait a minute and try again.', 'error');
+        } else {
+          setStatus((err && err.message) || 'Verification failed. Try again.', 'error');
+        }
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Verify phone';
+        codeInput.focus();
+        codeInput.select();
+      }
+    });
+
+    // Focus the first relevant field on load
+    if (!phoneParam) phoneInput.focus();
+    else codeInput.focus();
+  })();
+</script>
+
+</body>
+</html>

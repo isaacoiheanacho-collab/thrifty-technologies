@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#00daf3">
+  <title>Create your account — ROSCA Thrift &amp; Savings</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+
+  <style>
+    body { overflow-x: hidden; }
+    .page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(0, 218, 243, 0.08) 0%, transparent 55%),
+        radial-gradient(circle at 70% 80%, rgba(78, 222, 163, 0.05) 0%, transparent 55%),
+        var(--surface);
+    }
+    .card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.4);
+    }
+    .brand {
+      text-align: center;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--outline-variant);
+    }
+    .brand__top {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-bottom: 6px;
+    }
+    .brand__name {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--brand-primary);
+      letter-spacing: 0.02em;
+    }
+    .brand__branch {
+      font-size: 12px;
+      color: var(--on-surface-variant);
+      margin-top: 8px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0 0 6px;
+      text-align: center;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: var(--on-surface-variant);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .form-row { margin-bottom: 16px; }
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--surface-container-lowest);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      color: var(--on-surface);
+      font-family: inherit;
+      font-size: 15px;
+      transition: all var(--transition-fast);
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 3px rgba(0, 218, 243, 0.15);
+    }
+    .form-hint {
+      font-size: 12px;
+      color: var(--on-surface-variant);
+      margin-top: 4px;
+      display: block;
+    }
+
+    .consent-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 14px;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      background: var(--surface-container-lowest);
+    }
+    .consent-row:hover { border-color: rgba(0, 218, 243, 0.4); }
+    .consent-row.is-checked {
+      border-color: var(--brand-primary);
+      background: rgba(0, 218, 243, 0.06);
+    }
+    .consent-row input[type="checkbox"] {
+      margin-top: 3px;
+      accent-color: var(--brand-primary);
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .consent-row__body { flex: 1; font-size: 13px; color: var(--on-surface-variant); line-height: 1.55; }
+    .consent-row__body a { color: var(--brand-primary); }
+    .consent-row__title {
+      display: block;
+      color: var(--on-surface);
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 3px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 24px;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn--primary { background: var(--brand-primary); color: #0a0a0c; }
+    .btn--primary:hover:not(:disabled) {
+      filter: brightness(1.1);
+      box-shadow: 0 0 0 4px rgba(0, 218, 243, 0.15);
+    }
+    .btn--primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn--block { width: 100%; margin-top: 20px; }
+
+    .status {
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      margin-top: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+      display: none;
+      white-space: pre-line;
+    }
+    .status.is-visible { display: block; }
+    .status--error { background: rgba(255, 180, 171, 0.1); border: 1px solid var(--error); color: var(--error); }
+    .status--info { background: rgba(0, 218, 243, 0.08); border: 1px solid var(--brand-primary); color: var(--brand-primary); }
+
+    .footer-note {
+      text-align: center;
+      font-size: 13px;
+      color: var(--on-surface-variant);
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--outline-variant);
+    }
+    .footer-note a { color: var(--brand-primary); font-weight: 600; text-decoration: none; }
+    .footer-note a:hover { text-decoration: underline; }
+
+    /* Loading state for the branch lookup */
+    .loading-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 24px 0;
+      color: var(--on-surface-variant);
+      font-size: 14px;
+    }
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--outline-variant);
+      border-top-color: var(--brand-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Hidden until the branch is confirmed */
+    #form-wrap { display: none; }
+    #form-wrap.is-ready { display: block; }
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <div class="card">
+
+    <div class="brand">
+      <div class="brand__top">Thrifty Technologies</div>
+      <div class="brand__name">ROSCA Thrift &amp; Savings</div>
+      <div class="brand__branch" id="branch-line" style="display: none;"></div>
+    </div>
+
+    <div id="loading-row" class="loading-row">
+      <div class="spinner"></div>
+      <span>Loading branch…</span>
+    </div>
+
+    <div id="form-wrap">
+      <h1>Create your account</h1>
+      <p class="subtitle" id="subtitle">Fill in your details. You'll verify your phone next.</p>
+
+      <form id="register-form" novalidate>
+
+        <div class="form-row">
+          <label class="form-label" for="fullName">Full name</label>
+          <input
+            class="form-input"
+            type="text"
+            id="fullName"
+            required
+            maxlength="120"
+            placeholder="Your legal name"
+            autocomplete="name"
+          />
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="phone">Phone number</label>
+          <input
+            class="form-input"
+            type="tel"
+            id="phone"
+            required
+            placeholder="+447912345678"
+            autocomplete="tel"
+          />
+          <span class="form-hint">E.164 format. We'll text a 6-digit code here.</span>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="password">Password</label>
+          <input
+            class="form-input"
+            type="password"
+            id="password"
+            required
+            minlength="10"
+            maxlength="72"
+            placeholder="At least 10 chars, 1 number, 1 symbol"
+            autocomplete="new-password"
+          />
+          <span class="form-hint">At least 10 characters, with one number and one symbol.</span>
+        </div>
+
+        <label class="consent-row" id="consent-terms-wrap" for="consent-terms">
+          <input type="checkbox" id="consent-terms" />
+          <div class="consent-row__body">
+            <span class="consent-row__title">Platform Terms of Service</span>
+            I agree to the <a href="/terms.html" target="_blank" rel="noopener">Terms of Service</a> (v1.0.0).
+          </div>
+        </label>
+
+        <label class="consent-row" id="consent-privacy-wrap" for="consent-privacy">
+          <input type="checkbox" id="consent-privacy" />
+          <div class="consent-row__body">
+            <span class="consent-row__title">Platform Privacy Policy</span>
+            I agree to the <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a> (v1.0.0).
+          </div>
+        </label>
+
+        <button type="submit" class="btn btn--primary btn--block" id="register-submit">
+          Create my account
+        </button>
+
+        <div class="status" id="register-status"></div>
+      </form>
+
+      <div class="footer-note">
+        Already have an account? <a href="/join/index.html" id="login-link">Log in</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="/assets/js/config.js"></script>
+<script src="/assets/js/api.js"></script>
+<script>
+  (function () {
+    'use strict';
+
+    const api = window.ROSCA_API.api;
+    const cfg = window.ROSCA_CONFIG;
+
+    const params = new URLSearchParams(window.location.search);
+    const branchSlug = params.get('branch');
+    const phoneParam = params.get('phone');
+
+    const form = document.getElementById('register-form');
+    const statusEl = document.getElementById('register-status');
+    const submitBtn = document.getElementById('register-submit');
+    const branchLine = document.getElementById('branch-line');
+    const subtitle = document.getElementById('subtitle');
+    const loginLink = document.getElementById('login-link');
+    const loadingRow = document.getElementById('loading-row');
+    const formWrap = document.getElementById('form-wrap');
+
+    const cbTerms = document.getElementById('consent-terms');
+    const cbPrivacy = document.getElementById('consent-privacy');
+    const cbTermsWrap = document.getElementById('consent-terms-wrap');
+    const cbPrivacyWrap = document.getElementById('consent-privacy-wrap');
+
+    // ── Hard block: no slug in the URL ───────────────────────────
+    if (!branchSlug) {
+      loadingRow.style.display = 'none';
+      formWrap.classList.add('is-ready');
+      subtitle.textContent = 'This registration link is missing a branch.';
+      statusEl.textContent =
+        "Open the branch landing page you were given and click Register there. " +
+        "If you don't have the link, contact your community partner admin.";
+      statusEl.className = 'status is-visible status--error';
+      submitBtn.disabled = true;
+      return;
+    }
+
+    // ── Fetch the branch and render its real name ────────────────
+    (async function loadBranch() {
+      try {
+        const branch = await api('/api/branches/' + encodeURIComponent(branchSlug) + '/public');
+
+        const displayName = branch.name || branchSlug;
+
+        document.title = 'Create your account — ' + displayName + ' — ROSCA Thrift & Savings';
+        branchLine.style.display = 'block';
+        branchLine.textContent = 'Joining ' + displayName;
+
+        loginLink.href = '/join/index.html?branch=' + encodeURIComponent(branchSlug);
+
+        // Show the form
+        loadingRow.style.display = 'none';
+        formWrap.classList.add('is-ready');
+
+        if (phoneParam) {
+          document.getElementById('phone').value = phoneParam;
+        }
+      } catch (err) {
+        loadingRow.style.display = 'none';
+        formWrap.classList.add('is-ready');
+
+        const code = err && err.code;
+        subtitle.textContent = 'This community is not available.';
+        if (code === 'NOT_FOUND') {
+          statusEl.textContent =
+            'This community does not exist. Check the link you were given, ' +
+            'or contact your community partner admin.';
+        } else if (code === 'BRANCH_NOT_ACTIVE') {
+          statusEl.textContent =
+            'This community is not currently accepting new members.';
+        } else if (code === 'BRANCH_NOT_APPROVED') {
+          statusEl.textContent =
+            'This community has not been approved by the platform yet. ' +
+            'Check back soon.';
+        } else {
+          statusEl.textContent =
+            'We could not load this community. Check your connection and try again.';
+        }
+        statusEl.className = 'status is-visible status--error';
+        submitBtn.disabled = true;
+      }
+    })();
+
+    // ── Consent UI feedback ──────────────────────────────────────
+    function syncConsentUI(cb, wrap) {
+      wrap.classList.toggle('is-checked', cb.checked);
+    }
+    cbTerms.addEventListener('change', function () { syncConsentUI(cbTerms, cbTermsWrap); });
+    cbPrivacy.addEventListener('change', function () { syncConsentUI(cbPrivacy, cbPrivacyWrap); });
+
+    // ── Status helpers ───────────────────────────────────────────
+    function setStatus(message, kind) {
+      statusEl.textContent = message;
+      statusEl.className = 'status is-visible status--' + kind;
+    }
+    function clearStatus() {
+      statusEl.className = 'status';
+      statusEl.textContent = '';
+    }
+
+    // ── Submit ───────────────────────────────────────────────────
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      clearStatus();
+
+      const fullName = document.getElementById('fullName').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (fullName.length < 2) {
+        return setStatus('Enter your full name (at least 2 characters).', 'error');
+      }
+      if (!/^\+[1-9]\d{6,14}$/.test(phone)) {
+        return setStatus('Phone must be in E.164 format, e.g. +447912345678.', 'error');
+      }
+      if (password.length < 10 || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
+        return setStatus('Password must be at least 10 characters, with one number and one symbol.', 'error');
+      }
+      if (!cbTerms.checked) {
+        return setStatus('You must accept the Terms of Service to continue.', 'error');
+      }
+      if (!cbPrivacy.checked) {
+        return setStatus('You must accept the Privacy Policy to continue.', 'error');
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating your account…';
+
+      try {
+        await api('/api/auth/register', {
+          method: 'POST',
+          body: {
+            phone: phone,
+            password: password,
+            fullName: fullName,
+            branchSlug: branchSlug,
+            consents: {
+              terms: {
+                accepted: true,
+                version: cfg.CONSENT_VERSIONS.TERMS,
+              },
+              privacy: {
+                accepted: true,
+                version: cfg.CONSENT_VERSIONS.PRIVACY,
+              },
+            },
+          },
+        });
+
+        setStatus('✓ Account created. Redirecting to verify your phone…', 'info');
+
+        const verifyUrl =
+          '/auth/verify.html?phone=' +
+          encodeURIComponent(phone) +
+          '&next=' +
+          encodeURIComponent('/saver/dashboard.html');
+
+        setTimeout(function () {
+          window.location.href = verifyUrl;
+        }, 800);
+      } catch (err) {
+        const code = err && err.code;
+        if (code === 'AUTH_PHONE_TAKEN') {
+          setStatus('That phone number is already registered. Try logging in instead.', 'error');
+        } else if (code === 'VALIDATION_ERROR') {
+          const first =
+            err.details && err.details.issues && err.details.issues[0]
+              ? err.details.issues[0].message
+              : '';
+          setStatus('Please check the form.' + (first ? ' — ' + first : ''), 'error');
+        } else if (code === 'CONSENT_VERSION_MISMATCH') {
+          setStatus('The consent versions are out of date on the site. Refresh and try again.', 'error');
+        } else if (code === 'AUTH_BRANCH_NOT_FOUND') {
+          setStatus('This community does not exist. Check the link you were given.', 'error');
+        } else if (code === 'AUTH_BRANCH_NOT_ACTIVE') {
+          setStatus('This community is not currently accepting new members.', 'error');
+        } else {
+          setStatus((err && err.message) || 'Registration failed. Please try again.', 'error');
+        }
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create my account';
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>

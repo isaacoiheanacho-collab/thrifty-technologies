@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0d8267">
+  <title>KIP ROSCA — Mobile Banking App</title>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+
+  <!-- Chart.js for Donut Chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            rosca: {
+              teal: '#0d8267',
+              tealDark: '#085e4a',
+              tealLight: '#1db593',
+              paid: '#2e7d32',
+              paidBg: '#e8f5e9',
+              pending: '#f59e0b',
+              pendingBg: '#fef3c7',
+              late: '#ef4444',
+              lateBg: '#fee2e2',
+              cardBg: '#ffffff',
+              pageBg: '#f0f4f8',
+              bannerBg: '#fef9c3',
+              bannerBorder: '#fde047'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #dce5ed;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Device frame styling for desktop presentation */
+    .app-frame {
+      width: 100%;
+      max-width: 430px;
+      min-height: 880px;
+      height: 100vh;
+      max-height: 920px;
+      background: #f0f4f8;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      border: 8px solid #222933;
+    }
+
+    /* Desktop mode expansion override */
+    .app-frame.desktop-mode {
+      max-width: 1100px;
+      max-height: none;
+      height: 90vh;
+      border-radius: 24px;
+    }
+
+    /* Gradient Header matching reference image */
+    .header-gradient {
+      background: linear-gradient(135deg, #075e47 0%, #0d8267 55%, #18a984 100%);
+    }
+
+    /* Card styling */
+    .rosca-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .badge-paid {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #a5d6a7;
+    }
+
+    .badge-pending {
+      background-color: #fff8e1;
+      color: #b45309;
+      border: 1px solid #fde68a;
+    }
+
+    .badge-late {
+      background-color: #ffebee;
+      color: #c62828;
+      border: 1px solid #ef9a9a;
+    }
+
+    .btn-action {
+      background-color: #ffffff;
+      border: 1.5px solid #0d8267;
+      color: #0d8267;
+      font-weight: 700;
+      border-radius: 12px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-action:hover {
+      background-color: #e6f4f0;
+    }
+
+    .btn-action:active {
+      transform: scale(0.98);
+    }
+
+    /* Native Bottom Navigation bar */
+    .bottom-nav {
+      background: #ffffff;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 99px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-0 sm:p-4 selection:bg-rosca-teal selection:text-white">
+
+  <!-- ================= TOP CONTROLS FOR PROTOTYPE (Desktop / Mobile Toggle) ================= -->
+  <div class="fixed top-3 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 text-white backdrop-blur-md px-4 py-2 rounded-full shadow-2xl flex items-center gap-3 text-xs font-semibold border border-slate-700">
+    <span class="text-slate-400">View:</span>
+    <button id="toggle-mobile" onclick="setDeviceView('mobile')" class="px-3 py-1 rounded-full bg-rosca-teal text-white font-bold transition-all">iPhone View</button>
+    <button id="toggle-desktop" onclick="setDeviceView('desktop')" class="px-3 py-1 rounded-full text-slate-300 hover:text-white transition-all">Expanded Web</button>
+  </div>
+
+  <!-- ================= APP CONTAINER ================= -->
+  <div id="app-frame" class="app-frame flex flex-col relative transition-all duration-300 my-auto">
+
+    <!-- TOP HEADER BAR -->
+    <header class="header-gradient text-white pt-10 pb-4 px-5 flex items-center justify-between shrink-0 shadow-md">
+      <div class="w-6"></div> <!-- Spacer for centering title -->
+      <h1 class="text-lg font-black tracking-wider uppercase text-center flex-1">KIP ROSCA</h1>
+      <button onclick="showToast('Notifications checked')" class="p-1.5 rounded-full hover:bg-white/10 active:scale-95 transition-all relative">
+        <svg class="w-5 h-5 text-amber-300 fill-amber-300" viewBox="0 0 24 24"><path d="M12 22a2.98 2.98 0 0 0 2.818-2H9.182A2.98 2.98 0 0 0 12 22zm7-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+        <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+      </button>
+    </header>
+
+    <!-- MAIN SCROLLABLE CONTENT BODY -->
+    <main id="main-content" class="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-24">
+
+      <!-- GREETING -->
+      <div class="px-1">
+        <h2 class="text-xl font-black text-slate-800 tracking-tight">Welcome, Sarah J.!</h2>
+      </div>
+
+      <!-- SECTION: MY ROSCA OVERVIEW -->
+      <section class="rosca-card p-4 space-y-3">
+        <h3 class="text-xs font-black tracking-wider uppercase text-slate-700 border-b border-slate-100 pb-2">My Rosca Overview</h3>
+
+        <div class="grid grid-cols-12 gap-2 items-center">
+          <!-- Donut Chart Canvas -->
+          <div class="col-span-6 flex flex-col items-center justify-center relative">
+            <div class="w-28 h-28 relative flex items-center justify-center">
+              <canvas id="roscaDonutChart"></canvas>
+              <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+                <span class="text-[9px] font-bold uppercase text-slate-500 leading-tight">Group Status</span>
+                <span class="text-[11px] font-black text-slate-800 leading-tight">In Progress</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metrics Panel -->
+          <div class="col-span-6 space-y-2.5 pl-1 border-l border-slate-100">
+            <div class="bg-slate-50 p-2 rounded-xl">
+              <p class="text-[10px] font-bold text-slate-500 uppercase">Active Roscas:</p>
+              <p class="text-base font-black text-slate-800 leading-none mt-0.5">3</p>
+            </div>
+            <div class="bg-slate-50 p-2 rounded-xl">
+              <p class="text-[10px] font-bold text-slate-500 uppercase">Total Contributed:</p>
+              <p class="text-xs font-mono font-black text-slate-900 leading-none mt-0.5">UGX 1,500,000</p>
+            </div>
+            <div class="bg-slate-50 p-2 rounded-xl">
+              <p class="text-[10px] font-bold text-slate-500 uppercase">Next Payout Due:</p>
+              <p class="text-xs font-bold text-rosca-tealDark leading-none mt-0.5">Aug 15</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Donut Legend Indicators -->
+        <div class="flex items-center justify-around pt-2 border-t border-slate-100 text-[10px] font-bold">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+            <span class="text-slate-600">Paid This Cycle</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+            <span class="text-slate-600">Pending</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+            <span class="text-slate-600">Late</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION: CURRENT ROSCA GROUP -->
+      <section class="rosca-card p-4 space-y-3">
+        <div>
+          <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Current Rosca Group:</p>
+          <h3 class="text-base font-extrabold text-slate-900">“The Dream Weaver Group”</h3>
+        </div>
+
+        <!-- Progress bar and Cycle badge -->
+        <div class="space-y-1">
+          <div class="flex justify-between items-center text-[10px] font-extrabold">
+            <span class="text-slate-500 uppercase">Cycle Collection</span>
+            <span class="text-rosca-tealDark font-mono bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">Cycle 8 of 12</span>
+          </div>
+          <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+            <div class="bg-rosca-teal h-full rounded-full transition-all duration-500" style="width: 66.6%;"></div>
+          </div>
+        </div>
+
+        <!-- Group Members Status Grid -->
+        <div class="grid grid-cols-2 gap-2 text-xs pt-1">
+          <div class="flex items-center gap-1.5 text-slate-800 font-semibold truncate">
+            <span class="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>
+            <span class="truncate">Sarah J. - <strong class="text-emerald-700">Paid</strong></span>
+          </div>
+          <div class="flex items-center gap-1.5 text-slate-800 font-semibold truncate">
+            <span class="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>
+            <span class="truncate">Ben L. - <strong class="text-emerald-700">Paid</strong></span>
+          </div>
+          <div class="flex items-center gap-1.5 text-slate-800 font-semibold truncate">
+            <span class="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>
+            <span class="truncate">John D. - <strong class="text-emerald-700">Paid</strong></span>
+          </div>
+          <div class="flex items-center gap-1.5 text-slate-800 font-semibold truncate">
+            <span class="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>
+            <span class="truncate">Grace A. - <strong class="text-emerald-700">Paid</strong></span>
+          </div>
+          <div class="flex items-center gap-1.5 text-slate-800 font-semibold truncate">
+            <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+            <span class="truncate">Fatima K. - <strong class="text-amber-700">Pending</strong></span>
+          </div>
+          <div class="flex items-center gap-1.5 text-slate-800 font-semibold truncate">
+            <span class="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>
+            <span class="truncate">David M. - <strong class="text-emerald-700">Paid</strong></span>
+          </div>
+        </div>
+
+        <!-- WARNING BANNER: YOUR TURN TO RECEIVE PAYOUT -->
+        <div class="bg-rosca-bannerBg border border-rosca-bannerBorder p-3 rounded-xl flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-amber-400/20 text-amber-700 flex items-center justify-center shrink-0 font-bold text-lg">
+            ⚠️
+          </div>
+          <div>
+            <p class="text-xs font-black text-amber-900 leading-tight">Your Turn to Receive Payout:</p>
+            <p class="text-xs font-bold text-amber-800">Cycle 10 (Payout Pool: UGX 6,000,000)</p>
+          </div>
+        </div>
+
+        <!-- MAIN ACTION BUTTON: MAKE CONTRIBUTION -->
+        <button onclick="openContributionModal()" class="w-full py-3.5 bg-gradient-to-r from-rosca-teal to-rosca-tealLight hover:from-rosca-tealDark hover:to-rosca-teal text-white font-black text-sm rounded-xl shadow-md shadow-rosca-teal/30 tracking-wider uppercase active:scale-[0.98] transition-all">
+          MAKE CONTRIBUTION
+        </button>
+
+        <!-- ACTION BUTTONS GRID -->
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button onclick="switchTab('groups')" class="btn-action py-2.5 px-2 text-xs text-center truncate">
+            VIEW MY GROUPS
+          </button>
+          <button onclick="switchTab('groups')" class="btn-action py-2.5 px-2 text-xs text-center truncate">
+            VIEW ALL GROUPS
+          </button>
+          <button onclick="showToast('Loading Transaction History...')" class="btn-action py-2.5 px-2 text-xs text-center truncate">
+            TRANSACTION HISTORY
+          </button>
+          <button onclick="showToast('Contacting ROSCA Support...')" class="btn-action py-2.5 px-2 text-xs text-center truncate">
+            HELP & SUPPORT
+          </button>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- NATIVE BOTTOM TAB NAVIGATION -->
+    <nav class="bottom-nav absolute bottom-0 left-0 right-0 py-2 px-6 flex items-center justify-between z-30">
+      <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-0.5 text-rosca-teal">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span class="text-[10px] font-black">Home</span>
+      </button>
+      <button onclick="switchTab('groups')" id="nav-groups" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-rosca-teal transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        <span class="text-[10px] font-bold">Groups</span>
+      </button>
+      <button onclick="switchTab('payments')" id="nav-payments" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-rosca-teal transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+        <span class="text-[10px] font-bold">Payments</span>
+      </button>
+      <button onclick="switchTab('profile')" id="nav-profile" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-rosca-teal transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        <span class="text-[10px] font-bold">Profile</span>
+      </button>
+    </nav>
+
+    <!-- CONTRIBUTION MODAL DIALOG -->
+    <div id="contribution-modal" class="absolute inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end justify-center opacity-0 pointer-events-none transition-all duration-300">
+      <div class="w-full bg-white rounded-t-3xl p-5 space-y-4 shadow-2xl transform translate-y-full transition-transform duration-300" id="modal-card">
+        <div class="w-12 h-1 bg-slate-300 rounded-full mx-auto"></div>
+        
+        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+          <h3 class="text-base font-black text-slate-900">Make Cycle 8 Contribution</h3>
+          <button onclick="closeContributionModal()" class="text-slate-400 hover:text-slate-700 font-bold p-1">✕</button>
+        </div>
+
+        <div class="space-y-3">
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <p class="text-[10px] font-bold text-slate-500 uppercase">Selected Group:</p>
+            <p class="text-xs font-extrabold text-slate-800">The Dream Weaver Group</p>
+            <p class="text-xs font-mono font-black text-rosca-teal mt-1">Contribution Amount: UGX 500,000</p>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs font-bold text-slate-700">Payment Method:</label>
+            <select class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-rosca-teal">
+              <option>Mobile Money (MTN / Airtel)</option>
+              <option>Bank Card (Visa / Mastercard)</option>
+              <option>Wallet Balance (UGX 1,200,000)</option>
+            </select>
+          </div>
+
+          <button onclick="submitContribution()" class="w-full py-3 bg-rosca-teal hover:bg-rosca-tealDark text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-rosca-teal/20 transition-all">
+            Confirm & Pay UGX 500,000
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="absolute top-16 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white font-bold text-xs px-4 py-2.5 rounded-full shadow-2xl opacity-0 pointer-events-none transition-all flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      <span id="toast-text">Notification message</span>
+    </div>
+
+  </div>
+
+  <script>
+    // Initialize Donut Chart
+    window.addEventListener('DOMContentLoaded', () => {
+      const ctx = document.getElementById('roscaDonutChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Paid', 'Pending', 'Late'],
+          datasets: [{
+            data: [65, 25, 10],
+            backgroundColor: [
+              '#3b82f6', // Paid - Blue
+              '#fbbf24', // Pending - Amber
+              '#ef4444'  // Late - Red
+            ],
+            borderWidth: 0,
+            hoverOffset: 4
+          }]
+        },
+        options: {
+          cutout: '72%',
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: { enabled: true }
+          }
+        }
+      });
+    });
+
+    // Viewport Toggle for Desktop / Mobile presentation
+    function setDeviceView(view) {
+      const frame = document.getElementById('app-frame');
+      const btnMobile = document.getElementById('toggle-mobile');
+      const btnDesktop = document.getElementById('toggle-desktop');
+
+      if (view === 'desktop') {
+        frame.classList.add('desktop-mode');
+        btnDesktop.className = "px-3 py-1 rounded-full bg-rosca-teal text-white font-bold transition-all";
+        btnMobile.className = "px-3 py-1 rounded-full text-slate-300 hover:text-white transition-all";
+      } else {
+        frame.classList.remove('desktop-mode');
+        btnMobile.className = "px-3 py-1 rounded-full bg-rosca-teal text-white font-bold transition-all";
+        btnDesktop.className = "px-3 py-1 rounded-full text-slate-300 hover:text-white transition-all";
+      }
+    }
+
+    // Modal Handlers
+    function openContributionModal() {
+      const modal = document.getElementById('contribution-modal');
+      const card = document.getElementById('modal-card');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      card.classList.remove('translate-y-full');
+    }
+
+    function closeContributionModal() {
+      const modal = document.getElementById('contribution-modal');
+      const card = document.getElementById('modal-card');
+      card.classList.add('translate-y-full');
+      setTimeout(() => {
+        modal.classList.add('opacity-0', 'pointer-events-none');
+      }, 200);
+    }
+
+    function submitContribution() {
+      closeContributionModal();
+      showToast('Contribution of UGX 500,000 successful!');
+    }
+
+    // Tab Switcher
+    function switchTab(tab) {
+      const navs = ['home', 'groups', 'payments', 'profile'];
+      navs.forEach(t => {
+        const btn = document.getElementById(`nav-${t}`);
+        if (t === tab) {
+          btn.className = "flex flex-col items-center gap-0.5 text-rosca-teal";
+        } else {
+          btn.className = "flex flex-col items-center gap-0.5 text-slate-400 hover:text-rosca-teal transition-colors";
+        }
+      });
+      showToast(`Switched to ${tab.toUpperCase()} tab`);
+    }
+
+    // Toast Alert
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-text').innerText = msg;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      toast.classList.add('opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 2500);
+    }
+  </script>
+</body>
+</html>

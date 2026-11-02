@@ -1,0 +1,51 @@
+:root {
+  /* ── Core Palette (Fintech Dark Canvas) ───────────────────── */
+  --surface: #0b0e11;                  /* Deep background canvas */
+  --surface-container-lowest: #11161b;   /* Nav/Sidebar background */
+  --surface-container-low: #171d24;      /* Card & panel backgrounds */
+  --surface-container: #1e252e;          /* Hover states & alt containers */
+  --surface-container-high: #262f3a;     /* Elevated modals & popovers */
+  --surface-container-highest: #303a48;  /* Crisp border/divider fills */
+
+  /* ── Brand & Accent Colors ────────────────────────────── */
+  --brand-primary: #00daf3;            /* Neon Cyan Accent */
+  --brand-primary-glow: rgba(0, 218, 243, 0.15);
+  --brand-primary-hover: #33e1f6;
+  
+  --brand-secondary: #7b61ff;          /* Vibrant Violet Accent */
+  --brand-secondary-glow: rgba(123, 97, 255, 0.15);
+
+  /* ── Typography / On-Surface Colors ───────────────────── */
+  --on-surface: #f1f5f9;               /* Primary Text (Slate-100) */
+  --on-surface-variant: #94a3b8;       /* Secondary Text (Slate-400) */
+  --on-surface-muted: #64748b;         /* Muted Labels & Hints */
+  --outline: #334155;                  /* Primary Border Color */
+  --outline-variant: rgba(255, 255, 255, 0.08); /* Subtle dividers */
+
+  /* ── Semantic Status Colors ───────────────────────────── */
+  --success: #10b981;                  /* Emerald green */
+  --success-glow: rgba(16, 185, 129, 0.15);
+  --warning: #f59e0b;                  /* Amber warning */
+  --warning-glow: rgba(245, 158, 11, 0.15);
+  --error: #f43f5e;                    /* Rose red error */
+  --error-glow: rgba(244, 63, 94, 0.15);
+
+  /* ── Border Radius Scale ──────────────────────────────── */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* ── Elevations & Shadows ─────────────────────────────── */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px -4px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 20px 40px -8px rgba(0, 0, 0, 0.6);
+  --glow-primary: 0 0 20px var(--brand-primary-glow);
+
+  /* ── Transitions ─────────────────────────────────────── */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}

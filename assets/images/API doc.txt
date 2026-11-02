@@ -1,0 +1,158 @@
+The definitive backend contract
+Public (no auth)
+Method	Full path	Purpose
+POST	/api/branches/onboard	Self-serve branch admin onboarding (creates PENDING branch + BRANCH_ADMIN user)
+GET	/api/branches/:slug/public	Branch landing page data (about, terms, privacy, branding)
+GET	/api/branches/:slug	Legacy full lookup
+Auth (/api/auth)
+Method	Path	Purpose
+POST	/register	Saver registration
+POST	/verify-phone	OTP verify
+POST	/login	Login
+POST	/refresh	Refresh tokens
+POST	/logout	Logout
+POST	/password/forgot	Request reset OTP
+POST	/password/reset	Complete reset
+GET	/me	Current user (via auth router)
+GET	/sessions	List sessions (mounted at /api/auth/sessions)
+DELETE	/sessions	Revoke all sessions
+Users (/api/users)
+Method	Path	Purpose
+GET	/me	Current user
+PATCH	/me	Update profile
+PATCH	/me/password	Change password
+PATCH	/me/phone/request	Request phone change OTP
+PATCH	/me/phone/verify	Verify new phone
+GET	/me/consent	Latest consent per type
+GET	/me/consent/history	Full consent history
+GET	/me/consent/can-withdraw	Precondition check
+POST	/me/consent/withdraw	Withdraw a consent
+Branches — Super Admin (/api/super-admin/branches)
+Method	Path	Purpose
+POST	/	Create branch
+GET	/	List branches
+GET	/:id	View one
+PATCH	/:id	Update
+PATCH	/:id/branding	Update branding
+PATCH	/:id/onboarding/approve	Approve onboarding
+PATCH	/:id/onboarding/reject	Reject onboarding
+Branches — Branch Admin (/api/branch-admin/branches)
+Method	Path	Purpose
+PATCH	/:id/content	Edit about / terms / privacy
+Branches — Trust Account (/api/branches)
+Method	Path	Purpose
+PATCH	/:id/trust-account	Set trust account (admin or SA)
+KYC — Saver (/api/kyc)
+Method	Path	Purpose
+POST	/	Submit KYC (multipart)
+GET	/me	View own status
+KYC — Branch Admin (/api/branch-admin/kyc)
+Method	Path	Purpose
+GET	/	List (own branch)
+GET	/:id	View one
+PATCH	/:id/approve	Approve
+PATCH	/:id/reject	Reject
+KYC — Super Admin (/api/super-admin/kyc)
+Method	Path	Purpose
+GET	/	List all
+GET	/:id	View any
+PATCH	/:id/approve	Approve
+PATCH	/:id/reject	Reject
+Tenants — Saver (/api/tenants)
+Method	Path	Purpose
+GET	/me	My tenant + members
+GET	/me/members	Flat member list
+Tenants — Branch Admin (/api/branch-admin/tenants)
+Method	Path	Purpose
+GET	/summary	Counts + list
+GET	/	List tenants
+GET	/:id	View one
+PATCH	/:id/status	Change status
+Tenure Renewal — Saver (/api/tenants/me)
+Method	Path	Purpose
+GET	/renewal	My renewal status
+POST	/renewal/vote	Cast YES/NO
+GET	/renewal/members	Members' votes
+Tenure Renewal — Branch Admin (/api/branch-admin/tenants)
+Method	Path	Purpose
+GET	/:id/renewal	Renewal status
+GET	/:id/renewal/members	Members' votes
+POST	/:id/renewal/replace	Assign replacement
+POST	/:id/renewal/dissolve	Force dissolve
+Tenants — Super Admin (/api/super-admin/tenants)
+Method	Path	Purpose
+GET	/by-branch/:branchId	List tenants in a branch
+POST	/provision/:userId	Manual provisioning
+GET	/:id	View one
+PATCH	/:id/status	Change status
+Contributions — Saver (/api/contributions)
+Method	Path	Purpose
+GET	/me/current	Current intent (create if missing)
+GET	/me/intents	All my intents
+GET	/me/contributions	All my confirmed contributions
+POST	/me/receipt	Upload receipt (multipart)
+Contributions — Branch Admin (/api/branch-admin/contributions)
+Method	Path	Purpose
+GET	/pending	Pending queue with receipts
+POST	/:intentId/confirm	Confirm
+POST	/:intentId/reject	Reject
+GET	/tenants/:tenantId/cycle	Cycle status
+POST	/tenants/:tenantId/remind	Send reminder
+Tenant Visibility (any authenticated member, mounted at /api/tenants/me)
+Method	Path	Purpose
+GET	/contributions	All 12 members' statuses
+GET	/ledger	Tenant ledger
+GET	/receipts	Receipt gallery
+Receipts (/api/receipts)
+Method	Path	Purpose
+GET	/:id	View one
+GET	/intent/:intentId	List for intent
+Pool Accounts — Branch Admin (/api/branch-admin/pool-account)
+Method	Path	Purpose
+GET	/	View own
+PUT	/	Set/update own
+Pool Accounts — Super Admin
+Method	Path	Purpose
+GET	/api/super-admin/maintenance-account	Get platform account
+PUT	/api/super-admin/maintenance-account	Set platform account
+GET	/api/super-admin/branch-pool-account/:branchId	View branch's
+Payouts — Branch Admin (/api/branch-admin/payouts)
+Method	Path	Purpose
+GET	/	List payouts
+GET	/failed	List failed
+GET	/:id	View one
+POST	/fees/:id/receipt	Upload fee receipt
+POST	/:id/receipt	Upload payout receipt
+POST	/:id/confirm	Confirm payout
+POST	/:id/fail	Mark failed
+POST	/:id/retry	Retry
+Payouts — Super Admin (/api/super-admin/payouts)
+Method	Path	Purpose
+GET	/fees/pending	Queue
+GET	/failed	Failed queue
+GET	/fees/:id	View fee intent
+POST	/fees/:id/confirm	Confirm fee
+POST	/fees/:id/reject	Reject fee
+POST	/:id/fail	Mark failed
+POST	/:id/retry	Retry
+GET	/:id	View one
+Payouts — Saver (/api/tenants/me)
+Method	Path	Purpose
+GET	/payout/current	Current cycle payout
+GET	/payouts	All tenant payouts
+GET	/payouts/me	My payouts
+Notifications (/api/notifications)
+Method	Path	Purpose
+GET	/	Feed
+GET	/unread-count	Badge number
+POST	/read-all	Mark all read
+POST	/:id/read	Mark one read
+GET	/vapid-public-key	Web Push public key
+POST	/push/subscribe	Register push sub
+POST	/push/unsubscribe	Revoke push sub
+GET	/push/subscriptions	List my subs
+Stats
+Method	Path	Purpose
+GET	/api/super-admin/stats	Platform stats
+GET	/api/super-admin/stats/monthly-volume	12-month rollup
+GET	/api/branch-admin/stats	Branch stats

@@ -1,0 +1,1931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#00daf3">
+  <title>Super Admin — ROSCA Thrift &amp; Savings</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+
+  <style>
+    body { overflow-x: hidden; }
+    .app { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+
+    /* ── Sidebar ─────────────────────────────────────────── */
+    .sidebar {
+      background: var(--surface-container-lowest);
+      border-right: 1px solid var(--outline-variant);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .sidebar__brand {
+      padding: 0 8px 24px;
+      border-bottom: 1px solid var(--outline-variant);
+      margin-bottom: 20px;
+    }
+    .sidebar__brand-top {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-bottom: 4px;
+    }
+    .sidebar__brand-name {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--brand-primary);
+      letter-spacing: 0.02em;
+      line-height: 1.2;
+      word-break: break-word;
+    }
+    .sidebar__nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      color: var(--on-surface-variant);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      text-align: left;
+      width: 100%;
+    }
+    .nav-item:hover { background: var(--surface-container-low); color: var(--on-surface); }
+    .nav-item.is-active {
+      background: rgba(0, 218, 243, 0.1);
+      color: var(--brand-primary);
+      border-left: 2px solid var(--brand-primary);
+      padding-left: 10px;
+    }
+    .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .sidebar__footer {
+      border-top: 1px solid var(--outline-variant);
+      padding-top: 16px;
+      margin-top: 16px;
+    }
+    .sidebar__user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      border-radius: var(--radius);
+      margin-bottom: 8px;
+    }
+    .sidebar__avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--brand-primary);
+      color: #0a0a0c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .sidebar__user-info { overflow: hidden; flex: 1; }
+    .sidebar__user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--on-surface);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sidebar__user-role {
+      font-size: 11px;
+      color: var(--on-surface-variant);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      color: var(--error);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      width: 100%;
+      text-align: left;
+    }
+    .logout-btn:hover { background: rgba(255, 180, 171, 0.08); }
+    .logout-btn svg { width: 18px; height: 18px; }
+
+    /* ── Main ───────────────────────────────────────────── */
+    .main { min-width: 0; display: flex; flex-direction: column; }
+    .topbar {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--outline-variant);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      background: rgba(17, 20, 20, 0.85);
+      backdrop-filter: blur(16px);
+      z-index: 100;
+    }
+    .topbar__hamburger {
+      display: none;
+      background: transparent;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      color: var(--on-surface);
+      padding: 8px;
+      cursor: pointer;
+    }
+    .topbar__hamburger svg { width: 20px; height: 20px; display: block; }
+    .topbar__title { font-size: 18px; font-weight: 700; color: var(--on-surface); letter-spacing: -0.01em; }
+    .topbar__subtitle { font-size: 13px; color: var(--on-surface-variant); margin-top: 2px; }
+    .topbar__actions { display: flex; align-items: center; gap: 12px; }
+    .topbar__avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--brand-primary);
+      color: #0a0a0c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .content {
+      padding: 32px 24px 64px;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      flex: 1;
+    }
+
+    .section { display: none; }
+    .section.is-active { display: block; }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .page-header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 4px; }
+    .page-header p { font-size: 14px; color: var(--on-surface-variant); margin: 0; }
+
+    .card {
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .card__title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--on-surface);
+      margin: 0 0 16px;
+      letter-spacing: -0.01em;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat {
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+    .stat__label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-bottom: 8px;
+    }
+    .stat__value {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--on-surface);
+      line-height: 1;
+    }
+    .stat__value--accent { color: var(--brand-primary); }
+    .stat__value--warning { color: var(--warning); }
+    .stat__value--success { color: var(--success); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn--primary { background: var(--brand-primary); color: #0a0a0c; }
+    .btn--primary:hover:not(:disabled) { filter: brightness(1.1); }
+    .btn--success { background: var(--success); color: #003824; }
+    .btn--success:hover:not(:disabled) { filter: brightness(1.1); }
+    .btn--danger { background: transparent; color: var(--error); border-color: rgba(255, 180, 171, 0.4); }
+    .btn--danger:hover:not(:disabled) { background: rgba(255, 180, 171, 0.08); }
+    .btn--ghost { background: transparent; color: var(--on-surface); border-color: var(--outline-variant); }
+    .btn--ghost:hover:not(:disabled) { background: var(--surface-container); }
+    .btn--sm { padding: 6px 12px; font-size: 12px; }
+
+    .form-row { margin-bottom: 16px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-bottom: 6px;
+    }
+    .form-input, .form-textarea {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--surface-container-lowest);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      color: var(--on-surface);
+      font-family: inherit;
+      font-size: 14px;
+      transition: all var(--transition-fast);
+    }
+    .form-input:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      background: var(--surface-container);
+    }
+    .form-textarea { min-height: 140px; resize: vertical; line-height: 1.6; }
+    .form-input:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 3px rgba(0, 218, 243, 0.15);
+    }
+    .form-hint { font-size: 12px; color: var(--on-surface-variant); margin-top: 4px; display: block; }
+
+    .row { display: flex; align-items: center; }
+
+    .table-wrap {
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--outline-variant);
+      background: var(--surface-container);
+    }
+    .table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(64, 72, 74, 0.4);
+      color: var(--on-surface);
+      vertical-align: middle;
+    }
+    .table tbody tr:last-child td { border-bottom: none; }
+    .table tbody tr:hover { background: rgba(0, 218, 243, 0.03); }
+    .table__actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .badge--success { background: rgba(78, 222, 163, 0.15); color: var(--success); }
+    .badge--warning { background: rgba(245, 226, 163, 0.15); color: var(--warning); }
+    .badge--error { background: rgba(255, 180, 171, 0.15); color: var(--error); }
+    .badge--info { background: rgba(0, 218, 243, 0.15); color: var(--brand-primary); }
+    .badge--neutral { background: var(--surface-container-high); color: var(--on-surface-variant); }
+
+    .empty {
+      text-align: center;
+      padding: 48px 24px;
+      border: 1px dashed var(--outline-variant);
+      border-radius: var(--radius-lg);
+      color: var(--on-surface-variant);
+    }
+    .empty__icon { font-size: 42px; opacity: 0.3; margin-bottom: 12px; }
+    .empty h3 { font-size: 16px; font-weight: 700; color: var(--on-surface); margin-bottom: 6px; }
+    .empty p { font-size: 13px; margin: 0; max-width: 400px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+
+    #toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      pointer-events: none;
+    }
+    .toast {
+      pointer-events: auto;
+      min-width: 260px;
+      max-width: 400px;
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      background: var(--surface-container-high);
+      border: 1px solid var(--outline-variant);
+      color: var(--on-surface);
+      font-size: 14px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+    .toast--success { border-color: var(--success); }
+    .toast--error { border-color: var(--error); }
+    .toast--info { border-color: var(--brand-primary); }
+
+    .drawer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 299;
+    }
+    .drawer-overlay.is-open { display: block; }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal.is-open { display: flex; }
+    .modal__content {
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 32px;
+    }
+
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar {
+        position: fixed;
+        top: 0; left: 0; bottom: 0;
+        width: 280px;
+        height: 100vh;
+        transform: translateX(-100%);
+        transition: transform 250ms ease-out;
+        z-index: 300;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+      }
+      .sidebar.is-open { transform: translateX(0); }
+      .topbar__hamburger { display: block; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <div class="sidebar__brand-top">Super Admin</div>
+      <div class="sidebar__brand-name" id="sidebar-brand-name">ROSCA Thrift &amp; Savings</div>
+    </div>
+
+    <nav class="sidebar__nav">
+      <button class="nav-item is-active" data-section="overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Overview
+      </button>
+      <button class="nav-item" data-section="branches">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>
+        Branches
+      </button>
+      <button class="nav-item" data-section="branch-accounts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/><path d="M9 12l2 2 4-4"/></svg>
+        Branch KYC &amp; Accounts
+      </button>
+      <button class="nav-item" data-section="payout-approvals">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Payout Approvals
+      </button>
+      <button class="nav-item" data-section="tenants">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+        All Tenants
+      </button>
+      <button class="nav-item" data-section="savers">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        All Savers
+      </button>
+      <button class="nav-item" data-section="platform-settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Platform Settings
+      </button>
+      <button class="nav-item" data-section="analytics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 4 4 5-7"/></svg>
+        Platform Analytics
+      </button>
+    </nav>
+
+    <div class="sidebar__footer">
+      <div class="sidebar__user">
+        <div class="sidebar__avatar" id="sidebar-avatar">S</div>
+        <div class="sidebar__user-info">
+          <div class="sidebar__user-name" id="sidebar-user-name">Loading…</div>
+          <div class="sidebar__user-role">Super Admin</div>
+        </div>
+      </div>
+      <button class="logout-btn" id="logout-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Log out
+      </button>
+    </div>
+  </aside>
+
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+
+  <div class="main">
+    <div class="topbar">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button class="topbar__hamburger" id="hamburger" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div>
+          <div class="topbar__title" id="topbar-title">Overview</div>
+          <div class="topbar__subtitle">Platform administration</div>
+        </div>
+      </div>
+      <div class="topbar__actions">
+        <div class="topbar__avatar" id="topbar-avatar">S</div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ═══ OVERVIEW ═══ -->
+      <section class="section is-active" id="section-overview">
+        <div class="page-header"><div><h1>Platform Overview</h1><p>System-wide statistics.</p></div></div>
+        <div class="stat-grid" style="grid-template-columns: repeat(4, 1fr);">
+          <!-- Row 1 -->
+          <div class="stat"><div class="stat__label">Total Branches</div><div class="stat__value" id="stat-branches-total">0</div></div>
+          <div class="stat"><div class="stat__label">Pending Onboarding</div><div class="stat__value stat__value--accent" id="stat-branches-pending-onboard">0</div></div>
+          <div class="stat"><div class="stat__label">Pending Branch KYC</div><div class="stat__value stat__value--warning" id="stat-branches-pending-kyc">0</div></div>
+          <div class="stat"><div class="stat__label">Total Members</div><div class="stat__value" id="stat-members-total">0</div></div>
+          
+          <!-- Row 2 -->
+          <div class="stat"><div class="stat__label">Total Tenants</div><div class="stat__value" id="stat-tenants-total">0</div></div>
+          <div class="stat"><div class="stat__label">Active Tenants</div><div class="stat__value" id="stat-tenants-active">0</div></div>
+          <div class="stat"><div class="stat__label">Contributions (Month)</div><div class="stat__value stat__value--success" id="stat-monthly-contribs">£0</div></div>
+          <div class="stat"><div class="stat__label">Payouts (Month)</div><div class="stat__value stat__value--accent" id="stat-monthly-payouts">£0</div></div>
+        </div>
+      </section>
+
+      <!-- ═══ BRANCHES ═══ -->
+      <section class="section" id="section-branches">
+        <div class="page-header">
+          <div>
+            <h1>Branches</h1>
+            <p>Manage branch lifecycles and onboardings.</p>
+          </div>
+          <div class="row" style="gap: 8px;">
+            <label class="form-label" style="margin: 0; align-self: center;">Filter:</label>
+            <select class="form-input" id="branch-status-filter" style="width: 220px; padding: 8px 12px;">
+              <option value="ALL">All Branches</option>
+              <option value="ONBOARDING_PENDING">Onboarding Pending</option>
+              <option value="KYC_NOT_SUBMITTED">KYC Not Submitted</option>
+              <option value="KYC_PENDING">KYC Pending Review</option>
+              <option value="ACTIVE">Fully Active</option>
+              <option value="REJECTED">Rejected / Declined</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="table" id="branches-table">
+            <thead>
+              <tr>
+                <th>Branch</th>
+                <th>Admin</th>
+                <th>Contact</th>
+                <th>Lifecycle Status</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody><tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--on-surface-variant);">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ═══ BRANCH ACCOUNTS (KYC) ═══ -->
+      <section class="section" id="section-branch-accounts">
+        <div class="page-header">
+          <div>
+            <h1>Branch KYC &amp; Accounts</h1>
+            <p>Review identity and bank details for Branch Admins.</p>
+          </div>
+          <div class="row" style="gap: 8px;">
+            <label class="form-label" style="margin: 0; align-self: center;">Filter by Status:</label>
+            <select class="form-input" id="admin-kyc-status-filter" style="width: 150px; padding: 8px 12px;">
+              <option value="PENDING">Pending Review</option>
+              <option value="APPROVED">Approved</option>
+              <option value="REJECTED">Rejected</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="table" id="branch-accounts-table">
+            <thead>
+              <tr>
+                <th>Branch &amp; Admin</th>
+                <th>Bank Details</th>
+                <th>Date Submitted</th>
+                <th>Status</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody><tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--on-surface-variant);">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ═══ PAYOUT APPROVALS ═══ -->
+      <section class="section" id="section-payout-approvals">
+        <div class="page-header">
+          <div>
+            <h1>Fee Approvals</h1>
+            <p>Review platform fee receipts uploaded by Branch Admins.</p>
+          </div>
+          <div class="row" style="gap: 12px; flex-wrap: wrap;">
+            <select class="form-input" id="fee-status-filter" style="width: 150px; padding: 8px 12px;">
+              <option value="PENDING">Pending Approval</option>
+              <option value="CONFIRMED">Confirmed History</option>
+              <option value="ALL">All Fees</option>
+            </select>
+            <select class="form-input" id="fee-branch-filter" style="width: 180px; padding: 8px 12px;">
+              <option value="">All Branches</option>
+            </select>
+            <input type="text" class="form-input" id="fee-search" placeholder="Search Reference..." style="width: 200px; padding: 8px 12px;" />
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="table" id="payout-approvals-table">
+            <thead>
+              <tr>
+                <th>Branch & Admin</th>
+                <th>Tenant & Cycle</th>
+                <th>Payout Reference</th>
+                <th>Fee Amount</th>
+                <th>Receipt</th>
+                <th>Status</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody><tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--on-surface-variant);">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ═══ ALL TENANTS ═══ -->
+      <section class="section" id="section-tenants">
+        <div class="page-header"><div><h1>All Tenants</h1><p>Every circle across every branch.</p></div></div>
+        <div class="table-wrap">
+          <table class="table" id="tenants-table">
+            <thead>
+              <tr>
+                <th>Tenant Name</th>
+                <th>Branch</th>
+                <th>Admin</th>
+                <th>Status</th>
+                <th>Cycle</th>
+                <th>Tenure</th>
+                <th>Members</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody><tr><td colspan="8" style="text-align: center; padding: 40px; color: var(--on-surface-variant);">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ═══ ALL SAVERS ═══ -->
+      <section class="section" id="section-savers">
+        <div class="page-header">
+          <div>
+            <h1>All Savers</h1>
+            <p>Every registered saver on the platform.</p>
+          </div>
+          <div class="row" style="gap: 12px; flex-wrap: wrap;">
+            <select class="form-input" id="saver-branch-filter" style="width: 180px; padding: 8px 12px;">
+              <option value="">All Branches</option>
+            </select>
+            <select class="form-input" id="saver-tenant-filter" style="width: 180px; padding: 8px 12px;">
+              <option value="">All Tenants</option>
+            </select>
+            <select class="form-input" id="saver-kyc-filter" style="width: 180px; padding: 8px 12px;">
+              <option value="">All KYC Statuses</option>
+              <option value="APPROVED">Approved</option>
+              <option value="PENDING">Pending</option>
+              <option value="REJECTED">Rejected</option>
+              <option value="NOT_SUBMITTED">Not Submitted</option>
+            </select>
+            <input type="text" class="form-input" id="saver-search" placeholder="Search name/phone..." style="width: 220px; padding: 8px 12px;">
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="table" id="savers-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Branch</th>
+                <th>Tenant (Slot)</th>
+                <th>KYC Status</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody><tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--on-surface-variant);">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ═══ PLATFORM SETTINGS ═══ -->
+      <section class="section" id="section-platform-settings">
+        <div class="page-header">
+          <div>
+            <h1>Platform Settings</h1>
+            <p>Manage the platform's maintenance account.</p>
+          </div>
+        </div>
+
+        <form id="maintenance-account-form">
+          <div class="card" style="max-width: 600px;">
+            <div class="card__title">Platform Maintenance Account</div>
+            <p style="color: var(--on-surface-variant); font-size: 13px; margin-bottom: 16px;">
+              This is the account where Branch Admins will send the 1.5% platform fees. 
+            </p>
+            
+            <div class="form-row">
+              <label class="form-label" for="ma-holder">Account Holder Name</label>
+              <input class="form-input" type="text" id="ma-holder" required readonly style="background: var(--surface-container); opacity: 0.7;" />
+            </div>
+            <div class="form-row">
+              <label class="form-label" for="ma-bank">Bank Name</label>
+              <input class="form-input" type="text" id="ma-bank" required readonly style="background: var(--surface-container); opacity: 0.7;" />
+            </div>
+            <div class="form-grid">
+              <div class="form-row">
+                <label class="form-label" for="ma-sort">Sort Code</label>
+                <input class="form-input" type="text" id="ma-sort" required readonly style="background: var(--surface-container); opacity: 0.7;" />
+              </div>
+              <div class="form-row">
+                <label class="form-label" for="ma-number">Account Number</label>
+                <input class="form-input" type="text" id="ma-number" required readonly style="background: var(--surface-container); opacity: 0.7;" />
+              </div>
+            </div>
+
+            <!-- The Action Buttons -->
+            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px;">
+              <button type="button" class="btn btn--ghost" id="ma-cancel-btn" style="display: none;">Cancel</button>
+              <button type="button" class="btn btn--primary" id="ma-edit-btn">Edit Details</button>
+              <button type="submit" class="btn btn--primary" id="ma-save-btn" style="display: none;">Save Changes</button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <!-- ═══ ANALYTICS ═══ -->
+      <section class="section" id="section-analytics">
+        <div class="page-header">
+          <div>
+            <h1>Platform Analytics</h1>
+            <p>All-time volume, top performing branches, and recent activity.</p>
+          </div>
+        </div>
+
+        <div class="stat-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+          <div class="stat">
+            <div class="stat__label">Total Contributions (All Time)</div>
+            <div class="stat__value stat__value--success" id="ana-total-contribs">£0</div>
+            <div style="font-size: 13px; color: var(--on-surface-variant); margin-top: 8px;" id="ana-total-contribs-count">0 payments</div>
+          </div>
+          <div class="stat">
+            <div class="stat__label">Total Payouts (All Time)</div>
+            <div class="stat__value stat__value--accent" id="ana-total-payouts">£0</div>
+            <div style="font-size: 13px; color: var(--on-surface-variant); margin-top: 8px;" id="ana-total-payouts-count">0 payouts</div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;">
+          
+          <!-- Top Branches -->
+          <div class="card">
+            <div class="card__title">Top Branches by Volume</div>
+            <div class="table-wrap" style="margin-top: 16px;">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Branch</th>
+                    <th>Total Volume</th>
+                    <th>Payments</th>
+                  </tr>
+                </thead>
+                <tbody id="ana-top-branches-body">
+                  <tr><td colspan="3" style="text-align: center;">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="card">
+            <div class="card__title">Recent Platform Activity</div>
+            <div class="table-wrap" style="margin-top: 16px;">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>User</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody id="ana-recent-activity-body">
+                  <tr><td colspan="4" style="text-align: center;">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TENANT DETAILS MODAL ═══ -->
+<div class="modal" id="tenant-modal">
+  <div class="modal__content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <h2 style="font-size: 24px; margin: 0;" id="modal-tenant-title">Tenant Details</h2>
+      <button class="btn btn--ghost btn--sm" onclick="document.getElementById('tenant-modal').classList.remove('is-open')">Close</button>
+    </div>
+    <div id="modal-tenant-body">
+      Loading…
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SAVER DETAILS MODAL ═══ -->
+<div class="modal" id="saver-modal">
+  <div class="modal__content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <h2 style="font-size: 24px; margin: 0;" id="modal-saver-title">Saver Details</h2>
+      <button class="btn btn--ghost btn--sm" onclick="document.getElementById('saver-modal').classList.remove('is-open')">Close</button>
+    </div>
+    <div id="modal-saver-body">
+      Loading…
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BRANCH DETAILS MODAL ═══ -->
+<div class="modal" id="branch-modal">
+  <div class="modal__content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <div>
+        <h2 style="font-size: 24px; margin: 0;" id="modal-branch-title">Branch Details</h2>
+        <p style="color: var(--on-surface-variant); font-size: 14px; margin-top: 4px;" id="modal-branch-subtitle">Loading...</p>
+      </div>
+      <button class="btn btn--ghost btn--sm" onclick="document.getElementById('branch-modal').classList.remove('is-open')">Close</button>
+    </div>
+    
+    <div id="modal-branch-body">
+      <div class="empty"><div class="spinner"></div><p>Loading branch data...</p></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="/assets/js/config.js"></script>
+<script src="/assets/js/api.js"></script>
+<script>
+  (function () {
+    'use strict';
+
+    const api = window.ROSCA_API.api;
+    const state = { user: null, allSavers: [] };
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+      });
+    }
+    function formatDate(s) {
+      if (!s) return '—';
+      try { return new Date(s).toLocaleString('en-GB', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (_) { return s; }
+    }
+    function penceToGbp(s) {
+      if (s == null || s === '') return '£0';
+      const n = Number(s);
+      if (!isFinite(n)) return '£0';
+      return '£' + (n / 100).toFixed(2);
+    }
+    function toast(message, kind) {
+      kind = kind || 'info';
+      const el = document.createElement('div');
+      el.className = 'toast toast--' + kind;
+      el.textContent = message;
+      document.getElementById('toast-container').appendChild(el);
+      setTimeout(function () { el.remove(); }, 4000);
+    }
+
+    const sectionTitles = {
+      'overview': 'Overview',
+      'branches': 'Branches',
+      'branch-accounts': 'Branch KYC',
+      'payout-approvals': 'Payout Approvals',
+      'tenants': 'All Tenants',
+      'savers': 'All Savers',
+      'platform-settings': 'Platform Settings',
+      'analytics': 'Analytics',
+    };
+
+    function showSection(key) {
+      document.querySelectorAll('.section').forEach(function (el) { el.classList.remove('is-active'); });
+      document.querySelectorAll('.nav-item').forEach(function (el) { el.classList.remove('is-active'); });
+      const section = document.getElementById('section-' + key);
+      if (section) section.classList.add('is-active');
+      const navItem = document.querySelector('.nav-item[data-section="' + key + '"]');
+      if (navItem) navItem.classList.add('is-active');
+      document.getElementById('topbar-title').textContent = sectionTitles[key] || 'Dashboard';
+
+      if (key === 'overview') loadOverview();
+      else if (key === 'branches') loadBranches();
+      else if (key === 'branch-accounts') loadBranchAccounts();
+      else if (key === 'payout-approvals') loadPayoutApprovals();
+      else if (key === 'tenants') loadTenants();
+      else if (key === 'savers') loadSavers();
+      else if (key === 'platform-settings') loadPlatformSettings();
+      else if (key === 'analytics') loadAnalytics();
+      
+      closeDrawer();
+    }
+
+    document.querySelectorAll('.nav-item').forEach(function (el) {
+      el.addEventListener('click', function () { showSection(el.dataset.section); });
+    });
+
+    const sidebar = document.getElementById('sidebar');
+    const drawerOverlay = document.getElementById('drawer-overlay');
+    function openDrawer() { sidebar.classList.add('is-open'); drawerOverlay.classList.add('is-open'); }
+    function closeDrawer() { sidebar.classList.remove('is-open'); drawerOverlay.classList.remove('is-open'); }
+    document.getElementById('hamburger').addEventListener('click', openDrawer);
+    drawerOverlay.addEventListener('click', closeDrawer);
+
+    document.getElementById('logout-btn').addEventListener('click', function () {
+      window.ROSCA_API.clearTokens();
+      window.location.href = '/?login=1';
+    });
+
+    function initials(name) {
+      if (!name) return 'S';
+      return name.trim().split(/\s+/).map(function (s) { return s[0]; }).slice(0, 2).join('').toUpperCase();
+    }
+
+    // ── Boot: load user ──────────────────────────────────────
+    async function loadMe() {
+      if (!window.ROSCA_API.getAccessToken()) { window.location.href = '/?login=1'; return false; }
+      try {
+        const user = await api('/api/users/me');
+        state.user = user;
+
+        if (user.role !== 'SUPER_ADMIN') {
+          if (user.role === 'BRANCH_ADMIN') window.location.href = '/branch/dashboard.html';
+          else window.location.href = '/saver/dashboard.html';
+          return false;
+        }
+
+        const ini = initials(user.fullName);
+        document.getElementById('topbar-avatar').textContent = ini;
+        document.getElementById('sidebar-avatar').textContent = ini;
+        document.getElementById('sidebar-user-name').textContent = user.fullName;
+        return true;
+      } catch (err) {
+        console.error(err);
+        window.ROSCA_API.clearTokens();
+        window.location.href = '/?login=1';
+        return false;
+      }
+    }
+
+    // ── Overview ─────────────────────────────────────────────
+    async function loadOverview() {
+      try {
+        const stats = await api('/api/super-admin/stats');
+        
+        // Row 1
+        document.getElementById('stat-branches-total').textContent = stats.branches.total;
+        document.getElementById('stat-branches-pending-onboard').textContent = stats.branches.pending || 0;
+        document.getElementById('stat-branches-pending-kyc').textContent = stats.branches.pendingKyc || 0;
+        document.getElementById('stat-members-total').textContent = stats.members.total;
+        
+        // Row 2
+        document.getElementById('stat-tenants-total').textContent = stats.tenants.total;
+        document.getElementById('stat-tenants-active').textContent = stats.tenants.active;
+        document.getElementById('stat-monthly-contribs').textContent = '£' + (stats.contributions.thisMonthGbp || '0.00');
+        document.getElementById('stat-monthly-payouts').textContent = '£' + (stats.payouts.thisMonthGbp || '0.00');
+        
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // ── Branches ─────────────────────────────────────────────
+    async function loadBranches() {
+      const tbody = document.querySelector('#branches-table tbody');
+      const filterEl = document.getElementById('branch-status-filter');
+      const filter = filterEl ? filterEl.value : 'ALL';
+      
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--on-surface-variant);">Loading…</td></tr>';
+      
+      try {
+        const result = await api('/api/super-admin/branches?limit=100');
+        let branches = result.branches || [];
+
+        // Apply frontend filter (without forcing onboardingStatus === 'APPROVED')
+        if (filter === 'ONBOARDING_PENDING') {
+          branches = branches.filter(b => b.onboardingStatus === 'PENDING');
+        } else if (filter === 'KYC_NOT_SUBMITTED') {
+          branches = branches.filter(b => 
+            !b.adminKycStatus || b.adminKycStatus === 'NOT_SUBMITTED'
+          );
+        } else if (filter === 'KYC_PENDING') {
+          branches = branches.filter(b => 
+            b.adminKycStatus === 'PENDING'
+          );
+        } else if (filter === 'ACTIVE') {
+          branches = branches.filter(b => 
+            b.onboardingStatus === 'APPROVED' && 
+            b.adminKycStatus === 'APPROVED'
+          );
+        } else if (filter === 'REJECTED') {
+          branches = branches.filter(b => 
+            b.onboardingStatus === 'REJECTED' || 
+            b.adminKycStatus === 'REJECTED'
+          );
+        }
+
+        if (!branches.length) {
+          tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty__icon">✓</div><h3>No branches found</h3><p>No branches match this filter.</p></div></td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = branches.map(function (b) {
+          // Determine Lifecycle Status
+          let badgeClass = 'neutral';
+          let statusText = 'Unknown';
+          
+          if (b.onboardingStatus === 'PENDING') {
+            badgeClass = 'warning';
+            statusText = 'Onboarding Pending';
+          } else if (b.onboardingStatus === 'REJECTED') {
+            badgeClass = 'error';
+            statusText = 'Onboarding Rejected';
+          } else if (b.onboardingStatus === 'APPROVED' && (!b.adminKycStatus || b.adminKycStatus === 'NOT_SUBMITTED')) {
+            badgeClass = 'neutral';
+            statusText = 'KYC Not Submitted';
+          } else if (b.onboardingStatus === 'APPROVED' && b.adminKycStatus === 'PENDING') {
+            badgeClass = 'info';
+            statusText = 'KYC Pending Review';
+          } else if (b.onboardingStatus === 'APPROVED' && b.adminKycStatus === 'APPROVED') {
+            badgeClass = 'success';
+            statusText = 'Fully Active';
+          } else if (b.adminKycStatus === 'REJECTED') {
+            badgeClass = 'error';
+            statusText = 'KYC Rejected';
+          }
+
+          const isPending = b.onboardingStatus === 'PENDING';
+          const actions = `
+            <div class="table__actions">
+              ${isPending ? `<button class="btn btn--success btn--sm" data-approve="${b.id}">Approve</button>` : ''}
+              ${isPending ? `<button class="btn btn--danger btn--sm" data-reject="${b.id}">Reject</button>` : ''}
+              <button class="btn btn--primary btn--sm" data-view-branch="${b.id}">View Branch</button>
+            </div>
+          `;
+
+          return '<tr>' +
+            '<td><strong>' + escapeHtml(b.name) + '</strong><br><span style="font-size:12px;color:var(--on-surface-variant);">/' + escapeHtml(b.slug) + '</span></td>' +
+            '<td>' + escapeHtml(b.adminName || '—') + '</td>' +
+            '<td>' + escapeHtml(b.contactEmail || '—') + '</td>' +
+            '<td><span class="badge badge--' + badgeClass + '">' + statusText + '</span></td>' +
+            '<td>' + actions + '</td>' +
+          '</tr>';
+        }).join('');
+        
+        // Event Listeners
+        tbody.querySelectorAll('[data-approve]').forEach(function (btn) {
+          btn.addEventListener('click', function () { approveBranch(btn.dataset.approve); });
+        });
+        tbody.querySelectorAll('[data-reject]').forEach(function (btn) {
+          btn.addEventListener('click', function () { rejectBranch(btn.dataset.reject); });
+        });
+        tbody.querySelectorAll('[data-view-branch]').forEach(function (btn) {
+          btn.addEventListener('click', function () { openBranchModal(btn.dataset.viewBranch); });
+        });
+        
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err.message) + '</td></tr>';
+      }
+    }
+
+    // Listen for filter changes
+    const branchFilter = document.getElementById('branch-status-filter');
+    if (branchFilter) {
+      branchFilter.addEventListener('change', loadBranches);
+    }
+
+    async function openBranchModal(branchId) {
+      const modal = document.getElementById('branch-modal');
+      const title = document.getElementById('modal-branch-title');
+      const subtitle = document.getElementById('modal-branch-subtitle');
+      const body = document.getElementById('modal-branch-body');
+      
+      modal.classList.add('is-open');
+      body.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--on-surface-variant);">Fetching branch details...</div>';
+      
+      try {
+        // Fetch the branch details
+        const branch = await api('/api/super-admin/branches/' + branchId);
+        
+        title.textContent = branch.name;
+        subtitle.innerHTML = 'Admin: ' + (branch.adminName || 'Unknown') + ' | Contact: ' + (branch.contactEmail || 'N/A');
+        
+        // Fetch the tenants for this branch
+        const tenantsResult = await api('/api/super-admin/tenants/by-branch/' + branchId + '?limit=50');
+        const tenants = tenantsResult.tenants || [];
+        
+        let tenantsHtml = '';
+        if (tenants.length === 0) {
+          tenantsHtml = '<p style="color: var(--on-surface-variant); font-size: 14px;">No circles have formed in this branch yet.</p>';
+        } else {
+          tenantsHtml = `
+            <div class="table-wrap" style="margin-top: 16px;">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Tenant Name</th>
+                    <th>Status</th>
+                    <th>Cycle</th>
+                    <th>Members</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${tenants.map(t => `
+                    <tr>
+                      <td><strong>${escapeHtml(t.name || 'Unnamed Circle')}</strong></td>
+                      <td><span class="badge badge--${t.status === 'ACTIVE' ? 'success' : 'warning'}">${t.status}</span></td>
+                      <td>${t.currentCycle}</td>
+                      <td>${t.memberCount} / 12</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          `;
+        }
+        
+        // Format the KYC status for display
+        let kycDisplay = branch.adminKycStatus;
+        if (kycDisplay === 'NOT_SUBMITTED' || !kycDisplay) kycDisplay = 'Not Submitted';
+        if (kycDisplay === 'PENDING') kycDisplay = 'Pending Review';
+        if (kycDisplay === 'APPROVED') kycDisplay = 'Approved';
+        if (kycDisplay === 'REJECTED') kycDisplay = 'Rejected';
+
+        body.innerHTML = `
+          <div class="stat-grid" style="margin-bottom: 24px;">
+            <div class="stat"><div class="stat__label">Onboarding</div><div class="stat__value" style="font-size: 18px;">${branch.onboardingStatus}</div></div>
+            <div class="stat"><div class="stat__label">Admin KYC</div><div class="stat__value" style="font-size: 18px;">${kycDisplay}</div></div>
+            <div class="stat"><div class="stat__label">Created At</div><div class="stat__value" style="font-size: 16px; margin-top: 4px;">${formatDate(branch.createdAt)}</div></div>
+          </div>
+          
+          <h3 style="font-size: 16px; margin-bottom: 8px;">Circles in this Branch</h3>
+          ${tenantsHtml}
+        `;
+        
+      } catch (err) {
+        body.innerHTML = '<div style="color: var(--error); padding: 20px;">Failed to load branch: ' + err.message + '</div>';
+      }
+    }
+
+    async function approveBranch(id) {
+      if (!confirm('Approve this branch? It will become live for savers.')) return;
+      try {
+        await api('/api/super-admin/branches/' + id + '/onboarding/approve', { method: 'PATCH' });
+        toast('Branch approved', 'success');
+        loadBranches();
+      } catch (err) {
+        toast('Approve failed: ' + err.message, 'error');
+      }
+    }
+
+    async function rejectBranch(id) {
+      const reason = prompt('Reason for rejection (min 5 chars):');
+      if (!reason || reason.length < 5) return;
+      try {
+        await api('/api/super-admin/branches/' + id + '/onboarding/reject', { method: 'PATCH', body: { reason: reason } });
+        toast('Branch rejected', 'info');
+        loadBranches();
+      } catch (err) {
+        toast('Reject failed: ' + err.message, 'error');
+      }
+    }
+
+    // ── Branch Accounts ──────────────────────────────────────
+    async function loadBranchAccounts() {
+      const tbody = document.querySelector('#branch-accounts-table tbody');
+      const filterEl = document.getElementById('admin-kyc-status-filter');
+      const statusFilter = filterEl ? filterEl.value : 'PENDING';
+      
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--on-surface-variant);">Loading…</td></tr>';
+      
+      try {
+        const result = await api('/api/super-admin/branch-pool-account/pending');
+        let accounts = result || [];
+
+        // Filter based on dropdown
+        accounts = accounts.filter(a => a.kyc_status === statusFilter);
+
+        if (!accounts.length) {
+          tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty__icon">✓</div><h3>No records found</h3><p>No Branch Admin KYCs match this filter.</p></div></td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = accounts.map(function (a) {
+          // Determine badge class based on status
+          let badgeClass = 'warning';
+          if (a.kyc_status === 'APPROVED') badgeClass = 'success';
+          if (a.kyc_status === 'REJECTED') badgeClass = 'error';
+          if (a.kyc_status === 'NOT_SUBMITTED') badgeClass = 'neutral';
+
+          // Actions (only show approve/reject if pending)
+          let actionHtml = '<span style="color:var(--on-surface-variant);font-size:12px;">Reviewed</span>';
+          if (a.kyc_status === 'PENDING') {
+            actionHtml = `
+              <div class="table__actions">
+                <button class="btn btn--danger btn--sm" data-acct-reject="${a.branch_id}">Reject</button>
+                <button class="btn btn--success btn--sm" data-acct-approve="${a.branch_id}">Approve</button>
+              </div>
+            `;
+          }
+
+          return '<tr>' +
+            '<td>' +
+              '<strong style="color:var(--on-surface);">' + escapeHtml(a.branch_name) + '</strong><br>' +
+              '<span style="font-size:12px;color:var(--on-surface-variant);">' + escapeHtml(a.admin_name || 'Unknown') + '</span><br>' +
+              (a.selfie_url ? '<a href="' + a.selfie_url + '" target="_blank" style="color:var(--brand-primary);font-size:12px;text-decoration:underline;">View Photo ↗</a>' : '') +
+            '</td>' +
+            '<td>' +
+              '<strong>' + escapeHtml(a.account_name || a.legal_name || '—') + '</strong><br>' +
+              '<span style="color:var(--on-surface-variant);font-size:12px;">' +
+              escapeHtml(a.bank_name || '—') + ' | ' + escapeHtml(a.sort_code || '—') + ' | ' + escapeHtml(a.account_number || '—') +
+              '</span>' +
+            '</td>' +
+            '<td>' + formatDate(a.created_at) + '</td>' +
+            '<td><span class="badge badge--' + badgeClass + '">' + a.kyc_status + '</span></td>' +
+            '<td>' + actionHtml + '</td>' +
+          '</tr>';
+        }).join('');
+        
+        tbody.querySelectorAll('[data-acct-approve]').forEach(function (b) {
+          b.addEventListener('click', function () { accountAction(b.dataset.acctApprove, 'approve'); });
+        });
+        tbody.querySelectorAll('[data-acct-reject]').forEach(function (b) {
+          b.addEventListener('click', function () { accountAction(b.dataset.acctReject, 'reject'); });
+        });
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err.message) + '</td></tr>';
+      }
+    }
+
+    // Listen for filter changes
+    const adminKycFilter = document.getElementById('admin-kyc-status-filter');
+    if (adminKycFilter) {
+      adminKycFilter.addEventListener('change', loadBranchAccounts);
+    }
+
+    async function accountAction(branchId, action) {
+      let reason = null;
+      if (action === 'reject') {
+        reason = prompt('Reason for rejection (min 5 chars):');
+        if (!reason || reason.trim().length < 5) return;
+      }
+      try {
+        if (action === 'approve') {
+          await api('/api/super-admin/branch-pool-account/' + branchId + '/approve', { method: 'POST' });
+          toast('Branch Account Approved', 'success');
+        } else {
+          await api('/api/super-admin/branch-pool-account/' + branchId + '/reject', { method: 'POST', body: { reason: reason } });
+          toast('Branch Account Rejected', 'info');
+        }
+        loadBranchAccounts();
+      } catch (err) {
+        toast((action === 'approve' ? 'Approve' : 'Reject') + ' failed: ' + err.message, 'error');
+      }
+    }
+
+    // ── Payout Approvals ─────────────────────────────────────
+    async function loadPayoutApprovals() {
+      const tbody = document.querySelector('#payout-approvals-table tbody');
+      const statusEl = document.getElementById('fee-status-filter');
+      const branchEl = document.getElementById('fee-branch-filter');
+      const searchEl = document.getElementById('fee-search');
+      
+      const statusFilter = statusEl ? statusEl.value : 'PENDING';
+      const branchFilter = branchEl ? branchEl.value : '';
+      const searchFilter = searchEl ? searchEl.value.toLowerCase() : '';
+
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--on-surface-variant);">Loading…</td></tr>';
+      
+      try {
+        // Use the new state-filtered route
+        let url = '/api/super-admin/payouts/fees?limit=100';
+        if (statusFilter === 'PENDING') url += '&state=PENDING';
+        else if (statusFilter === 'CONFIRMED') url += '&state=CONFIRMED';
+        // 'ALL' -> no state param (backend defaults to PENDING, so pass explicit ALL)
+
+        if (statusFilter === 'ALL') {
+          url = '/api/super-admin/payouts/fees?limit=100&state=ALL';
+        }
+
+        const result = await api(url);
+        let fees = result.intents || [];
+        
+        // Populate Branch dropdown from all fees on first load
+        if (branchEl && branchEl.options.length === 1) {
+          try {
+            const allFeesResult = await api('/api/super-admin/payouts/fees?state=ALL&limit=100');
+            const uniqueBranches = [...new Set((allFeesResult.intents || []).map(f => f.branchName).filter(Boolean))];
+            uniqueBranches.forEach(b => {
+              const opt = document.createElement('option');
+              opt.value = b;
+              opt.textContent = b;
+              branchEl.appendChild(opt);
+            });
+          } catch (e) {
+            console.error('Failed to populate branch dropdown', e);
+          }
+        }
+
+        // Apply frontend filters (branch and search only — state is server-side)
+        if (branchFilter) {
+          fees = fees.filter(f => f.branchName === branchFilter);
+        }
+        if (searchFilter) {
+          fees = fees.filter(f => 
+            (f.reference || '').toLowerCase().includes(searchFilter) || 
+            (f.feeReference || '').toLowerCase().includes(searchFilter)
+          );
+        }
+
+        if (!fees.length) {
+          tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty__icon">✓</div><h3>No fees found</h3></div></td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = fees.map(function (f) {
+          // Determine Action and Badge based on Fee Intent State
+          // (f.state is the FEE intent state: PENDING / RECEIPT_UPLOADED / CONFIRMED)
+          let actionHtml = '';
+          let stateBadgeHtml = '';
+
+          if (f.state === 'RECEIPT_UPLOADED') {
+            // Waiting for Super Admin review
+            actionHtml = `<button class="btn btn--success btn--sm" data-approve-fee="${f.id}">Confirm Fee</button>`;
+            stateBadgeHtml = `<span class="badge badge--warning">Pending Review</span>`;
+          } else if (f.state === 'CONFIRMED') {
+            // Already approved
+            actionHtml = `<span class="badge badge--success">Confirmed</span>`;
+            stateBadgeHtml = `<span class="badge badge--success">Confirmed</span>`;
+          } else if (f.state === 'PENDING') {
+            // Branch Admin hasn't paid yet
+            actionHtml = `<span style="color: var(--on-surface-variant); font-size: 12px;">Awaiting Payment</span>`;
+            stateBadgeHtml = `<span class="badge badge--neutral">Unpaid</span>`;
+          } else {
+            // Unknown state fallback
+            actionHtml = `<span style="color: var(--on-surface-variant); font-size: 12px;">—</span>`;
+            stateBadgeHtml = `<span class="badge badge--neutral">${escapeHtml(f.state || 'Unknown')}</span>`;
+          }
+
+          return '<tr>' +
+            '<td>' +
+              '<strong style="color:var(--on-surface);">' + escapeHtml(f.branchName || 'Unknown Branch') + '</strong><br>' +
+              '<span style="font-size:12px;color:var(--on-surface-variant);">' + escapeHtml(f.adminName || 'Admin') + '</span>' +
+            '</td>' +
+            '<td>' +
+              '<strong>' + escapeHtml(f.tenantName || 'Tenant') + '</strong><br>' +
+              '<span style="font-size:12px;color:var(--on-surface-variant);">Cycle ' + f.cycle + ' / Tenure ' + f.tenure + '</span>' +
+            '</td>' +
+            '<td><code>' + escapeHtml(f.reference || '—') + '</code></td>' +
+            '<td><strong style="color: var(--brand-primary);">£' + f.amountGbp + '</strong></td>' +
+            '<td>' +
+              (f.receiptUrl ? '<a class="btn btn--ghost btn--sm" href="' + f.receiptUrl + '" target="_blank">View Receipt</a>' : '—') +
+            '</td>' +
+            '<td>' + stateBadgeHtml + '</td>' +
+            '<td><div class="table__actions">' + actionHtml + '</div></td>' +
+          '</tr>';
+        }).join('');
+
+        tbody.querySelectorAll('[data-approve-fee]').forEach(function (b) {
+          b.addEventListener('click', function () { approveFee(b.dataset.approveFee); });
+        });
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err.message) + '</td></tr>';
+      }
+    }
+
+    // Bind filter events
+    ['fee-status-filter', 'fee-branch-filter'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', loadPayoutApprovals);
+    });
+    const feeSearchEl = document.getElementById('fee-search');
+    if (feeSearchEl) {
+      let to;
+      feeSearchEl.addEventListener('input', () => {
+        clearTimeout(to);
+        to = setTimeout(loadPayoutApprovals, 300);
+      });
+    }
+
+    async function approveFee(feeIntentId) {
+      if (!confirm('Confirm this platform fee has been received in the Thrifty Technologies account?')) return;
+      try {
+        await api('/api/super-admin/payouts/fees/' + feeIntentId + '/confirm', {
+          method: 'POST',
+          body: { adminNote: 'Confirmed via dashboard' }
+        });
+        toast('Fee confirmed. Payout unlocked.', 'success');
+        loadPayoutApprovals();
+      } catch (err) {
+        toast('Confirmation failed: ' + err.message, 'error');
+      }
+    }
+
+    // ── All Tenants ──────────────────────────────────────────
+    async function loadTenants() {
+      const tbody = document.querySelector('#tenants-table tbody');
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--on-surface-variant);">Loading…</td></tr>';
+      try {
+        const result = await api('/api/super-admin/tenants/all');
+        const tenants = result || [];
+        if (!tenants.length) {
+          tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><div class="empty__icon">◎</div><h3>No tenants yet</h3></div></td></tr>';
+          return;
+        }
+        
+        tbody.innerHTML = tenants.map(function (t) {
+          const statusBadge = t.status === 'ACTIVE' ? 'success' : t.status === 'FILLING' ? 'info' : 'neutral';
+          return '<tr>' +
+            '<td><strong>' + escapeHtml(t.name || 'Unnamed Tenant') + '</strong></td>' +
+            '<td>' + escapeHtml(t.branch_name) + '</td>' +
+            '<td>' + escapeHtml(t.admin_name || '—') + '</td>' +
+            '<td><span class="badge badge--' + statusBadge + '">' + t.status + '</span></td>' +
+            '<td>' + t.current_cycle + '</td>' +
+            '<td>' + t.current_tenure + '</td>' +
+            '<td>' + t.member_count + ' / 12</td>' +
+            '<td><div class="table__actions">' +
+              '<button class="btn btn--primary btn--sm" data-tenant-id="' + t.id + '" data-tenant-name="' + escapeHtml(t.name || 'Tenant') + '">View Members</button>' +
+            '</div></td>' +
+          '</tr>';
+        }).join('');
+        
+        tbody.querySelectorAll('[data-tenant-id]').forEach(function (btn) {
+          btn.addEventListener('click', function () { openTenantModal(btn.dataset.tenantId, btn.dataset.tenantName); });
+        });
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err.message) + '</td></tr>';
+      }
+    }
+
+    async function openTenantModal(tenantId, tenantName) {
+      const modal = document.getElementById('tenant-modal');
+      const title = document.getElementById('modal-tenant-title');
+      const body = document.getElementById('modal-tenant-body');
+      
+      modal.classList.add('is-open');
+      title.textContent = tenantName;
+      body.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--on-surface-variant);">Fetching member details...</div>';
+      
+      try {
+        // Fetch the tenant details AND the members
+        const [data, response] = await Promise.all([
+          api('/api/super-admin/tenants/' + tenantId),
+          api('/api/super-admin/tenants/' + tenantId + '/members')
+        ]);
+        
+        const members = response.members || [];
+        const memberData = response; // contains totalContributions, totalContributedPence, totalPayouts, totalPayoutsPence
+        
+        const contribGbp = memberData.totalContributedPence ? (Number(memberData.totalContributedPence) / 100).toFixed(2) : '0.00';
+        const payoutGbp = memberData.totalPayoutsPence ? (Number(memberData.totalPayoutsPence) / 100).toFixed(2) : '0.00';
+
+        let membersHtml = '';
+        if (!members || !members.length) {
+          membersHtml = '<p style="color: var(--on-surface-variant); font-size: 14px;">No members in this circle yet.</p>';
+        } else {
+          membersHtml = `
+            <div class="table-wrap" style="margin-top: 16px;">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Slot</th>
+                    <th>Member Name</th>
+                    <th>Cycle Status</th>
+                    <th>Amount</th>
+                    <th>Joined Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${members.map(m => {
+                    // Determine cycle status badge
+                    let statusBadge = 'neutral';
+                    let statusText = 'PENDING';
+                    if (m.intentState === 'CONFIRMED') {
+                      statusBadge = 'success';
+                      statusText = 'PAID';
+                    } else if (m.intentState === 'LATE') {
+                      statusBadge = 'error';
+                      statusText = 'LATE';
+                    } else if (m.hasReceipt) {
+                      statusBadge = 'warning';
+                      statusText = 'RECEIPT UPLOADED';
+                    }
+
+                    const amt = m.contributionAmountPence ? '£' + (Number(m.contributionAmountPence) / 100).toFixed(2) : '—';
+
+                    return `
+                      <tr>
+                        <td><span class="badge badge--neutral">${m.slotNumber}</span></td>
+                        <td><strong>${escapeHtml(m.fullName)}</strong></td>
+                        <td><span class="badge badge--${statusBadge}">${statusText}</span></td>
+                        <td>${amt}</td>
+                        <td>${formatDate(m.intentDeadlineAt || new Date())}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          `;
+        }
+        
+        body.innerHTML = `
+          <div class="stat-grid" style="margin-bottom: 24px; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
+            <div class="stat"><div class="stat__label">Status</div><div class="stat__value" style="font-size: 18px;">${data.status}</div></div>
+            <div class="stat"><div class="stat__label">Cycle</div><div class="stat__value" style="font-size: 18px;">${data.currentCycle}</div></div>
+            <div class="stat"><div class="stat__label">Members</div><div class="stat__value" style="font-size: 18px;">${data.memberCount} / 12</div></div>
+            
+            <!-- NEW COUNTERS -->
+            <div class="stat">
+              <div class="stat__label">Contributions</div>
+              <div class="stat__value stat__value--success" style="font-size: 18px;">${memberData.totalContributions} / 12</div>
+              <div style="font-size: 12px; color: var(--on-surface-variant); margin-top: 4px;">£${contribGbp}</div>
+            </div>
+            
+            <div class="stat">
+              <div class="stat__label">Payouts</div>
+              <div class="stat__value stat__value--accent" style="font-size: 18px;">${memberData.totalPayouts} Made</div>
+              <div style="font-size: 12px; color: var(--on-surface-variant); margin-top: 4px;">£${payoutGbp}</div>
+            </div>
+          </div>
+          
+          <h3 style="font-size: 16px; margin-bottom: 8px;">Circle Roster</h3>
+          ${membersHtml}
+        `;
+        
+      } catch (err) {
+        body.innerHTML = '<div style="color: var(--error); padding: 20px;">Failed to load tenant: ' + err.message + '</div>';
+      }
+    }
+
+    // ── All Savers ───────────────────────────────────────────
+    let isSaversLoaded = false;
+
+    async function loadSavers() {
+      const tbody = document.querySelector('#savers-table tbody');
+      
+      if (isSaversLoaded) {
+        filterAndRenderSavers();
+        return;
+      }
+
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--on-surface-variant);">Loading…</td></tr>';
+      try {
+        const result = await api('/api/users/admin/savers');
+        state.allSavers = result || [];
+        
+        // Populate dropdowns
+        const branches = [...new Set(state.allSavers.map(s => s.branch_name).filter(Boolean))];
+        const tenants = [...new Set(state.allSavers.map(s => s.tenant_name).filter(Boolean))];
+        
+        const branchFilter = document.getElementById('saver-branch-filter');
+        const tenantFilter = document.getElementById('saver-tenant-filter');
+        
+        if (branchFilter.options.length === 1) {
+          branches.forEach(b => {
+            const opt = document.createElement('option');
+            opt.value = b;
+            opt.textContent = b;
+            branchFilter.appendChild(opt);
+          });
+        }
+        
+        if (tenantFilter.options.length === 1) {
+          tenants.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t;
+            opt.textContent = t;
+            tenantFilter.appendChild(opt);
+          });
+        }
+
+        isSaversLoaded = true;
+        filterAndRenderSavers();
+        
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err.message) + '</td></tr>';
+      }
+    }
+
+    function filterAndRenderSavers() {
+      const tbody = document.querySelector('#savers-table tbody');
+      const branchFilter = document.getElementById('saver-branch-filter').value;
+      const tenantFilter = document.getElementById('saver-tenant-filter').value;
+      const kycFilter = document.getElementById('saver-kyc-filter').value;
+      const searchFilter = document.getElementById('saver-search').value.toLowerCase();
+
+      let filtered = state.allSavers;
+
+      if (branchFilter) {
+        filtered = filtered.filter(s => s.branch_name === branchFilter);
+      }
+      if (tenantFilter) {
+        filtered = filtered.filter(s => s.tenant_name === tenantFilter);
+      }
+      if (kycFilter) {
+        filtered = filtered.filter(s => s.kyc_status === kycFilter);
+      }
+      if (searchFilter) {
+        filtered = filtered.filter(s => 
+          (s.full_name || '').toLowerCase().includes(searchFilter) || 
+          (s.phone || '').includes(searchFilter)
+        );
+      }
+
+      if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty__icon">◎</div><h3>No savers found</h3><p>Try adjusting your filters.</p></div></td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(function (s) {
+        let badgeClass = 'neutral';
+        if (s.kyc_status === 'APPROVED') badgeClass = 'success';
+        if (s.kyc_status === 'PENDING') badgeClass = 'warning';
+        if (s.kyc_status === 'REJECTED') badgeClass = 'error';
+
+        return '<tr>' +
+          '<td><button class="btn btn--ghost btn--sm" style="padding:0;font-weight:600;" data-saver-id="' + s.id + '">' + escapeHtml(s.full_name) + '</button></td>' +
+          '<td>' + escapeHtml(s.branch_name || '—') + '</td>' +
+          '<td>' + (s.tenant_name ? escapeHtml(s.tenant_name) + ' <span style="color:var(--on-surface-variant);font-size:12px;">(Slot ' + s.slot_number + ')</span>' : 'Unassigned') + '</td>' +
+          '<td><span class="badge badge--' + badgeClass + '">' + (s.kyc_status || 'NOT_SUBMITTED').replace('_', ' ') + '</span></td>' +
+          '<td><div class="table__actions">' +
+            '<button class="btn btn--ghost btn--sm" data-saver-id="' + s.id + '">Details</button>' +
+          '</div></td>' +
+        '</tr>';
+      }).join('');
+
+      tbody.querySelectorAll('[data-saver-id]').forEach(function (btn) {
+        btn.addEventListener('click', function () { openSaverModal(btn.dataset.saverId); });
+      });
+    }
+
+    // Listen for filter changes
+    ['saver-branch-filter', 'saver-tenant-filter', 'saver-kyc-filter'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', filterAndRenderSavers);
+    });
+    
+    const searchEl = document.getElementById('saver-search');
+    if (searchEl) searchEl.addEventListener('input', filterAndRenderSavers);
+
+    async function openSaverModal(saverId) {
+      const modal = document.getElementById('saver-modal');
+      const title = document.getElementById('modal-saver-title');
+      const body = document.getElementById('modal-saver-body');
+      
+      modal.classList.add('is-open');
+      body.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--on-surface-variant);">Fetching full profile...</div>';
+
+      try {
+        // Fetch the rich profile from the new endpoint
+        const user = await api('/api/users/admin/savers/' + saverId);
+        
+        title.textContent = user.full_name;
+        
+        // Determine KYC badge
+        const kycBadge = user.kyc_status === 'APPROVED' ? 'success' : user.kyc_status === 'PENDING' ? 'warning' : user.kyc_status === 'REJECTED' ? 'error' : 'neutral';
+        const kycText = user.kyc_status ? user.kyc_status.replace('_', ' ') : 'NOT SUBMITTED';
+
+        // Photo block
+        let photoHtml = '<p style="color: var(--on-surface-variant); font-size: 14px;">No photo uploaded.</p>';
+        if (user.selfieUrl) {
+          photoHtml = `
+            <a href="${user.selfieUrl}" target="_blank" style="display: block; margin-top: 8px;">
+              <img src="${user.selfieUrl}" alt="Profile Photo" style="width: 100px; height: 100px; border-radius: 8px; object-fit: cover; border: 1px solid var(--outline-variant);" />
+              <span style="font-size: 12px; color: var(--brand-primary); margin-top: 4px; display: block;">View Full Size ↗</span>
+            </a>
+          `;
+        }
+
+        // Bank details block
+        let bankHtml = '<p style="color: var(--on-surface-variant); font-size: 14px;">No bank details submitted.</p>';
+        if (user.bank_name) {
+          bankHtml = `
+            <div style="background: var(--surface-container-lowest); padding: 12px; border-radius: var(--radius); border: 1px solid var(--outline-variant); margin-top: 8px;">
+              <div style="font-size: 12px; color: var(--on-surface-variant); text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">Account Name</div>
+              <div style="font-size: 15px; font-weight: 600; margin-bottom: 8px;">${escapeHtml(user.account_name || user.legal_name || '—')}</div>
+              
+              <div style="font-size: 12px; color: var(--on-surface-variant); text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">Bank Name</div>
+              <div style="font-size: 14px; margin-bottom: 8px;">${escapeHtml(user.bank_name)}</div>
+              
+              <div style="display: flex; gap: 24px;">
+                <div>
+                  <div style="font-size: 12px; color: var(--on-surface-variant); text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">Sort Code</div>
+                  <div style="font-size: 14px; font-family: monospace;">${escapeHtml(user.sort_code || '—')}</div>
+                </div>
+                <div>
+                  <div style="font-size: 12px; color: var(--on-surface-variant); text-transform: uppercase; font-weight: 700; margin-bottom: 4px;">Account No</div>
+                  <div style="font-size: 14px; font-family: monospace;">${escapeHtml(user.account_number || '—')}</div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        body.innerHTML = `
+          <div class="stat-grid" style="margin-bottom: 24px; grid-template-columns: repeat(2, 1fr);">
+            <div class="stat"><div class="stat__label">Phone</div><div class="stat__value" style="font-size: 16px; margin-top: 4px;">${escapeHtml(user.phone)}</div></div>
+            <div class="stat"><div class="stat__label">Joined</div><div class="stat__value" style="font-size: 14px; margin-top: 6px;">${formatDate(user.created_at)}</div></div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+            <div>
+              <h3 style="font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; color: var(--on-surface);">Circle Info</h3>
+              <p style="font-size: 14px; margin-bottom: 8px;"><strong>Branch:</strong> ${escapeHtml(user.branch_name || '—')}</p>
+              <p style="font-size: 14px; margin-bottom: 8px;"><strong>Tenant:</strong> ${user.tenant_name ? escapeHtml(user.tenant_name) + ' (Slot ' + user.slot_number + ')' : 'Unassigned'}</p>
+              <p style="font-size: 14px; margin-bottom: 16px;">
+                <strong>KYC Status:</strong> 
+                <span class="badge badge--${kycBadge}">${kycText}</span>
+              </p>
+            </div>
+            
+            <div>
+              <h3 style="font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; color: var(--on-surface);">Profile Photo</h3>
+              ${photoHtml}
+            </div>
+          </div>
+
+          <h3 style="font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; color: var(--on-surface);">Bank Details (For Payouts)</h3>
+          ${bankHtml}
+        `;
+        
+      } catch (err) {
+        body.innerHTML = '<div style="color: var(--error); padding: 20px;">Failed to load profile: ' + err.message + '</div>';
+      }
+    }
+
+    // ── Platform Settings ────────────────────────────────────
+    const maForm = document.getElementById('maintenance-account-form');
+    const maInputs = ['ma-holder', 'ma-bank', 'ma-sort', 'ma-number'].map(id => document.getElementById(id));
+    const maEditBtn = document.getElementById('ma-edit-btn');
+    const maSaveBtn = document.getElementById('ma-save-btn');
+    const maCancelBtn = document.getElementById('ma-cancel-btn');
+
+    let originalMaData = null; // Store original data to restore on Cancel
+
+    async function loadPlatformSettings() {
+      try {
+        const account = await api('/api/super-admin/maintenance-account');
+        if (account) {
+          originalMaData = {
+            holder: account.account_holder_name || '',
+            bank: account.bank_name || '',
+            sort: account.sort_code || '',
+            number: account.account_number || '',
+          };
+          document.getElementById('ma-holder').value = originalMaData.holder;
+          document.getElementById('ma-bank').value = originalMaData.bank;
+          document.getElementById('ma-sort').value = originalMaData.sort;
+          document.getElementById('ma-number').value = originalMaData.number;
+        }
+      } catch (err) {
+        console.error('Failed to load maintenance account', err);
+      }
+    }
+
+    // Toggle Edit Mode
+    function toggleMaEditMode(isEditing) {
+      maInputs.forEach(input => {
+        input.readOnly = !isEditing;
+        input.style.background = isEditing ? 'var(--surface-container-lowest)' : 'var(--surface-container)';
+        input.style.opacity = isEditing ? '1' : '0.7';
+      });
+
+      if (isEditing) {
+        maEditBtn.style.display = 'none';
+        maCancelBtn.style.display = 'inline-block';
+        maSaveBtn.style.display = 'inline-block';
+        maInputs[0].focus();
+      } else {
+        maEditBtn.style.display = 'inline-block';
+        maCancelBtn.style.display = 'none';
+        maSaveBtn.style.display = 'none';
+      }
+    }
+
+    maEditBtn.addEventListener('click', () => toggleMaEditMode(true));
+
+    maCancelBtn.addEventListener('click', () => {
+      // Revert to original data
+      if (originalMaData) {
+        document.getElementById('ma-holder').value = originalMaData.holder;
+        document.getElementById('ma-bank').value = originalMaData.bank;
+        document.getElementById('ma-sort').value = originalMaData.sort;
+        document.getElementById('ma-number').value = originalMaData.number;
+      }
+      toggleMaEditMode(false);
+    });
+
+    maForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      maSaveBtn.disabled = true;
+      maSaveBtn.textContent = 'Saving...';
+
+      const payload = {
+        accountHolderName: document.getElementById('ma-holder').value.trim(),
+        bankName: document.getElementById('ma-bank').value.trim(),
+        sortCode: document.getElementById('ma-sort').value.trim(),
+        accountNumber: document.getElementById('ma-number').value.trim(),
+      };
+
+      try {
+        await api('/api/super-admin/maintenance-account', {
+          method: 'PUT',
+          body: payload
+        });
+        
+        // Update original data to the new saved values
+        originalMaData = {
+          holder: payload.accountHolderName,
+          bank: payload.bankName,
+          sort: payload.sortCode,
+          number: payload.accountNumber,
+        };
+        
+        toast('Maintenance account saved successfully', 'success');
+        toggleMaEditMode(false);
+      } catch (err) {
+        toast('Failed to save: ' + err.message, 'error');
+      } finally {
+        maSaveBtn.disabled = false;
+        maSaveBtn.textContent = 'Save Changes';
+      }
+    });
+
+    // ── Analytics ────────────────────────────────────────────
+    async function loadAnalytics() {
+      try {
+        const data = await api('/api/super-admin/stats/analytics');
+        
+        // 1. Totals
+        document.getElementById('ana-total-contribs').textContent = '£' + data.totalContributionsGbp;
+        document.getElementById('ana-total-contribs-count').textContent = data.totalContributionsCount + ' payments';
+        
+        document.getElementById('ana-total-payouts').textContent = '£' + data.totalPayoutsGbp;
+        document.getElementById('ana-total-payouts-count').textContent = data.totalPayoutsCount + ' payouts';
+
+        // 2. Top Branches
+        const tbBranches = document.getElementById('ana-top-branches-body');
+        if (data.topBranches.length === 0) {
+          tbBranches.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--on-surface-variant);">No contributions yet.</td></tr>';
+        } else {
+          tbBranches.innerHTML = data.topBranches.map(b => `
+            <tr>
+              <td><strong>${escapeHtml(b.name)}</strong></td>
+              <td style="color: var(--success); font-weight: 600;">£${b.totalGbp}</td>
+              <td>${b.count}</td>
+            </tr>
+          `).join('');
+        }
+
+        // 3. Recent Activity
+        const tbActivity = document.getElementById('ana-recent-activity-body');
+        if (data.recentActivity.length === 0) {
+          tbActivity.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--on-surface-variant);">No recent activity.</td></tr>';
+        } else {
+          tbActivity.innerHTML = data.recentActivity.map(a => {
+            const isContrib = a.type === 'Contribution';
+            const badge = isContrib ? 'success' : 'info';
+            const sign = isContrib ? '+' : '-';
+            const color = isContrib ? 'var(--success)' : 'var(--error)';
+            return `
+              <tr>
+                <td><span class="badge badge--${badge}">${a.type}</span></td>
+                <td><strong>${escapeHtml(a.name)}</strong><br><span style="font-size: 11px; color: var(--on-surface-variant); font-family: monospace;">${escapeHtml(a.reference)}</span></td>
+                <td style="color: ${color}; font-weight: 600;">${sign} £${a.amountGbp}</td>
+                <td style="font-size: 12px;">${formatDate(a.date)}</td>
+              </tr>
+            `;
+          }).join('');
+        }
+
+      } catch (err) {
+        console.error(err);
+        toast('Failed to load analytics: ' + err.message, 'error');
+      }
+    }
+
+    (async function boot() {
+      const ok = await loadMe();
+      if (!ok) return;
+      showSection('overview');
+    })();
+
+  })();
+</script>
+
+</body>
+</html>

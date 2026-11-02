@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#00daf3">
+  <title>Contact Us &amp; Help Center — ROSCA Thrift &amp; Savings</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { overflow-x: hidden; background-color: #0b0e11; color: #e1e3e5; font-family: 'Inter', sans-serif; }
+    .page { min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* Header matching homepage */
+    .header {
+      padding: 20px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #1f242b;
+      position: sticky;
+      top: 0;
+      background: rgba(17, 20, 20, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 300;
+    }
+    .header__brand { display: flex; flex-direction: column; line-height: 1.15; flex-shrink: 0; text-decoration: none; }
+    .header__brand-top { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #8e9196; }
+    .header__brand-bottom { font-size: 16px; font-weight: 800; letter-spacing: 0.02em; color: #00daf3; }
+    
+    .header__right-group { display: flex; align-items: center; gap: 40px; margin-left: auto; padding-right: 20px; }
+    .header__nav { display: flex; gap: 32px; font-size: 14px; font-weight: 500; align-items: center; }
+    .header__nav a { color: #c4c7c9; text-decoration: none; transition: color 0.2s ease; }
+    .header__nav a:hover { color: #00daf3; }
+    
+    .header__actions { display: flex; gap: 16px; align-items: center; }
+    .header__login { color: #ffffff; font-weight: 600; text-decoration: none; font-size: 14px; padding: 10px 16px; background: transparent; border: 1px solid #33383f; border-radius: 6px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+    .header__login:hover { color: #00daf3; border-color: #00daf3; }
+    .header__cta { background: #00daf3; color: #00363d; font-weight: 700; border-radius: 6px; padding: 10px 20px; font-size: 14px; text-decoration: none; }
+
+    @media (max-width: 820px) { .header__nav a:not(.header__cta) { display: none; } }
+
+    /* Login dropdown (anchored, floating) */
+    .login-dropdown {
+      position: fixed;
+      z-index: 400;
+      width: 360px;
+      max-width: calc(100vw - 32px);
+      background: var(--surface-container-low, #11151a);
+      border: 1px solid var(--outline-variant, #252b33);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 218, 243, 0.06);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: opacity 160ms ease-out, transform 160ms ease-out, visibility 0s linear 160ms;
+    }
+    .login-dropdown.is-open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      transition: opacity 160ms ease-out, transform 160ms ease-out, visibility 0s;
+    }
+    .login-dropdown::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 24px;
+      width: 10px;
+      height: 10px;
+      background: var(--surface-container-low, #11151a);
+      border-top: 1px solid var(--outline-variant, #252b33);
+      border-left: 1px solid var(--outline-variant, #252b33);
+      transform: rotate(45deg);
+    }
+    .login-dropdown__tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #00daf3;
+      background: rgba(0, 218, 243, 0.1);
+      border: 1px solid rgba(0, 218, 243, 0.3);
+      padding: 3px 9px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+    }
+    .login-dropdown__title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0 0 4px;
+      color: #ffffff;
+    }
+    .login-dropdown__subtitle {
+      font-size: 13px;
+      color: #8e9196;
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+    .login-dropdown .form-row { margin-bottom: 12px; }
+    .login-dropdown .form-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8e9196;
+      margin-bottom: 5px;
+    }
+    .login-dropdown .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      background: #080a0c;
+      border: 1px solid #20252c;
+      border-radius: 6px;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .login-dropdown .form-input:focus {
+      outline: none;
+      border-color: #00daf3;
+      box-shadow: 0 0 0 3px rgba(0, 218, 243, 0.15);
+    }
+    .login-dropdown .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 12px;
+    }
+    .login-dropdown .form-actions a {
+      font-size: 12px;
+      color: #00daf3;
+      text-decoration: none;
+    }
+    .login-dropdown .form-actions a:hover { text-decoration: underline; }
+    .login-dropdown .btn-dropdown-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 20px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      white-space: nowrap;
+      width: 100%;
+    }
+    .login-dropdown .btn-dropdown-action:hover:not(:disabled) { filter: brightness(1.1); }
+    .login-dropdown .btn-dropdown-action:disabled { opacity: 0.5; cursor: not-allowed; }
+    .login-dropdown .form-status {
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-top: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      display: none;
+      white-space: pre-line;
+    }
+    .login-dropdown .form-status.is-visible { display: block; }
+    .login-dropdown .form-status--success { background: rgba(78, 222, 163, 0.1); border: 1px solid #4edea3; color: #4edea3; }
+    .login-dropdown .form-status--error { background: rgba(255, 180, 171, 0.1); border: 1px solid #ffb4ab; color: #ffb4ab; }
+    .login-dropdown .form-status--info { background: rgba(0, 218, 243, 0.08); border: 1px solid #00daf3; color: #00daf3; }
+    .login-dropdown__foot {
+      text-align: center;
+      font-size: 12px;
+      color: #8e9196;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #20252c;
+    }
+    .login-dropdown__foot a { color: #00daf3; font-weight: 600; text-decoration: none; }
+    .login-dropdown__foot a:hover { text-decoration: underline; }
+
+    /* Page Hero */
+    .page-hero { padding: 80px 24px 40px; text-align: center; background: #11151a; border-bottom: 1px solid #1f242b; }
+    .page-hero__eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #00daf3; margin-bottom: 12px; }
+    .page-hero h1 { font-size: 42px; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 12px; color: #fff; }
+    .page-hero p { font-size: 16px; color: #8e9196; max-width: 640px; margin: 0 auto; line-height: 1.6; }
+
+    /* Section Styles */
+    .section { padding: 80px 48px; border-top: 1px solid #1a1e24; position: relative; }
+    .section--alt { background: #080a0c; }
+    .section__inner { max-width: 1200px; margin: 0 auto; }
+    .section__eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #00daf3; margin-bottom: 16px; display: block; }
+    .section h2 { font-size: 38px; letter-spacing: -0.02em; margin-bottom: 16px; font-weight: 800; color: #fff; }
+    .section__lede { font-size: 16px; color: #8e9196; max-width: 640px; line-height: 1.6; margin-bottom: 48px; }
+
+    /* Layout Grids */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+    /* Cards */
+    .card-box {
+      background: #11151a;
+      border: 1px solid #1f242b;
+      border-radius: 16px;
+      padding: 32px;
+      transition: all 0.2s ease;
+    }
+    .card-box:hover { border-color: rgba(0, 218, 243, 0.3); transform: translateY(-3px); }
+    .card-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: rgba(0, 218, 243, 0.1);
+      border: 1px solid rgba(0, 218, 243, 0.25);
+      display: flex; align-items: center; justify-content: center;
+      color: #00daf3;
+      margin-bottom: 20px;
+    }
+    .card-box h3 { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .card-box p { font-size: 14px; color: #8e9196; line-height: 1.6; margin-bottom: 16px; }
+    .card-box a.card-link { font-size: 14px; color: #00daf3; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .card-box a.card-link:hover { text-decoration: underline; }
+
+    /* Contact Form & Info */
+    .contact-info-card {
+      background: #11151a;
+      border: 1px solid #1f242b;
+      border-radius: 16px;
+      padding: 40px;
+    }
+    .contact-info-item { display: flex; gap: 16px; margin-bottom: 28px; }
+    .contact-info-item:last-child { margin-bottom: 0; }
+    .contact-info-item .icon {
+      width: 40px; height: 40px; border-radius: 8px; background: rgba(0, 218, 243, 0.1); color: #00daf3;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .contact-info-item h4 { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .contact-info-item p { font-size: 14px; color: #8e9196; line-height: 1.5; margin: 0; }
+    .contact-info-item a { color: #00daf3; text-decoration: none; }
+    .contact-info-item a:hover { text-decoration: underline; }
+
+    .form-card {
+      background: #11151a;
+      border: 1px solid #1f242b;
+      border-radius: 16px;
+      padding: 40px;
+    }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8e9196; margin-bottom: 6px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 12px 16px;
+      background: #080a0c;
+      border: 1px solid #20252c;
+      border-radius: 8px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: #00daf3;
+      box-shadow: 0 0 0 3px rgba(0, 218, 243, 0.15);
+    }
+
+    /* Accordion FAQ */
+    .accordion-list { display: flex; flex-direction: column; gap: 12px; }
+    .accordion__item {
+      border: 1px solid #1f242b;
+      border-radius: 8px;
+      background: #11151a;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .accordion__item:hover { border-color: rgba(0, 218, 243, 0.4); }
+    .accordion__item[open] { background: #161b22; border-color: rgba(0, 218, 243, 0.5); }
+    .accordion__summary {
+      padding: 20px 24px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 16px;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #e1e3e5;
+      gap: 12px;
+    }
+    .accordion__summary::-webkit-details-marker { display: none; }
+    .accordion__summary::after { content: '+'; font-size: 22px; font-weight: 300; color: #00daf3; line-height: 1; flex-shrink: 0; }
+    .accordion__item[open] .accordion__summary::after { content: '−'; }
+    .accordion__content { padding: 0 24px 24px; color: #8e9196; font-size: 14px; line-height: 1.7; }
+    .accordion__content p { margin: 0 0 12px 0; }
+    .accordion__content p:last-child { margin-bottom: 0; }
+
+    .btn { padding: 12px 24px; font-size: 14px; font-weight: 700; border-radius: 6px; text-decoration: none; display: inline-block; transition: opacity 0.2s; cursor: pointer; border: none; }
+    .btn:hover { opacity: 0.9; }
+    .btn--primary { background: #00daf3; color: #00363d; width: 100%; text-align: center; }
+
+    /* Standardized Footer matching homepage */
+    .footer { padding: 56px 24px 32px; border-top: 1px solid #1f242b; background: #060709; margin-top: auto; }
+    .footer__inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; }
+    @media (min-width: 720px) { .footer__inner { grid-template-columns: 2fr 1fr 1fr; gap: 64px; align-items: start; } }
+    .footer__brand-col { display: flex; flex-direction: column; gap: 8px; }
+    .footer__brand { font-size: 20px; font-weight: 800; color: #00daf3; letter-spacing: -0.01em; }
+    .footer__tagline { font-size: 13px; color: #8e9196; max-width: 320px; line-height: 1.6; }
+    .footer__col-title { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8e9196; margin-bottom: 16px; }
+    .footer__col-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer__col-links a { color: #e1e3e5; font-size: 14px; text-decoration: none; transition: color 0.2s; }
+    .footer__col-links a:hover { color: #00daf3; }
+    .footer__bottom { max-width: 1100px; margin: 40px auto 0; padding-top: 24px; border-top: 1px solid #1f242b; display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: #8e9196; }
+    @media (min-width: 720px) { .footer__bottom { flex-direction: row; justify-content: space-between; align-items: center; } }
+
+    @media (max-width: 1024px) {
+      .section { padding: 60px 24px; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 32px; }
+      .header__right-group { margin-left: 0; gap: 16px; padding-right: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- HEADER (Matching homepage header structure) -->
+  <header class="header">
+    <a href="/" class="header__brand">
+      <span class="header__brand-top">Thrifty Technologies</span>
+      <span class="header__brand-bottom">ROSCA Thrift &amp; Savings</span>
+    </a>
+    <div class="header__right-group">
+      <nav class="header__nav">
+        <a href="/">Home</a>
+        <a href="/about.html">About</a>
+        <a href="/partner.html">Partner</a>
+      </nav>
+      <div class="header__actions">
+        <button type="button" class="header__login" data-login-trigger>Log in</button>
+        <a href="/branch/register.html" class="header__cta">Become a Community Partner</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Login dropdown -->
+  <div class="login-dropdown" id="login-dropdown" role="dialog" aria-label="Log in" aria-hidden="true">
+    <span class="login-dropdown__tag">Community Partner Admin</span>
+    <h2 class="login-dropdown__title">Log in</h2>
+    <p class="login-dropdown__subtitle">Access your community platform.</p>
+
+    <form id="login-form" novalidate>
+      <div class="form-row">
+        <label class="form-label" for="login-phone">Phone number</label>
+        <input class="form-input" type="tel" id="login-phone" required placeholder="+447912345678" autocomplete="tel" />
+      </div>
+      <div class="form-row">
+        <label class="form-label" for="login-password">Password</label>
+        <input class="form-input" type="password" id="login-password" required placeholder="Your password" autocomplete="current-password" />
+      </div>
+      <div class="form-actions">
+        <a href="/auth/forgot-password.html?from=partner">Forgot password?</a>
+      </div>
+      <button type="submit" class="btn-dropdown-action btn--primary" id="login-submit">Log in</button>
+      <div class="form-status" id="login-status"></div>
+    </form>
+
+    <div class="login-dropdown__foot">
+      Don't have a community partner account? <a href="/branch/register.html">Create one</a>
+    </div>
+  </div>
+
+  <!-- HERO SECTION -->
+  <section class="page-hero">
+    <div class="page-hero__eyebrow">Support &amp; Assistance</div>
+    <h1>How Can We Help You?</h1>
+    <p>Search our help center resources, find instant answers in our FAQs, or reach out directly to the Thrifty Technologies team.</p>
+  </section>
+
+  <!-- HELP CENTER CATEGORIES -->
+  <section class="section">
+    <div class="section__inner">
+      <span class="section__eyebrow">Knowledge Base</span>
+      <h2>Help Center Categories</h2>
+      <p class="section__lede">Explore our guides and operational documentation to solve issues quickly.</p>
+
+      <div class="grid-3">
+        <div class="card-box">
+          <div class="card-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h3>Community Partners</h3>
+          <p>Guides for community partner admins on registering branches, onboarding members, and administering 12-month savings circles.</p>
+          <a href="#faq" class="card-link">View Admin Guides &rarr;</a>
+        </div>
+
+        <div class="card-box">
+          <div class="card-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>
+          </div>
+          <h3>ERP Application &amp; Receipts</h3>
+          <p>Learn how transfer references work, how to upload contribution receipts, and how payment verification is executed.</p>
+          <a href="#faq" class="card-link">Learn About Records &rarr;</a>
+        </div>
+
+        <div class="card-box">
+          <div class="card-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>Security &amp; TVC Rules</h3>
+          <p>Detailed breakdowns of our Time-Value Collection (TVC) calculations, data encryption standards, and UK compliance policies.</p>
+          <a href="/terminology.html" class="card-link">Explore Terminology &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FREQUENTLY ASKED QUESTIONS -->
+  <section class="section section--alt" id="faq">
+    <div class="section__inner">
+      <span class="section__eyebrow">Instant Answers</span>
+      <h2>Frequently Asked Questions</h2>
+      <p class="section__lede">Got questions? We've got answers. Here are the most common inquiries from members and administrators.</p>
+
+      <div class="accordion-list">
+        <details class="accordion__item" open>
+          <summary class="accordion__summary">Does Thrifty Technologies hold or process our money?</summary>
+          <div class="accordion__content">
+            <p>No. Thrifty Technologies operates pure software infrastructure. All money flows directly between co-savers and their designated community partner's local bank account. We provide the immutable ERP application, verification matching, and automated tracking—we never take custody of your funds.</p>
+          </div>
+        </details>
+
+        <details class="accordion__item">
+          <summary class="accordion__summary">What happens if a co-saver misses a contribution deadline?</summary>
+          <div class="accordion__content">
+            <p>Each community partner sets their own specific operational rules and grace periods. In the ERP application, the circle status will show pending receipts until verified by the community partner admin. Late contributions may affect future slot eligibility according to your group's agreement.</p>
+          </div>
+        </details>
+
+        <details class="accordion__item">
+          <summary class="accordion__summary">How is the Time-Value Collection (TVC) calculated?</summary>
+          <div class="accordion__content">
+            <p>TVC balances early collection benefits with late collection patience. It is calculated at a standard 2% per annum rate, scaled dynamically depending on your assigned slot position (from Slot 1 through Slot 12) within the rotation cycle.</p>
+          </div>
+        </details>
+
+        <details class="accordion__item">
+          <summary class="accordion__summary">How do I register as a community partner admin?</summary>
+          <div class="accordion__content">
+            <p>Click on the "Become a Community Partner" button in the top navigation or footer. Once registered, you will complete basic identity verification (KYC) with the Super Admin to activate your independent community environment.</p>
+          </div>
+        </details>
+
+        <details class="accordion__item">
+          <summary class="accordion__summary">How do co-savers log into their community page?</summary>
+          <div class="accordion__content">
+            <p>Co-savers do not use the main platform operator login dropdown. Instead, each community partner provides their co-savers with a dedicated community link where members log in directly using their verified phone number.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT FORM & DIRECT DETAILS -->
+  <section class="section">
+    <div class="section__inner">
+      <span class="section__eyebrow">Get In Touch</span>
+      <h2>Contact Platform Support</h2>
+      <p class="section__lede">Have a direct technical question or inquiry regarding platform partnership? Send us a message.</p>
+
+      <div class="grid-2">
+        <!-- Direct Contact Details -->
+        <div class="contact-info-card">
+          <h3 style="font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 24px;">Support Channels</h3>
+          
+          <div class="contact-info-item">
+            <div class="icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <div>
+              <h4>Email General Inquiries</h4>
+              <p><a href="mailto:privacy_thriftytechnologies@proton.me">privacy_thriftytechnologies@proton.me</a></p>
+            </div>
+          </div>
+
+          <div class="contact-info-item">
+            <div class="icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div>
+              <h4>Operating Entity</h4>
+              <p>Thrifty Technologies Ltd.<br/>United Kingdom</p>
+            </div>
+          </div>
+
+          <div class="contact-info-item">
+            <div class="icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <h4>Support Hours</h4>
+              <p>Monday – Friday: 9:00 AM – 5:00 PM GMT<br/>Responses within 24 business hours</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Form -->
+        <div class="form-card">
+          <h3 style="font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 24px;">Send a Message</h3>
+          <form id="contact-form" novalidate>
+            <div class="form-group">
+              <label for="contact-name">Full Name</label>
+              <input type="text" id="contact-name" required placeholder="John Doe" />
+            </div>
+            <div class="form-group">
+              <label for="contact-email">Email Address</label>
+              <input type="email" id="contact-email" required placeholder="john@example.com" />
+            </div>
+            <div class="form-group">
+              <label for="contact-subject">Inquiry Type</label>
+              <select id="contact-subject" required>
+                <option value="partner">Becoming a Community Partner</option>
+                <option value="technical">Platform &amp; ERP Support</option>
+                <option value="legal">Privacy &amp; Data Inquiry</option>
+                <option value="other">Other Inquiry</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="contact-message">Message</label>
+              <textarea id="contact-message" rows="4" required placeholder="How can we help your community?"></textarea>
+            </div>
+            <button type="submit" class="btn btn--primary" id="contact-submit">Send Message</button>
+            <div id="contact-status" class="form-status" style="margin-top: 16px; padding: 12px; border-radius: 6px; display: none; font-size: 14px;"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER (Matching homepage footer with link pointing directly to /contact.html) -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__brand-col">
+        <div class="footer__brand">ROSCA Thrift &amp; Savings</div>
+        <p class="footer__tagline">
+          The digital ERP application for church community savings circles.
+          Operated by Thrifty Technologies, United Kingdom.
+        </p>
+      </div>
+      <div>
+        <div class="footer__col-title">Platform</div>
+        <div class="footer__col-links">
+          <a href="/terminology.html">Terminology</a>
+          <a href="/branch/register.html">Become a community partner admin</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer__col-title">Legal</div>
+        <div class="footer__col-links">
+          <a href="/terms.html">Terms of Service</a>
+          <a href="/privacy.html">Privacy Policy</a>
+          <a href="/contact.html">Contact us</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <div>© 2026 Thrifty Technologies. All rights reserved.</div>
+      <div>Built for church communities across the UK.</div>
+    </div>
+  </footer>
+
+</div>
+
+<script src="/assets/js/config.js"></script>
+<script src="/assets/js/api.js"></script>
+<script>
+  (function () {
+    'use strict';
+    const api = window.ROSCA_API.api;
+    const homeForRole = window.ROSCA_API.homeForRole;
+    const dropdown = document.getElementById('login-dropdown');
+    const loginForm = document.getElementById('login-form');
+    const loginStatus = document.getElementById('login-status');
+    const loginSubmit = document.getElementById('login-submit');
+    const phoneInput = document.getElementById('login-phone');
+
+    /* Login dropdown positioning & toggle */
+    function positionDropdown(trigger) {
+      const rect = trigger.getBoundingClientRect();
+      dropdown.style.top = (rect.bottom + 12) + 'px';
+      const dropWidth = 360;
+      const desiredLeft = rect.right - dropWidth;
+      const maxLeft = window.innerWidth - dropWidth - 16;
+      dropdown.style.left = Math.max(16, Math.min(desiredLeft, maxLeft)) + 'px';
+    }
+
+    let currentTrigger = null;
+    function toggleDropdown(trigger) {
+      if (dropdown.classList.contains('is-open') && currentTrigger === trigger) {
+        dropdown.classList.remove('is-open');
+        dropdown.setAttribute('aria-hidden', 'true');
+        currentTrigger = null;
+      } else {
+        currentTrigger = trigger;
+        positionDropdown(trigger);
+        dropdown.classList.add('is-open');
+        dropdown.setAttribute('aria-hidden', 'false');
+        setTimeout(() => phoneInput.focus(), 60);
+      }
+    }
+
+    document.querySelectorAll('[data-login-trigger]').forEach(btn => {
+      btn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); toggleDropdown(btn); });
+    });
+
+    document.addEventListener('click', e => {
+      if (!dropdown.classList.contains('is-open')) return;
+      if (dropdown.contains(e.target) || e.target.closest('[data-login-trigger]')) return;
+      dropdown.classList.remove('is-open');
+      dropdown.setAttribute('aria-hidden', 'true');
+    });
+
+    loginForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      loginStatus.className = 'form-status';
+      loginStatus.textContent = '';
+      const phone = phoneInput.value.trim();
+      const password = document.getElementById('login-password').value;
+
+      if (!/^\+[1-9]\d{6,14}$/.test(phone)) {
+        loginStatus.textContent = 'Phone must be in E.164 format, e.g. +447912345678.';
+        loginStatus.className = 'form-status is-visible form-status--error';
+        return;
+      }
+
+      loginSubmit.disabled = true;
+      loginSubmit.textContent = 'Logging in…';
+
+      try {
+        const data = await api('/api/auth/login', { method: 'POST', body: { phone, password } });
+        if (data.user.role !== 'BRANCH_ADMIN' && data.user.role !== 'SUPER_ADMIN') {
+          window.ROSCA_API.clearTokens();
+          loginStatus.textContent = 'This login is for community partner admins only.';
+          loginStatus.className = 'form-status is-visible form-status--error';
+          loginSubmit.disabled = false;
+          loginSubmit.textContent = 'Log in';
+          return;
+        }
+        window.ROSCA_API.setTokens(data.tokens.accessToken, data.tokens.refreshToken);
+        loginStatus.textContent = '✓ Logged in. Redirecting…';
+        loginStatus.className = 'form-status is-visible form-status--success';
+        setTimeout(() => window.location.href = homeForRole(data.user.role), 700);
+      } catch (err) {
+        loginStatus.textContent = (err && err.message) || 'Login failed. Please try again.';
+        loginStatus.className = 'form-status is-visible form-status--error';
+        loginSubmit.disabled = false;
+        loginSubmit.textContent = 'Log in';
+      }
+    });
+
+    /* Contact Form Handling */
+    const contactForm = document.getElementById('contact-form');
+    const contactStatus = document.getElementById('contact-status');
+    const contactSubmit = document.getElementById('contact-submit');
+
+    contactForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      contactSubmit.disabled = true;
+      contactSubmit.textContent = 'Sending…';
+
+      setTimeout(() => {
+        contactStatus.style.display = 'block';
+        contactStatus.style.background = 'rgba(78, 222, 163, 0.1)';
+        contactStatus.style.border = '1px solid #4edea3';
+        contactStatus.style.color = '#4edea3';
+        contactStatus.textContent = '✓ Thank you! Your message has been sent to Thrifty Technologies support.';
+        contactForm.reset();
+        contactSubmit.disabled = false;
+        contactSubmit.textContent = 'Send Message';
+      }, 1000);
+    });
+  })();
+</script>
+
+</body>
+</html>

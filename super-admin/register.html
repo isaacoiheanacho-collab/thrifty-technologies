@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#00daf3">
+  <title>Super Admin Registration — ROSCA Thrift &amp; Savings</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+
+  <style>
+    body { overflow-x: hidden; }
+    .page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(0, 218, 243, 0.08) 0%, transparent 55%),
+        radial-gradient(circle at 70% 80%, rgba(78, 222, 163, 0.05) 0%, transparent 55%),
+        var(--surface);
+    }
+    .card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--surface-container-low);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.4);
+    }
+    .brand {
+      text-align: center;
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--outline-variant);
+    }
+    .brand__top {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-bottom: 6px;
+    }
+    .brand__name {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--brand-primary);
+      letter-spacing: 0.02em;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0 0 6px;
+      text-align: center;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: var(--on-surface-variant);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    fieldset {
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin: 0 0 20px;
+    }
+    fieldset legend {
+      padding: 0 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--brand-primary);
+    }
+    .form-row { margin-bottom: 14px; }
+    .form-row:last-child { margin-bottom: 0; }
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--surface-container-lowest);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius);
+      color: var(--on-surface);
+      font-family: inherit;
+      font-size: 15px;
+      transition: all var(--transition-fast);
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 3px rgba(0, 218, 243, 0.15);
+    }
+    .form-hint {
+      font-size: 12px;
+      color: var(--on-surface-variant);
+      margin-top: 4px;
+      display: block;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 24px;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn--primary { background: var(--brand-primary); color: #0a0a0c; }
+    .btn--primary:hover:not(:disabled) { filter: brightness(1.1); }
+    .btn--primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn--block { width: 100%; margin-top: 20px; }
+
+    .status {
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      margin-top: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+      display: none;
+    }
+    .status.is-visible { display: block; }
+    .status--error { background: rgba(255, 180, 171, 0.1); border: 1px solid var(--error); color: var(--error); }
+    .status--info { background: rgba(0, 218, 243, 0.08); border: 1px solid var(--brand-primary); color: var(--brand-primary); }
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <div class="card">
+
+    <div class="brand">
+      <div class="brand__top">Internal Use Only</div>
+      <div class="brand__name">ROSCA Thrift &amp; Savings</div>
+    </div>
+
+    <h1>Super Admin Registration</h1>
+    <p class="subtitle">
+      Create the platform owner account. This account bypasses branch creation and has full system access.
+    </p>
+
+    <form id="super-admin-form" novalidate>
+      
+      <fieldset>
+        <legend>Security Key</legend>
+        <div class="form-row">
+          <label class="form-label" for="secret-key">Registration Secret Key</label>
+          <input class="form-input" type="password" id="secret-key" required placeholder="Enter the platform secret key" />
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Your Account</legend>
+        <div class="form-row">
+          <label class="form-label" for="admin-name">Full Legal Name</label>
+          <input class="form-input" type="text" id="admin-name" required placeholder="Platform Owner" />
+        </div>
+        <div class="form-row">
+          <label class="form-label" for="admin-phone">Phone Number</label>
+          <input class="form-input" type="tel" id="admin-phone" required placeholder="+447842338546" />
+          <span class="form-hint">E.164 format. We'll text a 6-digit code here.</span>
+        </div>
+        <div class="form-row">
+          <label class="form-label" for="admin-password">Password</label>
+          <input class="form-input" type="password" id="admin-password" required minlength="10" maxlength="72" placeholder="At least 10 chars, 1 number, 1 symbol" />
+        </div>
+      </fieldset>
+
+      <button type="submit" class="btn btn--primary btn--block" id="submit-btn">
+        Create Super Admin
+      </button>
+
+      <div class="status" id="form-status"></div>
+    </form>
+
+  </div>
+</div>
+
+<script src="/assets/js/config.js"></script>
+<script src="/assets/js/api.js"></script>
+<script>
+  (function () {
+    'use strict';
+
+    const api = window.ROSCA_API.api;
+    const form = document.getElementById('super-admin-form');
+    const statusEl = document.getElementById('form-status');
+    const submitBtn = document.getElementById('submit-btn');
+
+    function setStatus(message, kind) {
+      statusEl.textContent = message;
+      statusEl.className = 'status is-visible status--' + kind;
+    }
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      statusEl.className = 'status';
+
+      const secretKey = document.getElementById('secret-key').value.trim();
+      const fullName = document.getElementById('admin-name').value.trim();
+      const phone = document.getElementById('admin-phone').value.trim();
+      const password = document.getElementById('admin-password').value;
+
+      if (!secretKey) return setStatus('Secret key is required.', 'error');
+      if (fullName.length < 2) return setStatus('Enter your full name.', 'error');
+      if (!/^\+[1-9]\d{6,14}$/.test(phone)) return setStatus('Phone must be E.164 format.', 'error');
+      if (password.length < 10) return setStatus('Password must be at least 10 characters.', 'error');
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating…';
+
+      try {
+        // We will create a specific backend route for this
+        await api('/api/auth/register-super-admin', {
+          method: 'POST',
+          body: {
+            secretKey: secretKey,
+            fullName: fullName,
+            phone: phone,
+            password: password
+          },
+        });
+
+        setStatus('✓ Super Admin created. Redirecting to verify your phone…', 'info');
+
+        const verifyUrl =
+          '/auth/verify.html?phone=' +
+          encodeURIComponent(phone) +
+          '&next=' +
+          encodeURIComponent('/super-admin/dashboard.html');
+
+        setTimeout(function () {
+          window.location.href = verifyUrl;
+        }, 1500);
+      } catch (err) {
+        setStatus((err && err.message) || 'Registration failed.', 'error');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create Super Admin';
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>

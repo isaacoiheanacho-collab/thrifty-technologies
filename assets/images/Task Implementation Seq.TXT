@@ -1,0 +1,248 @@
+ROSCA Frontend — Execution Plan
+Pre-work (verification only — no code written)
+TASK 0 — Confirm the actual backend surface
+Goal: Eliminate all guesswork about what endpoints exist before we write a line of frontend.
+
+Actions:
+
+Start the backend locally: cd backend && yarn dev
+
+In a separate terminal, run the route inventory:
+
+text
+findstr /s /n /c:".get(" /c:".post(" /c:".patch(" /c:".put(" /c:".delete(" src\modules\*.routes.ts
+Or use the PowerShell equivalent if findstr misbehaves.
+
+Paste the full output.
+
+Deliverable: A definitive list of every route, its method, and its path.
+
+Why this is first: Everything downstream depends on this. The existing branch dashboard was written against routes that don't exist. We do not repeat that.
+
+Nothing is written in TASK 1 until TASK 0 output is pasted.
+
+Phase A — Shared foundation
+TASK 1 — Create frontend/assets/js/config.js
+Deliverable: A single file that exports API_BASE (resolved per environment: localhost → http://localhost:4001, otherwise → https://rosca-thrift.onrender.com) and the two localStorage key names.
+
+Verify: Open http://localhost:3000/assets/js/config.js in a browser — should serve the file, not 404.
+
+TASK 2 — Create frontend/assets/js/api.js
+Deliverable: A shared fetch wrapper exposing api(path, options), getToken(), setTokens(), clearTokens(), logout(). Includes the 401-refresh logic that's currently copy-pasted into login.html and branch/dashboard.html.
+
+Verify: A minimal test page (temporary, not shipped) that calls window.roscaApi.getToken() returns null when not logged in.
+
+Phase B — Auth pages (in dependency order)
+TASK 3 — frontend/auth/register.html (new)
+Purpose: Saver registration via branch landing. Reads ?branch=<slug>, collects full name / phone / password, posts to POST /api/auth/register with branchSlug and the two consent objects.
+
+Depends on: TASK 1, TASK 2.
+
+Verify: Open http://localhost:3000/auth/register.html?branch=<real-slug>. Fill and submit. Expect 201 with { userId }, then auto-redirect to verify.html.
+
+TASK 4 — frontend/auth/verify.html (new)
+Purpose: OTP entry. Reads ?phone=<phone> and ?next=<path>. Posts to POST /api/auth/verify-phone. On success, stores tokens, redirects to next (or role-appropriate dashboard).
+
+Depends on: TASK 1, TASK 2, TASK 3 (in the sense that register.html links here).
+
+Verify: Register a fresh user, land on verify, enter the DEV OTP (the one logged in the server console in dev mode), expect 200, expect token storage in localStorage, expect redirect to /saver/dashboard.html (which will 404 — that's expected; next task fixes it).
+
+TASK 5 — frontend/auth/forgot-password.html (new)
+Purpose: Two-step password reset. Step 1: enter phone → POST /api/auth/password/forgot. Step 2: enter OTP + new password → POST /api/auth/password/reset.
+
+Depends on: TASK 1, TASK 2.
+
+Verify: Full flow with a real account on the backend.
+
+TASK 6 — Update frontend/auth/login.html
+Purpose: Refactor to use config.js and api.js instead of inline fetch. Keep the same UI. Keep the ?branch= support.
+
+Depends on: TASK 1, TASK 2.
+
+Verify: Log in as each of SAVER, BRANCH_ADMIN, SUPER_ADMIN. Confirm correct redirect target. Confirm that only the SAVER redirect 404s at this stage (branch and super-admin dashboards come later).
+
+Phase C — Existing files that need correction
+TASK 7 — Update frontend/index.html (platform landing)
+Purpose: The signup form currently posts intent: 'BRANCH_ADMIN' to /api/auth/register, which does not exist. Based on TASK 0, we either:
+
+(a) Point it at POST /api/branches/onboard and change the form to include branch name + slug + admin details, or
+
+(b) Remove the signup form and replace it with "contact us to become a branch" if admin onboarding is not self-serve.
+
+Decision required: Which of (a) or (b) — this comes out of TASK 0.
+
+Depends on: TASK 0, TASK 1.
+
+Verify: Submit the form. Confirm 201 (or the correct response).
+
+TASK 8 — Update frontend/join/index.html (branch landing)
+Purpose: Verify the register redirect points to /auth/register.html?branch=<slug> (TASK 3), not to /auth/register.html?branch=<slug> on a page that doesn't exist. Minor patch.
+
+Depends on: TASK 3.
+
+Verify: On a real branch landing, tick the three consents, click Register → lands on the new register page with the slug preserved.
+
+Phase D — Dashboards
+TASK 9 — Fix frontend/branch/dashboard.html (completion, not rewrite)
+Purpose: The file is truncated. Restore the missing functions and correct the API calls to match TASK 0's real routes:
+
+Branch create → remove (backend doesn't support branch-admin branch creation; branch is set up by super admin or via onboarding)
+
+Branch edit → PATCH /api/branch-admin/branches/:id/content for about/terms/privacy, PUT /api/branch-admin/pool-account for bank details
+
+Branding → either call /api/super-admin/branches/:id/branding (if branch-admin cannot edit) or we add a branch-admin route in TASK 12
+
+Replace const API_BASE = '...' and the inline api() with the shared config/api
+
+Depends on: TASK 1, TASK 2, TASK 0 (route list).
+
+Verify: Log in as a real branch admin. Every sidebar section loads without console errors. Every action returns the right result.
+
+TASK 10 — Create frontend/saver/dashboard.html (new)
+Purpose: The saver's primary view. Sections:
+
+Overview (tenant status, cycle, slot, next payout)
+
+My contribution (current intent, reference, target account, upload receipt)
+
+Tenant status (all 12 members, who has contributed, has receipt)
+
+Ledger (tenant ledger entries)
+
+Receipts (gallery)
+
+Payout history (mine)
+
+Renewal (if in renewal window, vote YES/NO)
+
+Notifications feed + web push subscribe
+
+Settings (profile, password, phone change, consent)
+
+Depends on: TASK 1, TASK 2, TASK 0.
+
+Verify: Log in as a real saver. Every section loads. Upload a receipt (TASK 5 flow) — verify it appears in the branch admin's pending queue (TASK 9).
+
+TASK 11 — Create frontend/super-admin/dashboard.html (new)
+Purpose: The super admin's view. Sections:
+
+Overview (platform stats)
+
+Branches (list, approve/reject onboarding, edit)
+
+KYC queue (all branches)
+
+Tenants (all branches, status override)
+
+Fee confirmations (pending fee receipts)
+
+Failed payouts + retries
+
+Platform maintenance account
+
+Monthly volume
+
+Depends on: TASK 1, TASK 2, TASK 0.
+
+Verify: Log in as super admin. Every section loads.
+
+Phase E — Corrections to the backend (only if TASK 0 reveals a genuine gap)
+TASK 12 (conditional) — Backend additions
+Only if TASK 0 or TASK 9/10/11 uncover a route the frontend genuinely needs but the backend doesn't have. Candidate examples (to be confirmed in TASK 0):
+
+PATCH /api/branch-admin/branches/:id/branding (so branch admins can edit their own branding)
+
+Any list endpoint the branch dashboard expects but doesn't exist
+
+Depends on: findings from TASK 0 and 9–11.
+
+Verify: Each added route gets a curl test before frontend consumes it.
+
+OTP resend button [one new endpoint: POST /api/auth/resend-otp { phone }]
+
+Phase F — Deployment
+TASK 13 — Decide hosting for the frontend
+Options:
+
+Serve from Express as static files (add to backend/src/server.ts) — same origin, no CORS change
+
+Render static site, point at backend URL — requires backend CORS to include the static site origin
+
+Vercel
+
+Decision required after Phase A–E work.
+
+Verify: Production URL loads. Login works. A test signup works.
+
+Rule for the rest of this project
+For every task, the workflow is:
+
+I deliver the full file (or full new file) with no patches.
+
+You save it.
+
+You run the specific verification for that task.
+
+You paste the verification output.
+
+Only then do we move to the next task.
+
+No task assumes a file is correct until it's been verified. No task depends on a file that hasn't been verified. No guessing about backend routes — TASK 0 gives us ground truth first.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Revised task plan
+Everything from TASK 0–2 stays as-is (config, api — good).
+
+Task	Status	Change
+TASK 0	✅ done	route inventory
+TASK 1	✅ done	config.js
+TASK 2	✅ done	api.js
+TASK 3	✅ done	verify.html — keep as-is (shared)
+TASK 4	✅ done	Old register.html becomes /saver/register.html. New /branch/register.html is written from scratch.
+TASK 5	✅ done  forgot-password.html — keep shared
+TASK 6	⚠️ dropped	Old login.html becomes two: /branch/login.html and /saver/login.html. Delete /auth/login.html (or leave a redirect stub).
+TASK 7	✅ done  revised	index.html — change Sign up button to link to /branch/register.html. Change Log in to link to /branch/login.html.
+TASK 8	✅ done  revised	join/index.html — change Sign up to link to /saver/register.html?branch=slug. Change Log in to link to /saver/login.html?branch=slug.
+TASK 9+	✅ done  edit branch admin dashboards etc.
+Before I do anything: confirm the folder structure
+I want to rename folders/paths. Confirm what you want:
+
+Option A — folder-per-role (my recommendation):
+
+text
+frontend/
+├── index.html                      platform landing          (exists — needs link fixes)
+├── branch/
+│   ├── login.html                  branch admin + super admin login
+│   ├── register.html               branch admin signup (multi-field)
+│   └── dashboard.html              branch admin dashboard     (exists, truncated — TASK 9)
+├── saver/
+│   ├── login.html                  saver login
+│   ├── register.html               saver signup
+│   └── dashboard.html              saver dashboard           (missing — TASK 10)
+├── super-admin/
+│   └── dashboard.html              super admin dashboard     (missing — TASK 11)
+├── join/
+│   └── index.html                  branch landing            (exists — needs link fixes)
+├── auth/
+│   ├── verify.html                 OTP verify                (done — TASK 3)
+│   └── forgot-password.html        password reset            (TASK 5)
+└── assets/
+    ├── css/
+    │   ├── tokens.css              (exists)
+    │   └── base.css                (exists)
+    └── js/
+        ├── config.js               (done — TASK 1)
+        └── api.js                  (done — TASK 2)

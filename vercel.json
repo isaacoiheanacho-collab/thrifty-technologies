@@ -1,0 +1,26 @@
+{
+  "rewrites": [
+    { "source": "/about", "destination": "/about.html" },
+    { "source": "/partner", "destination": "/partner.html" },
+    { "source": "/contact", "destination": "/contact.html" },
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/terms", "destination": "/terms.html" },
+    { "source": "/terminology", "destination": "/terminology.html" },
+    
+    { "source": "/auth/verify", "destination": "/auth/verify.html" },
+    { "source": "/auth/forgot-password", "destination": "/auth/forgot-password.html" },
+
+    { "source": "/branch/register", "destination": "/branch/register.html" },
+    { "source": "/branch/dashboard", "destination": "/branch/dashboard.html" },
+    { "source": "/branch/login", "destination": "/branch/login.html" },
+
+    { "source": "/saver/register", "destination": "/saver/register.html" },
+    { "source": "/saver/dashboard", "destination": "/saver/dashboard.html" },
+    { "source": "/saver/login", "destination": "/saver/login.html" },
+
+    { "source": "/super-admin/dashboard", "destination": "/super-admin/dashboard.html" },
+    { "source": "/super-admin/register", "destination": "/super-admin/register.html" },
+
+    { "source": "/join", "destination": "/join/index.html" }
+  ]
+}
