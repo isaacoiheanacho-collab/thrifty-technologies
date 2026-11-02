@@ -18,25 +18,14 @@
     body { overflow-x: hidden; background-color: #0b0e11; color: #e1e3e5; font-family: 'Inter', sans-serif; }
     .page { min-height: 100vh; display: flex; flex-direction: column; }
 
-    /* Header matching homepage */
-    .header {
-      padding: 20px 48px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid #1f242b;
-      position: sticky;
-      top: 0;
-      background: rgba(17, 20, 20, 0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      z-index: 300;
-    }
+    /* ── Header & Mobile Menu ─────────────────────────────────── */
+    .header { padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: rgba(17, 20, 20, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); z-index: 300; border-bottom: 1px solid #1f242b; }
+    
     .header__brand { display: flex; flex-direction: column; line-height: 1.15; flex-shrink: 0; }
     .header__brand-top { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #8e9196; }
     .header__brand-bottom { font-size: 16px; font-weight: 800; letter-spacing: 0.02em; color: #00daf3; }
     
-    .header__right-group { display: flex; align-items: center; gap: 40px; margin-left: auto; padding-right: 20px; }
+    .header__right-group { display: flex; align-items: center; gap: 40px; }
     .header__nav { display: flex; gap: 32px; font-size: 14px; font-weight: 500; align-items: center; }
     .header__nav a { color: #c4c7c9; text-decoration: none; transition: color 0.2s ease; }
     .header__nav a:hover { color: #00daf3; }
@@ -44,14 +33,112 @@
     .header__actions { display: flex; gap: 16px; align-items: center; }
     .header__login { color: #ffffff; font-weight: 600; text-decoration: none; font-size: 14px; padding: 10px 16px; background: transparent; border: 1px solid #33383f; border-radius: 6px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
     .header__login:hover { color: #00daf3; border-color: #00daf3; }
-    .header__cta { background: #00daf3; color: #00363d; font-weight: 700; border-radius: 6px; padding: 10px 20px; font-size: 14px; text-decoration: none; }
+    .header__cta { background: #00daf3; color: #00363d; font-weight: 700; border-radius: 6px; padding: 10px 20px; font-size: 14px; text-decoration: none; white-space: nowrap; }
 
-    @media (max-width: 820px) { .header__nav a:not(.header__cta) { display: none; } }
+    /* Hamburger Button (Hidden on Desktop) */
+    .mobile-menu-btn {
+      display: none;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 28px;
+      cursor: pointer;
+      padding: 0;
+      z-index: 400;
+    }
+
+    /* Mobile Slide-out Menu (Drawer) */
+    .mobile-nav-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 399;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease;
+    }
+    .mobile-nav-overlay.is-open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .mobile-nav-drawer {
+      position: fixed;
+      top: 0;
+      right: -300px;
+      width: 280px;
+      height: 100vh;
+      background: #11151a;
+      border-left: 1px solid #1f242b;
+      z-index: 400;
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+    }
+    .mobile-nav-drawer.is-open {
+      transform: translateX(-300px);
+    }
+    .mobile-nav-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .mobile-nav-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #8e9196;
+    }
+    .mobile-nav-close {
+      background: transparent;
+      border: none;
+      color: #8e9196;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+    }
+    .mobile-nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .mobile-nav-links a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 12px 0;
+      border-bottom: 1px solid #1f242b;
+      transition: color 0.2s;
+    }
+    .mobile-nav-links a:hover {
+      color: #00daf3;
+    }
+    .mobile-nav-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: auto;
+    }
+    .mobile-nav-actions .header__login {
+      width: 100%;
+      text-align: center;
+    }
+    .mobile-nav-actions .header__cta {
+      width: 100%;
+      text-align: center;
+    }
 
     /* Login dropdown (anchored, floating) */
     .login-dropdown {
       position: fixed;
-      z-index: 400;
+      z-index: 500;
       width: 360px;
       max-width: calc(100vw - 32px);
       background: var(--surface-container-low, #11151a);
@@ -284,12 +371,21 @@
     .footer__bottom { max-width: 1100px; margin: 40px auto 0; padding-top: 24px; border-top: 1px solid var(--outline-variant, #252b33); display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--on-surface-variant, #8e9196); }
     @media (min-width: 720px) { .footer__bottom { flex-direction: row; justify-content: space-between; align-items: center; } }
 
+    /* Mobile Responsive Fixes */
     @media (max-width: 1024px) {
       .partner-hero { padding: 60px 24px 40px; }
       .partner-hero h1 { font-size: 38px; }
       .section { padding: 60px 24px; }
       .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; gap: 32px; }
-      .header__right-group { margin-left: 0; gap: 16px; padding-right: 0; }
+    }
+
+    @media (max-width: 820px) {
+      /* Show Hamburger, Hide Desktop Nav */
+      .mobile-menu-btn { display: block; }
+      .header__right-group { display: none; }
+      
+      /* Keep header padding tight */
+      .header { padding: 16px 20px; }
     }
   </style>
 </head>
@@ -297,12 +393,14 @@
 
 <div class="page">
 
-  <!-- HEADER (Matching homepage header structure: removed how-it-works, kept partner, used login trigger) -->
+  <!-- 1. HEADER -->
   <header class="header">
     <div class="header__brand">
       <span class="header__brand-top">Thrifty Technologies</span>
       <span class="header__brand-bottom">ROSCA Thrift &amp; Savings</span>
     </div>
+    
+    <!-- Desktop Nav -->
     <div class="header__right-group">
       <nav class="header__nav">
         <a href="/">Home</a>
@@ -314,7 +412,30 @@
         <a href="/branch/register.html" class="header__cta">Become a Community Partner</a>
       </div>
     </div>
+
+    <!-- Mobile Hamburger Button -->
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
+      ☰
+    </button>
   </header>
+
+  <!-- Mobile Slide-out Drawer -->
+  <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+  <div class="mobile-nav-drawer" id="mobile-nav-drawer">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-title">Menu</span>
+      <button class="mobile-nav-close" id="mobile-nav-close">&times;</button>
+    </div>
+    <div class="mobile-nav-links">
+      <a href="/">Home</a>
+      <a href="/about.html">About</a>
+      <a href="/partner.html" style="color: #00daf3;">Partner</a>
+    </div>
+    <div class="mobile-nav-actions">
+      <button type="button" class="header__login" data-login-trigger>Log in</button>
+      <a href="/branch/register.html" class="header__cta">Become a Community Partner</a>
+    </div>
+  </div>
 
   <!-- Login Dropdown Component -->
   <div class="login-dropdown" id="login-dropdown" role="dialog" aria-label="Log in" aria-hidden="true">
@@ -486,7 +607,7 @@
     </div>
   </section>
 
-  <!-- CTA BOX (Updated: Removed co-saver registration button, focusing solely on Community Partner signup & login) -->
+  <!-- CTA BOX -->
   <section class="section">
     <div class="section__inner">
       <div class="cta-box">
@@ -501,7 +622,7 @@
     </div>
   </section>
 
-  <!-- FOOTER (Standardized matching homepage footer) -->
+  <!-- FOOTER -->
   <footer class="footer">
     <div class="footer__inner">
       <div class="footer__brand-col">
@@ -534,6 +655,27 @@
   </footer>
 
 </div>
+
+<!-- Slide-out Menu Toggle -->
+<script>
+  const mobileBtn = document.getElementById('mobile-menu-btn');
+  const mobileDrawer = document.getElementById('mobile-nav-drawer');
+  const mobileOverlay = document.getElementById('mobile-nav-overlay');
+  const mobileClose = document.getElementById('mobile-nav-close');
+
+  function openMobileMenu() {
+    mobileDrawer.classList.add('is-open');
+    mobileOverlay.classList.add('is-open');
+  }
+  function closeMobileMenu() {
+    mobileDrawer.classList.remove('is-open');
+    mobileOverlay.classList.remove('is-open');
+  }
+
+  mobileBtn.addEventListener('click', openMobileMenu);
+  mobileClose.addEventListener('click', closeMobileMenu);
+  mobileOverlay.addEventListener('click', closeMobileMenu);
+</script>
 
 <script src="/assets/js/config.js"></script>
 <script src="/assets/js/api.js"></script>
