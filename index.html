@@ -25,6 +25,19 @@
 
     /* Header */
     .header { padding: 20px 48px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: rgba(17, 20, 20, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); z-index: 300; }
+    
+    /* Hamburger Button (Hidden on Desktop) */
+    .mobile-menu-btn {
+      display: none;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+      margin-right: 16px;
+    }
+
     .header__brand { display: flex; flex-direction: column; line-height: 1.15; flex-shrink: 0; }
     .header__brand-top { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #8e9196; }
     .header__brand-bottom { font-size: 16px; font-weight: 800; letter-spacing: 0.02em; color: #00daf3; }
@@ -44,7 +57,7 @@
       position: fixed;
       z-index: 400;
       width: 360px;
-      max-width: calc(100vw - 32px); /* Added to prevent mobile overflow */
+      max-width: calc(100vw - 32px);
       background: var(--surface-container-low, #11151a);
       border: 1px solid var(--outline-variant, #252b33);
       border-radius: 12px;
@@ -376,50 +389,74 @@
         padding: 16px 20px;
         gap: 16px;
       }
+      .mobile-menu-btn {
+        display: block;
+        position: absolute;
+        left: 20px;
+        top: 24px;
+      }
+      .header__brand {
+        align-items: center;
+        text-align: center;
+      }
       .header__right-group {
         flex-direction: column;
         gap: 16px;
         margin-left: 0;
         padding-right: 0;
         width: 100%;
+        display: none; /* Hide by default on mobile */
+      }
+      .header__right-group.is-open {
+        display: flex;
       }
       .header__nav {
+        flex-direction: column;
         justify-content: center;
         width: 100%;
-        gap: 20px;
+        gap: 16px;
       }
       .header__actions {
+        flex-direction: column;
         justify-content: center;
         width: 100%;
       }
+      .header__login, .header__cta {
+        width: 100%;
+        text-align: center;
+      }
 
-      /* 2. Fix the Hero Padding */
+      /* 2. Fix the Hero Padding & Typography */
       .hero {
         padding: 40px 20px 60px;
+        text-align: center;
       }
       .hero h1 {
-        font-size: 34px;
+        font-size: 32px;
+        line-height: 1.15;
+        margin-bottom: 16px;
       }
       .hero__subtitle {
         font-size: 15px;
+        margin: 0 auto 32px auto;
+      }
+      .hero__actions {
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 40px;
+      }
+      .hero__actions .btn {
+        width: 100%;
+        text-align: center;
+      }
+      .hero__stats {
+        justify-content: center;
+        gap: 24px;
       }
 
-      /* 3. Fix the Mockups so they don't stretch the page */
+      /* 3. Hide Mockups on Mobile */
       .hero__visual {
-        height: auto;
-        min-height: 500px;
-        margin-top: 20px;
-      }
-      .mockup-phone {
-        width: 260px;
-        height: 480px;
-        margin: 0 auto;
-      }
-      .mockup-landscape {
-        width: 300px;
-        right: 50%; 
-        transform: translateX(50%); 
-        bottom: -10px;
+        display: none;
       }
 
       /* 4. Fix sections padding */
@@ -427,18 +464,16 @@
         padding: 64px 20px;
       }
       .section h2 {
-        font-size: 30px;
+        font-size: 28px;
+        text-align: center;
+      }
+      .section__lede {
+        text-align: center;
+        margin-bottom: 32px;
       }
     }
 
     @media (max-width: 480px) {
-      .header__actions {
-        flex-direction: column;
-      }
-      .header__cta {
-        width: 100%;
-        text-align: center;
-      }
       /* Center the login dropdown on very small screens */
       .login-dropdown {
         left: 50% !important;
@@ -455,13 +490,17 @@
 
 <div class="page">
 
-  <!-- 1. HEADER (Navigation updated: removed "How it works", maintained branch/partner paths, using login dropdown) -->
-  <header class="header">
+  <!-- 1. HEADER -->
+  <header class="header" style="position: relative;">
+    <!-- Hamburger Menu Icon (Mobile Only) -->
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle menu">☰</button>
+
     <div class="header__brand">
       <span class="header__brand-top">Thrifty Technologies</span>
       <span class="header__brand-bottom">ROSCA Thrift &amp; Savings</span>
     </div>
-    <div class="header__right-group">
+    
+    <div class="header__right-group" id="main-nav">
       <nav class="header__nav">
         <a href="/">Home</a>
         <a href="/about.html">About</a>
@@ -840,7 +879,7 @@
     </div>
   </section>
 
-  <!-- 6. PRICING & CTA (Updated to remove co-saver registration button, focusing solely on Community Partner signup & login) -->
+  <!-- 6. PRICING & CTA -->
   <section class="section">
     <div class="section__inner">
       <div class="cta-box">
@@ -866,7 +905,7 @@
     </div>
   </section>
 
-  <!-- 7. STANDARDIZED FOOTER (Retained exactly across all files) -->
+  <!-- 7. STANDARDIZED FOOTER -->
   <footer class="footer">
     <div class="footer__inner">
       <div class="footer__brand-col">
@@ -907,6 +946,19 @@
       navigator.serviceWorker.register('/sw.js')
         .then(reg => console.log('SW Registered', reg))
         .catch(err => console.log('SW Registration Failed', err));
+    });
+  }
+</script>
+
+<!-- Mobile Menu Toggle -->
+<script>
+  const mobileBtn = document.getElementById('mobile-menu-btn');
+  const mainNav = document.getElementById('main-nav');
+  if (mobileBtn && mainNav) {
+    mobileBtn.addEventListener('click', function() {
+      mainNav.classList.toggle('is-open');
+      // Change icon from hamburger to X
+      this.textContent = mainNav.classList.contains('is-open') ? '✕' : '☰';
     });
   }
 </script>
