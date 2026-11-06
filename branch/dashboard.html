@@ -1,658 +1,533 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#00daf3">
-  <title>Branch Dashboard — ROSCA Thrift &amp; Savings</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#008b61">
+<title>Branch Dashboard | ROSCA Thrift & Savings</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="/assets/css/tokens.css">
-  <link rel="stylesheet" href="/assets/css/base.css">
+<style>
+:root {
+  --g: #008b61;
+  --deep: #003b32;
+  --ink: #17202c;
+  --muted: #667085;
+  --line: #e7ebef;
+  --bg: #f5f7fa;
+  --shadow: 0 2px 9px #1018280d;
+  --radius: 12px;
+}
 
-  <style>
-    body { overflow-x: hidden; }
-    .app { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; font-size: 14px; }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
 
-    /* ── Sidebar ─────────────────────────────────────────── */
-    .sidebar {
-      background: var(--surface-container-lowest);
-      border-right: 1px solid var(--outline-variant);
-      padding: 24px 16px;
-      display: flex;
-      flex-direction: column;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow-y: auto;
-    }
-    .sidebar__brand {
-      padding: 0 8px 24px;
-      border-bottom: 1px solid var(--outline-variant);
-      margin-bottom: 20px;
-    }
-    .sidebar__brand-top {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--on-surface-variant);
-      margin-bottom: 4px;
-    }
-    .sidebar__brand-name {
-      font-size: 14px;
-      font-weight: 800;
-      color: var(--brand-primary);
-      letter-spacing: 0.02em;
-      line-height: 1.2;
-      word-break: break-word;
-    }
-    .sidebar__nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 12px;
-      border-radius: var(--radius);
-      color: var(--on-surface-variant);
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all var(--transition-fast);
-      border: none;
-      background: transparent;
-      font-family: inherit;
-      text-align: left;
-      width: 100%;
-    }
-    .nav-item:hover { background: var(--surface-container-low); color: var(--on-surface); }
-    .nav-item.is-active {
-      background: rgba(0, 218, 243, 0.1);
-      color: var(--brand-primary);
-      border-left: 2px solid var(--brand-primary);
-      padding-left: 10px;
-    }
-    .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
-    .sidebar__footer {
-      border-top: 1px solid var(--outline-variant);
-      padding-top: 16px;
-      margin-top: 16px;
-    }
-    .sidebar__user {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px;
-      border-radius: var(--radius);
-      margin-bottom: 8px;
-    }
-    .sidebar__avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: var(--brand-primary);
-      color: #0a0a0c;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 13px;
-      flex-shrink: 0;
-      overflow: hidden;
-    }
-    .sidebar__user-info { overflow: hidden; flex: 1; }
-    .sidebar__user-name {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--on-surface);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .sidebar__user-role {
-      font-size: 11px;
-      color: var(--on-surface-variant);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-    .logout-btn {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 12px;
-      border-radius: var(--radius);
-      color: var(--error);
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all var(--transition-fast);
-      border: none;
-      background: transparent;
-      font-family: inherit;
-      width: 100%;
-      text-align: left;
-    }
-    .logout-btn:hover { background: rgba(255, 180, 171, 0.08); }
-    .logout-btn svg { width: 18px; height: 18px; }
+/* ── App Layout ─────────────────────────────────────────── */
+.app { min-height: 100vh; display: flex; }
 
-    /* ── Main ───────────────────────────────────────────── */
-    .main { min-width: 0; display: flex; flex-direction: column; }
-    .topbar {
-      padding: 16px 24px;
-      border-bottom: 1px solid var(--outline-variant);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      position: sticky;
-      top: 0;
-      background: rgba(17, 20, 20, 0.85);
-      backdrop-filter: blur(16px);
-      z-index: 100;
-    }
-    .topbar__hamburger {
-      display: none;
-      background: transparent;
-      border: 1px solid var(--outline-variant);
-      border-radius: var(--radius);
-      color: var(--on-surface);
-      padding: 8px;
-      cursor: pointer;
-    }
-    .topbar__hamburger svg { width: 20px; height: 20px; display: block; }
-    .topbar__title { font-size: 18px; font-weight: 700; color: var(--on-surface); letter-spacing: -0.01em; }
-    .topbar__subtitle { font-size: 13px; color: var(--on-surface-variant); margin-top: 2px; }
-    .topbar__actions { display: flex; align-items: center; gap: 12px; }
-    .topbar__avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: var(--brand-primary);
-      color: #0a0a0c;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 14px;
-      flex-shrink: 0;
-      overflow: hidden;
-    }
+/* ── Sidebar ────────────────────────────────────────────── */
+.sidebar {
+  width: 260px;
+  background: linear-gradient(160deg, var(--deep), #002d28);
+  color: white;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 100;
+  overflow-y: auto;
+}
+.sidebar__brand { padding: 0 8px 24px; }
+.sidebar__brand-top { font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #8de54c; }
+.sidebar__brand-bottom { font-size: 18px; font-weight: 800; line-height: 1.2; margin-top: 4px; }
+.sidebar__nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; border: 0; border-radius: 8px; background: none; color: #e7f4ef; text-align: left; font-weight: 600; transition: all 0.2s; }
+.nav-item:hover { background: rgba(255,255,255,0.1); }
+.nav-item.is-active { background: var(--g); color: #fff; }
+.nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+.sidebar__footer { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 16px; margin-top: 16px; }
+.sidebar__user { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 8px; margin-bottom: 8px; }
+.sidebar__avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--g); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; overflow: hidden; }
+.sidebar__user-info { overflow: hidden; flex: 1; }
+.sidebar__user-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar__user-role { font-size: 11px; color: #8de54c; text-transform: uppercase; letter-spacing: 0.08em; }
+.logout-btn { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 0; background: none; color: #ffb4ab; width: 100%; text-align: left; border-radius: 8px; font-weight: 600; }
+.logout-btn:hover { background: rgba(255,180,171,0.1); }
+.logout-btn svg { width: 18px; height: 18px; }
 
-    .content {
-      padding: 32px 24px 64px;
-      max-width: 1200px;
-      width: 100%;
-      margin: 0 auto;
-      flex: 1;
-    }
+/* ── Main Area ──────────────────────────────────────────── */
+.main { margin-left: 260px; min-height: 100vh; display: flex; flex-direction: column; width: 100%; }
+.topbar { height: 76px; background: #fff; border-bottom: 1px solid var(--line); display: flex; align-items: center; padding: 0 24px; gap: 16px; position: sticky; top: 0; z-index: 90; }
+.menu-btn { display: none; border: 0; background: none; font-size: 24px; color: var(--ink); }
+.topbar__title { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.topbar__subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.spacer { flex: 1; }
+.topbar__avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--g); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; overflow: hidden; }
 
-    .section { display: none; }
-    .section.is-active { display: block; }
+.content { padding: 24px; max-width: 1400px; width: 100%; margin: 0 auto; flex: 1; }
 
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 16px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-    }
-    .page-header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 4px; }
-    .page-header p { font-size: 14px; color: var(--on-surface-variant); margin: 0; }
+/* ── Sections ───────────────────────────────────────────── */
+.section { display: none; }
+.section.is-active { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    .card {
-      background: var(--surface-container-low);
-      border: 1px solid var(--outline-variant);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      margin-bottom: 20px;
-    }
-    .card__title {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--on-surface);
-      margin: 0 0 16px;
-      letter-spacing: -0.01em;
-    }
-    .card--accent { border-color: var(--brand-primary); background: rgba(0, 218, 243, 0.03); }
+.page-header { margin-bottom: 24px; }
+.page-header h1 { font-size: 28px; font-weight: 800; margin: 0 0 4px; letter-spacing: -0.02em; }
+.page-header p { font-size: 14px; color: var(--muted); margin: 0; }
 
-    .banner {
-      padding: 16px 20px;
-      border-radius: var(--radius-lg);
-      margin-bottom: 24px;
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
-      font-size: 14px;
-      line-height: 1.6;
-    }
-    .banner--warning {
-      background: rgba(245, 226, 163, 0.08);
-      border: 1px solid rgba(245, 226, 163, 0.4);
-      color: var(--warning);
-    }
-    .banner--success {
-      background: rgba(78, 222, 163, 0.08);
-      border: 1px solid rgba(78, 222, 163, 0.4);
-      color: var(--success);
-    }
-    .banner--error {
-      background: rgba(255, 180, 171, 0.08);
-      border: 1px solid rgba(255, 180, 171, 0.4);
-      color: var(--error);
-    }
-    .banner--info {
-      background: rgba(0, 218, 243, 0.06);
-      border: 1px solid rgba(0, 218, 243, 0.35);
-      color: var(--brand-primary);
-    }
-    .banner__title { font-weight: 700; margin-bottom: 4px; }
-    .banner svg { flex-shrink: 0; margin-top: 2px; }
+/* ── Hero ───────────────────────────────────────────────── */
+.hero { height: 180px; border-radius: var(--radius); overflow: hidden; position: relative; display: flex; flex-direction: column; justify-content: center; padding: 32px; color: white; background: radial-gradient(circle at 75% 40%, #25a34e, #087a51 30%, #00483b 62%, #00382f); margin-bottom: 24px; }
+.hero h1 { font-size: clamp(24px, 3vw, 32px); margin: 0 0 8px; letter-spacing: -0.02em; position: relative; z-index: 2; }
+.hero p { font-size: 15px; margin: 0 0 20px; max-width: 60%; line-height: 1.4; color: #d5eee5; position: relative; z-index: 2; }
+.hero .btn { position: relative; z-index: 2; background: #55d84e; color: #07351e; border: none; font-weight: 800; padding: 10px 20px; border-radius: 30px; align-self: flex-start; }
 
-    .stat-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-    .stat {
-      background: var(--surface-container-low);
-      border: 1px solid var(--outline-variant);
-      border-radius: var(--radius-lg);
-      padding: 20px;
-    }
-    .stat__label {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--on-surface-variant);
-      margin-bottom: 8px;
-    }
-    .stat__value {
-      font-size: 28px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      color: var(--on-surface);
-      line-height: 1;
-    }
-    .stat__value--accent { color: var(--brand-primary); }
-    .stat__value--warning { color: var(--warning); }
-    .stat__value--success { color: var(--success); }
+/* ── Metrics ────────────────────────────────────────────── */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 16px; }
+.stat-icon { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; color: white; font-weight: 700; }
+.bg-green { background: #08ad70; }
+.bg-blue { background: #176be5; }
+.bg-purple { background: #7951d9; }
+.bg-teal { background: #087e8b; }
+.bg-gold { background: #efa500; }
+.stat-info { flex: 1; }
+.stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em; margin-bottom: 4px; }
+.stat-value { font-size: 24px; font-weight: 800; line-height: 1; color: var(--ink); }
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 10px 20px;
-      border-radius: var(--radius);
-      border: 1px solid transparent;
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 600;
-      line-height: 1;
-      cursor: pointer;
-      transition: all var(--transition-fast);
-      text-decoration: none;
-      white-space: nowrap;
-    }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn--primary { background: var(--brand-primary); color: #0a0a0c; }
-    .btn--primary:hover:not(:disabled) { filter: brightness(1.1); }
-    .btn--success { background: var(--success); color: #003824; }
-    .btn--success:hover:not(:disabled) { filter: brightness(1.1); }
-    .btn--danger { background: transparent; color: var(--error); border-color: rgba(255, 180, 171, 0.4); }
-    .btn--danger:hover:not(:disabled) { background: rgba(255, 180, 171, 0.08); }
-    .btn--ghost { background: transparent; color: var(--on-surface); border-color: var(--outline-variant); }
-    .btn--ghost:hover:not(:disabled) { background: var(--surface-container); }
-    .btn--sm { padding: 6px 12px; font-size: 12px; }
+/* ── Cards ──────────────────────────────────────────────── */
+.card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); margin-bottom: 24px; }
+.card__title { font-size: 16px; font-weight: 700; margin: 0 0 16px; letter-spacing: -0.01em; }
+.card--accent { border-color: var(--g); background: rgba(0, 139, 97, 0.03); }
 
-    .form-row { margin-bottom: 16px; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
-    .form-label {
-      display: block;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--on-surface-variant);
-      margin-bottom: 6px;
-    }
-    .form-input, .form-textarea {
-      width: 100%;
-      padding: 10px 14px;
-      background: var(--surface-container-lowest);
-      border: 1px solid var(--outline-variant);
-      border-radius: var(--radius);
-      color: var(--on-surface);
-      font-family: inherit;
-      font-size: 14px;
-      transition: all var(--transition-fast);
-    }
-    .form-input:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-      background: var(--surface-container);
-    }
-    .form-textarea { min-height: 140px; resize: vertical; line-height: 1.6; }
-    .form-input:focus, .form-textarea:focus {
-      outline: none;
-      border-color: var(--brand-primary);
-      box-shadow: 0 0 0 3px rgba(0, 218, 243, 0.15);
-    }
-    .form-hint { font-size: 12px; color: var(--on-surface-variant); margin-top: 4px; display: block; }
+/* ── Forms & Buttons ────────────────────────────────────── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+.form-row { margin-bottom: 16px; }
+.form-label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; letter-spacing: 0.05em; }
+.form-input, .form-textarea { width: 100%; padding: 12px 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; color: var(--ink); font-family: inherit; font-size: 14px; transition: all 0.2s; }
+.form-input:focus, .form-textarea:focus { outline: none; border-color: var(--g); background: #fff; box-shadow: 0 0 0 3px rgba(0, 139, 97, 0.1); }
+.form-hint { font-size: 12px; color: var(--muted); margin-top: 4px; display: block; }
 
-    .row { display: flex; align-items: center; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 8px; border: 1px solid transparent; font-weight: 600; transition: all 0.2s; text-decoration: none; }
+.btn--primary { background: var(--g); color: white; }
+.btn--primary:hover { filter: brightness(1.1); }
+.btn--ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn--ghost:hover { background: var(--bg); }
+.btn--danger { background: #feeceb; color: #e32626; }
+.btn--sm { padding: 8px 16px; font-size: 12px; }
 
-    .table-wrap {
-      background: var(--surface-container-low);
-      border: 1px solid var(--outline-variant);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-    }
-    .table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .table th {
-      text-align: left;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--on-surface-variant);
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--outline-variant);
-      background: var(--surface-container);
-    }
-    .table td {
-      padding: 14px 16px;
-      border-bottom: 1px solid rgba(64, 72, 74, 0.4);
-      color: var(--on-surface);
-      vertical-align: middle;
-    }
-    .table tbody tr:last-child td { border-bottom: none; }
-    .table tbody tr:hover { background: rgba(0, 218, 243, 0.03); }
-    .table__actions { display: flex; gap: 8px; justify-content: flex-end; }
+/* ── Tables ─────────────────────────────────────────────── */
+.table-wrap { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); overflow-x: auto; box-shadow: var(--shadow); }
+.table { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; }
+.table th { text-align: left; padding: 14px 16px; background: var(--bg); font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); letter-spacing: 0.05em; }
+.table td { padding: 16px; border-bottom: 1px solid var(--line); color: var(--ink); vertical-align: middle; }
+.table tr:last-child td { border-bottom: none; }
+.table tr:hover { background: rgba(0,0,0,0.01); }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 3px 10px;
-      border-radius: var(--radius-full);
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-    .badge--success { background: rgba(78, 222, 163, 0.15); color: var(--success); }
-    .badge--warning { background: rgba(245, 226, 163, 0.15); color: var(--warning); }
-    .badge--error { background: rgba(255, 180, 171, 0.15); color: var(--error); }
-    .badge--info { background: rgba(0, 218, 243, 0.15); color: var(--brand-primary); }
-    .badge--neutral { background: var(--surface-container-high); color: var(--on-surface-variant); }
+/* ── Badges & Status ────────────────────────────────────── */
+.badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.badge--success { background: #d9f9df; color: #07823c; }
+.badge--warning { background: #fef3c7; color: #d97706; }
+.badge--error { background: #feeceb; color: #e32626; }
+.badge--info { background: #e0edff; color: #176be5; }
+.badge--neutral { background: #f3f4f6; color: #667085; }
 
-    .empty {
-      text-align: center;
-      padding: 48px 24px;
-      border: 1px dashed var(--outline-variant);
-      border-radius: var(--radius-lg);
-      color: var(--on-surface-variant);
-    }
-    .empty__icon { font-size: 42px; opacity: 0.3; margin-bottom: 12px; }
-    .empty h3 { font-size: 16px; font-weight: 700; color: var(--on-surface); margin-bottom: 6px; }
-    .empty p { font-size: 13px; margin: 0; max-width: 400px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+/* ── Loading & Empty States ─────────────────────────────── */
+.empty { text-align: center; padding: 48px 24px; border: 1px dashed var(--line); border-radius: var(--radius); background: #fff; }
+.empty h3 { font-size: 16px; font-weight: 700; margin: 0 0 4px; }
+.empty p { font-size: 13px; color: var(--muted); margin: 0; }
 
-    #toast-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      pointer-events: none;
-    }
-    .toast {
-      pointer-events: auto;
-      min-width: 260px;
-      max-width: 400px;
-      padding: 14px 18px;
-      border-radius: var(--radius-md);
-      background: var(--surface-container-high);
-      border: 1px solid var(--outline-variant);
-      color: var(--on-surface);
-      font-size: 14px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-    }
-    .toast--success { border-color: var(--success); }
-    .toast--error { border-color: var(--error); }
-    .toast--info { border-color: var(--brand-primary); }
+/* ── Toasts ─────────────────────────────────────────────── */
+#toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
+.toast { background: var(--deep); color: white; padding: 14px 20px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); opacity: 0; transform: translateY(10px); transition: 0.2s; pointer-events: auto; border-left: 4px solid var(--g); }
+.toast.show { opacity: 1; transform: translateY(0); }
 
-    .drawer-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.6);
-      z-index: 299;
-    }
-    .drawer-overlay.is-open { display: block; }
+/* ── Overlay for Mobile Sidebar ─────────────────────────── */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 95; }
+.overlay.is-open { display: block; }
 
-    @media (max-width: 900px) {
-      .app { grid-template-columns: 1fr; }
-      .sidebar {
-        position: fixed;
-        top: 0; left: 0; bottom: 0;
-        width: 280px;
-        height: 100vh;
-        transform: translateX(-100%);
-        transition: transform 250ms ease-out;
-        z-index: 300;
-        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
-      }
-      .sidebar.is-open { transform: translateX(0); }
-      .topbar__hamburger { display: block; }
-    }
+/* ── Dashboard Grid Layout ──────────────────────────────── */
+.dash-grid-main { display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; margin-bottom: 24px; }
+.dash-grid-bottom { display: grid; grid-template-columns: 1.2fr 1fr 300px; gap: 24px; }
+@media (max-width: 1024px) { .dash-grid-main, .dash-grid-bottom { grid-template-columns: 1fr; } }
 
-    /* ── Modal Styles ────────────────────────────────────── */
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      z-index: 9999;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      backdrop-filter: blur(4px);
-    }
-    .modal.is-open {
-      display: flex;
-    }
-    .modal__content {
-      background: var(--surface-container-low);
-      border: 1px solid var(--outline-variant);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      width: 100%;
-      max-width: 600px;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    }
-  </style>
+.panel { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden; }
+.panel-head { display: flex; align-items: center; justify-content: space-between; padding: 20px; border-bottom: 1px solid var(--line); }
+.panel-head h2 { font-size: 16px; font-weight: 700; margin: 0; }
+.panel-head .select { border: 1px solid var(--line); border-radius: 20px; padding: 6px 12px; font-size: 12px; outline: none; }
+
+/* ── Chart (Fixed Layout & Labels) ─────────────────────── */
+.chart-area { padding: 20px; flex: 1; overflow: hidden; padding-bottom: 40px; }
+.chart-legend { display: flex; justify-content: flex-end; gap: 16px; font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+.dot-g { background: var(--g); }
+.dot-gray { background: #d9dee7; }
+
+.chart-shell { display: flex; gap: 0; height: 320px; position: relative; }
+.chart-yaxis { width: 62px; flex-shrink: 0; display: flex; flex-direction: column; justify-content: space-between; font-size: 10px; color: var(--muted); padding: 20px 6px 40px 0; text-align: right; border-right: 1px solid var(--line); }
+.chart-yaxis div { line-height: 1; }
+.chart-plot { flex: 1; overflow-x: auto; overflow-y: hidden; padding: 0 6px; position: relative; }
+
+/* The bar container */
+.chart-bars { 
+  display: flex; 
+  align-items: flex-end; 
+  gap: 8px; 
+  height: 100%; 
+  padding: 20px 0 0 0; 
+  min-width: 100%; 
+  border-bottom: 2px solid var(--line); 
+}
+
+/* Individual bar slot */
+.chart-slot { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  flex: 0 0 44px; 
+  height: 100%; 
+  justify-content: flex-end; 
+  position: relative; 
+  padding-bottom: 24px; /* Space reserved for the labels below the baseline */
+}
+
+/* The bar track */
+.chart-track { 
+  width: 22px; 
+  background: var(--bg); 
+  border-radius: 4px 4px 0 0; 
+  display: flex; 
+  align-items: flex-end; 
+  overflow: visible; 
+  border: 1px solid var(--line); 
+  border-bottom: none; 
+  position: relative; 
+  flex: 1; 
+}
+
+.chart-bar { 
+  width: 100%; 
+  background: var(--g); 
+  transition: height .5s ease-out; 
+  border-radius: 0; 
+}
+
+/* Cycle tip at the top of the bar */
+.chart-cycle-tip { 
+  position: absolute; 
+  top: -24px; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  font-size: 11px; 
+  font-weight: 800; 
+  color: var(--ink); 
+  white-space: nowrap; 
+}
+
+/* Tenant ID below the baseline */
+.chart-tenant-id { 
+  position: absolute; 
+  bottom: 0; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  font-size: 11px; 
+  font-weight: 700; 
+  color: var(--ink); 
+  white-space: nowrap; 
+}
+
+.chart-slot.is-empty .chart-track { background: #f9fafb; }
+.chart-slot.is-empty .chart-bar { background: #e5e7eb; }
+.chart-slot.is-empty .chart-cycle-tip { color: #cbd5e1; }
+.chart-slot.is-empty .chart-tenant-id { color: #cbd5e1; }
+
+.chart-tooltip { position: fixed; z-index: 9999; background: var(--deep); color: white; padding: 10px 14px; border-radius: 8px; font-size: 12px; line-height: 1.5; pointer-events: none; opacity: 0; transition: opacity .15s; max-width: 260px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.chart-tooltip.is-visible { opacity: 1; }
+.chart-tooltip strong { color: #8de54c; }
+
+/* Trust Card */
+.trust-card { background: linear-gradient(145deg, #003d32, #005c47 75%, #009c69); color: white; border-radius: var(--radius); padding: 24px; display: flex; flex-direction: column; justify-content: center; }
+.trust-card .icon { font-size: 32px; color: #48dc6b; margin-bottom: 12px; }
+.trust-card h3 { font-size: 18px; font-weight: 800; margin: 0 0 8px; }
+.trust-card p { font-size: 13px; color: #e1f2eb; margin: 0 0 16px; line-height: 1.5; }
+.trust-card .btn { align-self: flex-start; background: #10bd71; color: #003b2e; border: none; font-weight: 800; padding: 10px 20px; border-radius: 20px; }
+
+/* Activity List */
+.activity-list { padding: 0 20px 20px; }
+.activity-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.activity-item:last-child { border-bottom: none; }
+.act-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.act-body { flex: 1; min-width: 0; }
+.act-title { font-size: 12px; font-weight: 700; }
+.act-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.act-amount { text-align: right; font-size: 13px; font-weight: 800; }
+.act-amount.positive { color: #07823c; }
+.act-amount.negative { color: #e32626; }
+.act-time { display: block; font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 4px; }
+
+/* Footer */
+footer { display: flex; justify-content: space-between; align-items: center; padding: 24px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); margin-top: auto; }
+footer a { color: var(--muted); text-decoration: none; margin: 0 8px; }
+footer a:hover { color: var(--g); }
+.social { font-weight: 800; color: var(--ink); }
+
+/* Modal Styles */
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+.modal.is-open { display: flex; }
+.modal__content { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow); }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(-100%); transition: transform 250ms ease-out; }
+  .sidebar.is-open { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .menu-btn { display: block; }
+}
+@media (max-width: 640px) {
+  .topbar { padding: 0 16px; height: 64px; }
+  .content { padding: 16px; }
+  .hero { padding: 24px; }
+  .hero h1 { font-size: 22px; }
+  .hero p { max-width: 100%; font-size: 13px; }
+  .stat-grid { grid-template-columns: 1fr; gap: 12px; }
+  .card { padding: 16px; }
+  .dash-grid-main, .dash-grid-bottom { grid-template-columns: 1fr; }
+}
+</style>
 </head>
 <body>
 
 <div class="app">
 
+  <!-- ── SIDEBAR ────────────────────────────────────────── -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar__brand">
-      <div class="sidebar__brand-top">Branch admin</div>
-      <div class="sidebar__brand-name" id="sidebar-branch-name">ROSCA Thrift &amp; Savings</div>
+      <div class="sidebar__brand-top">Branch Admin</div>
+      <div class="sidebar__brand-bottom" id="sidebar-branch-name">Loading…</div>
     </div>
 
     <nav class="sidebar__nav">
-      <button class="nav-item is-active" data-section="overview">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
-        Overview
+      <button class="nav-item is-active" data-section="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Dashboard
       </button>
       <button class="nav-item" data-section="branch-setup">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>
         Branch setup
       </button>
       <button class="nav-item" data-section="kyc-admin">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.66 0 3.22.45 4.56 1.24"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.66 0 3.22.45 4.56 1.24"/></svg>
         Branch Verification (KYC)
       </button>
       <button class="nav-item" data-section="kyc">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Saver KYC
       </button>
       <button class="nav-item" data-section="contributions">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         Contributions
       </button>
       <button class="nav-item" data-section="payouts">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
         Payouts
       </button>
       <button class="nav-item" data-section="tenants">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
         Tenants
       </button>
       <button class="nav-item" data-section="analytics">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 4 4 5-7"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 4 4 5-7"/></svg>
         Analytics
       </button>
       <button class="nav-item" data-section="settings">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         Settings
       </button>
     </nav>
 
     <div class="sidebar__footer">
       <div class="sidebar__user">
-        <a href="#" id="sidebar-avatar-link" target="_blank" class="sidebar__avatar" style="text-decoration: none;">
-          <span id="sidebar-avatar-initials" style="color: #0a0a0c;">A</span>
+        <a href="#" id="sidebar-avatar-link" class="sidebar__avatar" style="text-decoration: none;">
+          <img id="sidebar-avatar-img" src="" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; display: none;" />
+          <span id="sidebar-avatar-initials">A</span>
         </a>
         <div class="sidebar__user-info">
           <div class="sidebar__user-name" id="sidebar-user-name">Loading…</div>
-          <div class="sidebar__user-role">Branch admin</div>
+          <div class="sidebar__user-role">Admin</div>
         </div>
       </div>
       <button class="logout-btn" id="logout-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         Log out
       </button>
     </div>
   </aside>
 
-  <div class="drawer-overlay" id="drawer-overlay"></div>
+  <div class="overlay" id="overlay"></div>
 
+  <!-- ── MAIN CONTENT ───────────────────────────────────── -->
   <div class="main">
-    <div class="topbar">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <button class="topbar__hamburger" id="hamburger" aria-label="Open menu">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        </button>
-        <div>
-          <div class="topbar__title" id="topbar-title">Overview</div>
-          <div class="topbar__subtitle" id="topbar-subtitle">Branch dashboard</div>
-        </div>
+    <header class="topbar">
+      <button class="menu-btn" id="menu-btn">☰</button>
+      <div>
+        <div class="topbar__title" id="topbar-title">Dashboard</div>
+        <div class="topbar__subtitle" id="topbar-subtitle">Branch Dashboard</div>
       </div>
-      <div class="topbar__actions">
-        <a href="#" id="topbar-avatar-link" target="_blank" class="topbar__avatar" style="text-decoration: none;">
-          <span id="topbar-avatar-initials">A</span>
-        </a>
-      </div>
-    </div>
+      <div class="spacer"></div>
+      <div class="topbar__avatar" id="topbar-avatar">A</div>
+    </header>
 
     <div class="content">
 
-      <div class="banner banner--warning" id="pending-banner" style="display: none;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <div>
-          <div class="banner__title">Your branch is pending approval</div>
-          Your application has been received. A platform administrator will review it shortly.
-          Until then, your branch landing page is <strong>not yet visible to savers</strong>.
-          You'll be notified by SMS once approved.
-        </div>
+      <div class="banner banner--warning" id="pending-banner" style="display: none; padding: 16px 20px; border-radius: var(--radius); margin-bottom: 24px; background: #fef3c7; border: 1px solid #d97706; color: #d97706;">
+        <div style="font-weight: 700; margin-bottom: 4px;">Your branch is pending approval</div>
+        Your application has been received. A platform administrator will review it shortly.
       </div>
 
-      <div class="banner banner--info" id="no-branch-banner" style="display: none;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        <div>
-          <div class="banner__title">No branch linked to your account</div>
-          Your account is not yet linked to a branch. If this is unexpected, contact the platform operator.
-        </div>
+      <div class="banner banner--info" id="no-branch-banner" style="display: none; padding: 16px 20px; border-radius: var(--radius); margin-bottom: 24px; background: #e0edff; border: 1px solid #176be5; color: #176be5;">
+        <div style="font-weight: 700; margin-bottom: 4px;">No branch linked to your account</div>
+        Your account is not yet linked to a branch. If this is unexpected, contact the platform operator.
       </div>
 
-      <!-- ═══ OVERVIEW ═══ -->
-      <section class="section is-active" id="section-overview">
-        <div class="page-header">
-          <div>
-            <h1 id="overview-welcome">Welcome back</h1>
-            <p>Here's what's happening at your branch.</p>
-          </div>
+      <!-- ═══ DASHBOARD ═══ -->
+      <section class="section is-active" id="section-dashboard">
+        <div class="hero" id="hero-welcome">
+          <h1>Welcome back, <span id="overview-user-name">Admin</span></h1>
+          <p>Manage your savings communities with confidence and complete transparency.</p>
+          <button class="btn" data-nav="tenants">View All Tenants →</button>
         </div>
 
         <div id="overview-body" style="display: none;">
+          
+          <!-- TOP COUNTERS -->
           <div class="stat-grid">
-            <!-- Row 1 -->
-            <div class="stat">
-              <div class="stat__label">Total Tenants</div>
-              <div class="stat__value" id="stat-total-tenants">0</div>
+            <div class="stat-card">
+              <div class="stat-icon bg-green">♟</div>
+              <div class="stat-info">
+                <div class="stat-label">Total Tenants</div>
+                <div class="stat-value" id="stat-total-tenants">0</div>
+              </div>
             </div>
-            <div class="stat">
-              <div class="stat__label">Active Tenants</div>
-              <div class="stat__value stat__value--accent" id="stat-active-tenants">0</div>
+            <div class="stat-card">
+              <div class="stat-icon bg-teal">♟</div>
+              <div class="stat-info">
+                <div class="stat-label">Active Tenants</div>
+                <div class="stat-value" id="stat-active-tenants">0</div>
+              </div>
             </div>
-            <div class="stat">
-              <div class="stat__label">Total Members</div>
-              <div class="stat__value" id="stat-total-members">0</div>
+            <div class="stat-card">
+              <div class="stat-icon bg-blue">▣</div>
+              <div class="stat-info">
+                <div class="stat-label">Total Members</div>
+                <div class="stat-value" id="stat-total-members">0</div>
+              </div>
             </div>
-            <div class="stat">
-              <div class="stat__label">Pending KYC</div>
-              <div class="stat__value stat__value--warning" id="stat-pending-kyc">0</div>
-            </div>
-            
-            <!-- Row 2 -->
-            <div class="stat">
-              <div class="stat__label">Pending Receipts</div>
-              <div class="stat__value stat__value--warning" id="stat-pending-contribs">0</div>
-            </div>
-            <div class="stat">
-              <div class="stat__label">Pending Payouts</div>
-              <div class="stat__value stat__value--warning" id="stat-pending-payouts">0</div>
-            </div>
-            <div class="stat">
-              <div class="stat__label">Contributions This Month</div>
-              <div class="stat__value stat__value--success" id="stat-contribs-month">£0</div>
-            </div>
-            <div class="stat">
-              <div class="stat__label">Payouts This Month</div>
-              <div class="stat__value stat__value--accent" id="stat-payouts-month">£0</div>
+            <div class="stat-card">
+              <div class="stat-icon bg-gold">★</div>
+              <div class="stat-info">
+                <div class="stat-label">Pending KYC</div>
+                <div class="stat-value" id="stat-pending-kyc">0</div>
+              </div>
             </div>
           </div>
 
-          <div class="card card--accent">
-            <div class="card__title">Your branch landing page</div>
-            <p style="color: var(--on-surface-variant); font-size: 14px; margin-bottom: 16px;">
-              Share this link with your members so they can read your rules and register.
-            </p>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <input class="form-input" id="branch-url-display" readonly style="flex: 1; min-width: 260px;" />
-              <button class="btn btn--primary" id="copy-branch-url">Copy link</button>
-              <a class="btn btn--ghost" id="open-branch-url" target="_blank" rel="noopener">Open ↗</a>
+          <!-- SECOND ROW COUNTERS -->
+          <div class="stat-grid" style="grid-template-columns: repeat(4, 1fr);">
+            <div class="stat-card"><div class="stat-info"><div class="stat-label">Pending Receipts</div><div class="stat-value" id="stat-pending-contribs" style="color: #d97706;">0</div></div></div>
+            <div class="stat-card"><div class="stat-info"><div class="stat-label">Pending Payouts</div><div class="stat-value" id="stat-pending-payouts" style="color: #d97706;">0</div></div></div>
+            <div class="stat-card"><div class="stat-info"><div class="stat-label">Contributions (Month)</div><div class="stat-value" id="stat-contribs-month" style="color: var(--g);">£0</div></div></div>
+            <div class="stat-card"><div class="stat-info"><div class="stat-label">Payouts (Month)</div><div class="stat-value" id="stat-payouts-month" style="color: var(--g);">£0</div></div></div>
+          </div>
+
+          <div class="dash-grid-main">
+            <!-- Chart: Contribution Performance -->
+            <div class="panel">
+              <div class="panel-head">
+                <h2>▥ Contribution Performance</h2>
+                <select class="select">
+                  <option>Current Cycle</option>
+                </select>
+              </div>
+              <div class="chart-area">
+                <div class="chart-legend">
+                  <div><span class="dot dot-g"></span>Contributions</div>
+                  <div><span class="dot dot-gray"></span>Target (12)</div>
+                </div>
+                <div id="contribution-chart-container" class="chart-shell">
+                  <div class="chart-yaxis" id="chart-yaxis">
+                    <!-- populated by JS -->
+                  </div>
+                  <div class="chart-plot">
+                    <div class="chart-bars" id="chart-bars">
+                      <!-- populated by JS -->
+                    </div>
+                  </div>
+                </div>
+                <div class="chart-tooltip" id="chart-tooltip"></div>
+              </div>
+            </div>
+
+            <!-- Branch Landing Page Link -->
+            <div class="panel">
+              <div class="panel-head">
+                <h2>Your Branch Landing Page</h2>
+              </div>
+              <div style="padding: 24px;">
+                <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px;">Share this link with your members so they can read your rules and register.</p>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <input class="form-input" id="branch-url-display" readonly style="flex: 1; min-width: 200px; font-family: monospace; font-size: 13px;" />
+                  <button class="btn btn--primary btn--sm" id="copy-branch-url">Copy</button>
+                  <a class="btn btn--ghost btn--sm" id="open-branch-url" target="_blank" rel="noopener">Open ↗</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dash-grid-bottom">
+            <!-- Upcoming Payouts -->
+            <div class="panel">
+              <div class="panel-head">
+                <h2>▦ Upcoming Payout Schedule</h2>
+                <a href="#" class="btn btn--ghost btn--sm" data-nav="payouts" style="padding: 4px 8px; font-size: 12px; border: none;">View All →</a>
+              </div>
+              <div class="table-wrap" style="border: none; border-radius: 0; box-shadow: none;">
+                <table class="table">
+                  <thead><tr><th>Tenure / Cycle</th><th>Tenant</th><th>Beneficiary</th><th>Due Date</th><th>Status</th></tr></thead>
+                  <tbody id="dashboard-payouts-list">
+                    <tr><td colspan="5" style="text-align: center; color: var(--muted); padding: 20px;">Loading…</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="panel">
+              <div class="panel-head">
+                <h2>ϟ Recent Activity</h2>
+                <a href="#" class="btn btn--ghost btn--sm" data-nav="contributions" style="padding: 4px 8px; font-size: 12px; border: none;">View All →</a>
+              </div>
+              <div class="activity-list" id="dashboard-recent-activity">
+                <div style="padding: 20px; color: var(--muted);">Loading…</div>
+              </div>
+            </div>
+
+            <!-- Trust/Advert Card -->
+            <div class="trust-card">
+              <div class="icon">♢</div>
+              <h3>Trusted. Transparent. Secure.</h3>
+              <p>Your savings community, our technology.</p>
+              <button class="btn">Learn More →</button>
             </div>
           </div>
         </div>
 
-        <div id="overview-empty" class="empty">
-          <div class="empty__icon">🏛️</div>
+        <div id="overview-empty" class="empty" style="display: none;">
           <h3>No branch data yet</h3>
           <p>Once your branch is approved, statistics will appear here.</p>
         </div>
@@ -661,119 +536,67 @@
       <!-- ═══ BRANCH SETUP ═══ -->
       <section class="section" id="section-branch-setup">
         <div class="page-header">
-          <div>
-            <h1 id="branch-setup-title">Branch setup</h1>
-            <p id="branch-setup-subtitle">Edit how your branch appears to members.</p>
-          </div>
+          <h1>Branch setup</h1>
+          <p>Edit how your branch appears to members.</p>
         </div>
 
-        <!-- Read-only identity (super-admin-controlled) -->
         <div class="card">
           <div class="card__title">Branch identity</div>
-          <p style="color: var(--on-surface-variant); font-size: 13px; margin-bottom: 16px;">
-            Name, contact email, and contact phone are managed by the platform operator.
-            To change any of these, contact <a href="mailto:privacy_thriftytechnologies@proton.me" style="color: var(--brand-primary);">support</a>.
-          </p>
+          <p style="color: var(--muted); font-size: 13px; margin-bottom: 16px;">Name, contact email, and phone are managed by the platform operator.</p>
           <div class="form-grid">
-            <div class="form-row">
-              <label class="form-label" for="bf-name">Branch name</label>
-              <input class="form-input" type="text" id="bf-name" disabled />
-            </div>
-            <div class="form-row">
-              <label class="form-label" for="bf-slug">Branch slug</label>
-              <input class="form-input" type="text" id="bf-slug" disabled />
-              <span class="form-hint">Your members' link: /join/&lt;slug&gt;</span>
-            </div>
-            <div class="form-row">
-              <label class="form-label" for="bf-email">Contact email</label>
-              <input class="form-input" type="email" id="bf-email" disabled />
-            </div>
-            <div class="form-row">
-              <label class="form-label" for="bf-phone">Contact phone</label>
-              <input class="form-input" type="tel" id="bf-phone" disabled />
-            </div>
+            <div class="form-row"><label class="form-label">Branch name</label><input class="form-input" type="text" id="bf-name" disabled /></div>
+            <div class="form-row"><label class="form-label">Branch slug</label><input class="form-input" type="text" id="bf-slug" disabled /></div>
+            <div class="form-row"><label class="form-label">Contact email</label><input class="form-input" type="email" id="bf-email" disabled /></div>
+            <div class="form-row"><label class="form-label">Contact phone</label><input class="form-input" type="tel" id="bf-phone" disabled /></div>
           </div>
         </div>
 
-        <!-- Editable content -->
         <form id="branch-content-form">
           <div class="card">
             <div class="card__title">About your branch</div>
             <div class="form-row">
-              <label class="form-label" for="bf-about">About text</label>
-              <textarea class="form-textarea" id="bf-about" placeholder="Welcome to our savings circle. Here's how we run things..."></textarea>
-              <span class="form-hint">Shown on your branch landing page. Leave blank to use the platform default.</span>
+              <textarea class="form-input" id="bf-about" rows="4" placeholder="Welcome to our savings circle..."></textarea>
             </div>
           </div>
-
           <div class="card">
             <div class="card__title">Terms of this branch</div>
             <div class="form-row">
-              <label class="form-label" for="bf-terms">Branch terms</label>
-              <textarea class="form-textarea" id="bf-terms" placeholder="1. Membership&#10;...&#10;&#10;2. Contributions&#10;..."></textarea>
-              <span class="form-hint">Shown on your branch landing page. Leave blank to use the platform default.</span>
+              <textarea class="form-input" id="bf-terms" rows="4" placeholder="1. Membership..."></textarea>
             </div>
           </div>
-
           <div class="card">
             <div class="card__title">Privacy notice for this branch</div>
             <div class="form-row">
-              <label class="form-label" for="bf-privacy">Branch privacy notice</label>
-              <textarea class="form-textarea" id="bf-privacy" placeholder="How we handle member data..."></textarea>
-              <span class="form-hint">Shown on your branch landing page. Leave blank to use the platform default.</span>
+              <textarea class="form-input" id="bf-privacy" rows="4" placeholder="How we handle member data..."></textarea>
             </div>
           </div>
-
-          <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px; margin-bottom: 24px;">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 24px;">
             <button type="submit" class="btn btn--primary" id="branch-content-submit">Save content</button>
           </div>
         </form>
 
-        <!-- Read-Only Verified Pool Account -->
-        <div class="card" id="approved-pool-card" style="display: none;">
-          <div class="card__title" style="color: var(--success);">✓ Verified Pool Account</div>
-          <p style="color: var(--on-surface-variant); font-size: 13px; margin-bottom: 16px;">
-            This is the bank account where your members' contributions will be sent. It has been verified by the platform operator. To change these details, you must submit a new KYC request.
-          </p>
+        <div class="card" id="approved-pool-card" style="display: none; border-color: var(--g);">
+          <div class="card__title" style="color: var(--g);">✓ Verified Pool Account</div>
+          <p style="color: var(--muted); font-size: 13px; margin-bottom: 16px;">This is the bank account where your members' contributions will be sent.</p>
           <div class="form-grid">
-            <div class="form-row">
-              <label class="form-label">Account holder name</label>
-              <input class="form-input" type="text" id="view-pool-holder" disabled />
-            </div>
-            <div class="form-row">
-              <label class="form-label">Bank name</label>
-              <input class="form-input" type="text" id="view-pool-bank" disabled />
-            </div>
-            <div class="form-row">
-              <label class="form-label">Sort code</label>
-              <input class="form-input" type="text" id="view-pool-sort" disabled />
-            </div>
-            <div class="form-row">
-              <label class="form-label">Account number</label>
-              <input class="form-input" type="text" id="view-pool-number" disabled />
-            </div>
+            <div class="form-row"><label class="form-label">Account holder name</label><input class="form-input" id="view-pool-holder" disabled /></div>
+            <div class="form-row"><label class="form-label">Bank name</label><input class="form-input" id="view-pool-bank" disabled /></div>
+            <div class="form-row"><label class="form-label">Sort code</label><input class="form-input" id="view-pool-sort" disabled /></div>
+            <div class="form-row"><label class="form-label">Account number</label><input class="form-input" id="view-pool-number" disabled /></div>
           </div>
         </div>
       </section>
 
-      <!-- ═══ BRANCH VERIFICATION (KYC) ═══ -->
+      <!-- ═══ BRANCH KYC ═══ -->
       <section class="section" id="section-kyc-admin">
-        <div class="page-header">
-          <div>
-            <h1>Branch Verification (KYC)</h1>
-            <p>Verify your branch identity and bank details for platform approval.</p>
-          </div>
-        </div>
-
+        <div class="page-header"><h1>Branch Verification (KYC)</h1><p>Verify your branch identity and bank details for platform approval.</p></div>
         <form id="kyc-admin-form">
           <div class="card">
             <div class="card__title">Branch Details</div>
             <div class="form-grid">
               <div class="form-row">
                 <label class="form-label" for="kyc-admin-legal-name">Full Legal Name</label>
-                <input class="form-input" type="text" id="kyc-admin-legal-name" readonly
-                       style="background: var(--surface-container); opacity: 0.7; cursor: not-allowed;" />
-                <span class="form-hint">Locked to your registered branch name.</span>
+                <input class="form-input" type="text" id="kyc-admin-legal-name" readonly />
               </div>
               <div class="form-row">
                 <label class="form-label" for="kyc-admin-selfie">Profile Photo / Selfie</label>
@@ -781,56 +604,21 @@
               </div>
             </div>
           </div>
-
           <div class="card">
             <div class="card__title">Bank Account (For Payouts)</div>
-            <p style="color: var(--on-surface-variant); font-size: 13px; margin-bottom: 16px;">
-              The Account Name must match the Branch Name you registered with.
-            </p>
             <div class="form-grid">
-              <div class="form-row">
-                <label class="form-label" for="kyc-admin-account-name">Account Holder Name</label>
-                <input class="form-input" type="text" id="kyc-admin-account-name" readonly
-                       style="background: var(--surface-container); opacity: 0.7; cursor: not-allowed;" />
-                <span class="form-hint">Locked to your registered branch name.</span>
-              </div>
-              <div class="form-row">
-                <label class="form-label" for="kyc-admin-bank-name">Bank Name</label>
+              <div class="form-row"><label class="form-label" for="kyc-admin-bank-name">Bank Name</label>
                 <select class="form-input" id="kyc-admin-bank-name" required>
                   <option value="" disabled selected>Select your bank...</option>
-                  <option value="Barclays">Barclays</option>
-                  <option value="HSBC">HSBC</option>
-                  <option value="Lloyds">Lloyds</option>
-                  <option value="Monzo">Monzo</option>
-                  <option value="Nationwide">Nationwide</option>
-                  <option value="NatWest">NatWest</option>
-                  <option value="Revolut">Revolut</option>
-                  <option value="Santander">Santander</option>
-                  <option value="Starling">Starling</option>
-                  <option value="TSB">TSB</option>
-                  <option value="Halifax">Halifax</option>
-                  <option value="Other">Other</option>
+                  <option value="Barclays">Barclays</option><option value="HSBC">HSBC</option><option value="Lloyds">Lloyds</option><option value="Monzo">Monzo</option><option value="Nationwide">Nationwide</option><option value="NatWest">NatWest</option><option value="Revolut">Revolut</option><option value="Santander">Santander</option><option value="Starling">Starling</option><option value="TSB">TSB</option><option value="Halifax">Halifax</option><option value="Other">Other</option>
                 </select>
               </div>
-              <div class="form-row">
-                <label class="form-label" for="kyc-admin-sort-code">Sort Code</label>
-                <input class="form-input" type="text" id="kyc-admin-sort-code" required
-                       placeholder="040004" maxlength="6" inputmode="numeric" />
-                <span class="form-hint">6 digits (e.g. 040004)</span>
-              </div>
-              <div class="form-row">
-                <label class="form-label" for="kyc-admin-account-number">Account Number</label>
-                <input class="form-input" type="text" id="kyc-admin-account-number" required
-                       placeholder="12345678" maxlength="8" inputmode="numeric" />
-                <span class="form-hint">8 digits</span>
-              </div>
+              <div class="form-row"><label class="form-label" for="kyc-admin-sort-code">Sort Code</label><input class="form-input" type="text" id="kyc-admin-sort-code" required placeholder="040004" maxlength="6" inputmode="numeric" /></div>
+              <div class="form-row"><label class="form-label" for="kyc-admin-account-number">Account Number</label><input class="form-input" type="text" id="kyc-admin-account-number" required placeholder="12345678" maxlength="8" inputmode="numeric" /></div>
             </div>
-          </div>
-
-          <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
-            <button type="submit" class="btn btn--primary" id="kyc-admin-submit">
-              Submit for Verification
-            </button>
+            <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+              <button type="submit" class="btn btn--primary" id="kyc-admin-submit">Submit for Verification</button>
+            </div>
           </div>
         </form>
       </section>
@@ -838,41 +626,25 @@
       <!-- ═══ SAVER KYC ═══ -->
       <section class="section" id="section-kyc">
         <div class="page-header">
-          <div>
-            <h1>Saver KYC verification</h1>
-            <p>Review identity verifications for your branch.</p>
-          </div>
-          <div class="row" style="gap: 16px;">
-            <div class="row" style="gap: 8px;">
-              <label class="form-label" style="margin: 0; align-self: center;">Status:</label>
-              <select class="form-input" id="kyc-status-filter" style="width: 150px; padding: 8px 12px;">
-                <option value="PENDING">Pending</option>
-                <option value="APPROVED">Approved</option>
-                <option value="REJECTED">Rejected</option>
-                <option value="NOT_SUBMITTED">Not Submitted</option>
-              </select>
-            </div>
-            <div class="row" style="gap: 8px;">
-              <label class="form-label" style="margin: 0; align-self: center;">Tenant:</label>
-              <select class="form-input" id="kyc-tenant-filter" style="width: 150px; padding: 8px 12px;">
-                <option value="">All Tenants</option>
-                <!-- Populated via JS -->
-              </select>
-            </div>
+          <div><h1>Saver KYC verification</h1><p>Review identity verifications for your branch.</p></div>
+          <div class="row" style="gap: 8px; display: flex;">
+            <select class="form-input" id="kyc-status-filter" style="width: 150px; padding: 8px 12px;">
+              <option value="PENDING">Pending</option>
+              <option value="APPROVED">Approved</option>
+              <option value="REJECTED">Rejected</option>
+              <option value="NOT_SUBMITTED">Not Submitted</option>
+              <option value="ALL">All</option>
+            </select>
+            <select class="form-input" id="kyc-tenant-filter" style="width: 150px; padding: 8px 12px;">
+              <option value="">All Tenants</option>
+              <!-- Populated via JS -->
+            </select>
           </div>
         </div>
         <div class="table-wrap">
           <table class="table" id="kyc-table">
-            <thead>
-              <tr>
-                <th>Tenant &amp; Saver</th>
-                <th>Bank Details</th>
-                <th>Date Submitted</th>
-                <th>Status</th>
-                <th style="text-align: right;">Actions</th>
-              </tr>
-            </thead>
-            <tbody><tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--on-surface-variant);">Loading…</td></tr></tbody>
+            <thead><tr><th>Tenant & Saver</th><th>Bank Details</th><th>Date Submitted</th><th>Status</th><th style="text-align: right;">Actions</th></tr></thead>
+            <tbody><tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--muted);">Loading…</td></tr></tbody>
           </table>
         </div>
       </section>
@@ -880,31 +652,22 @@
       <!-- ═══ CONTRIBUTIONS ═══ -->
       <section class="section" id="section-contributions">
         <div class="page-header">
-          <div>
-            <h1>Contributions</h1>
-            <p>Review receipts and view contribution history.</p>
-          </div>
-          <div class="row" style="gap: 8px;">
-            <label class="form-label" style="margin: 0; align-self: center;">Filter by status:</label>
+          <div><h1>Contributions</h1><p>Review receipts and view contribution history.</p></div>
+          <div class="row" style="gap: 12px; flex-wrap: wrap; justify-content: flex-end;">
             <select class="form-input" id="contrib-status-filter" style="width: 150px; padding: 8px 12px;">
               <option value="PENDING">Pending Receipts</option>
               <option value="CONFIRMED">Confirmed History</option>
+            </select>
+            <select class="form-input" id="contrib-tenant-filter" style="width: 150px; padding: 8px 12px;">
+              <option value="">All Tenants</option>
+              <!-- Populated via JS -->
             </select>
           </div>
         </div>
         <div class="table-wrap">
           <table class="table" id="contrib-table">
-            <thead>
-              <tr>
-                <th>Tenant & Saver</th>
-                <th>Reference</th>
-                <th>Cycle</th>
-                <th>Amount</th>
-                <th>Receipt</th>
-                <th style="text-align: right;">Actions</th>
-              </tr>
-            </thead>
-            <tbody><tr><td colspan="6" style="text-align: center; padding: 40px; color: var(--on-surface-variant);">Loading…</td></tr></tbody>
+            <thead><tr><th>Tenant & Saver</th><th>Reference</th><th>Cycle</th><th>Amount</th><th>Receipt</th><th style="text-align: right;">Actions</th></tr></thead>
+            <tbody><tr><td colspan="6" style="text-align: center; padding: 40px; color: var(--muted);">Loading…</td></tr></tbody>
           </table>
         </div>
       </section>
@@ -912,11 +675,8 @@
       <!-- ═══ PAYOUTS ═══ -->
       <section class="section" id="section-payouts">
         <div class="page-header">
-          <div>
-            <h1>Payouts</h1>
-            <p>Manage fee receipts and payouts to circle recipients.</p>
-          </div>
-          <div class="row" style="gap: 12px; flex-wrap: wrap;">
+          <div><h1>Payouts</h1><p>Manage fee receipts and payouts to circle recipients.</p></div>
+          <div class="row" style="gap: 12px; flex-wrap: wrap; justify-content: flex-end;">
             <select class="form-input" id="payout-status-filter" style="width: 150px; padding: 8px 12px;">
               <option value="PENDING">Pending Payouts</option>
               <option value="CONFIRMED">Completed History</option>
@@ -924,26 +684,14 @@
             </select>
             <select class="form-input" id="payout-tenant-filter" style="width: 150px; padding: 8px 12px;">
               <option value="">All Tenants</option>
+              <!-- Populated via JS -->
             </select>
-            <input type="text" class="form-input" id="payout-search" placeholder="Search Reference..." style="width: 200px; padding: 8px 12px;">
           </div>
         </div>
         <div class="table-wrap">
           <table class="table" id="payouts-table">
-            <thead>
-              <tr>
-                <th>Reference</th>
-                <th>Tenant</th>
-                <th>Cycle / Tenure</th>
-                <th>Recipient</th>
-                <th>Net Payout</th>
-                <th>Platform Fee</th>
-                <th>Due Date</th>
-                <th>State</th>
-                <th style="text-align: right;">Actions</th>
-              </tr>
-            </thead>
-            <tbody><tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--on-surface-variant);">Loading…</td></tr></tbody>
+            <thead><tr><th>Reference</th><th>Tenant</th><th>Cycle / Tenure</th><th>Recipient</th><th>Net Payout</th><th>Platform Fee</th><th>Due Date</th><th>State</th><th style="text-align: right;">Actions</th></tr></thead>
+            <tbody><tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--muted);">Loading…</td></tr></tbody>
           </table>
         </div>
       </section>
@@ -954,7 +702,7 @@
         <div class="table-wrap">
           <table class="table" id="tenants-table">
             <thead><tr><th>Circle</th><th>Status</th><th>Cycle</th><th>Tenure</th><th>Members</th><th style="text-align: right;">Details</th></tr></thead>
-            <tbody><tr><td colspan="6" style="text-align: center; padding: 40px; color: var(--on-surface-variant);">Loading…</td></tr></tbody>
+            <tbody><tr><td colspan="6" style="text-align: center; padding: 40px; color: var(--muted);">Loading…</td></tr></tbody>
           </table>
         </div>
       </section>
@@ -962,26 +710,17 @@
       <!-- ═══ ANALYTICS ═══ -->
       <section class="section" id="section-analytics">
         <div class="page-header"><div><h1>Analytics</h1><p>Volume and activity for your branch.</p></div></div>
-        
         <div class="stat-grid">
-          <div class="stat"><div class="stat__label">Contributions this month</div><div class="stat__value stat__value--success" id="analytics-contribs-month">£0</div></div>
-          <div class="stat"><div class="stat__label">Payouts this month</div><div class="stat__value stat__value--accent" id="analytics-payouts-month">£0</div></div>
-          <div class="stat"><div class="stat__label">Total members</div><div class="stat__value" id="analytics-members">0</div></div>
-          <div class="stat"><div class="stat__label">Active tenants</div><div class="stat__value" id="analytics-active-tenants">0</div></div>
+          <div class="stat-card"><div class="stat-info"><div class="stat-label">Contributions this month</div><div class="stat-value" id="analytics-contribs-month" style="color: var(--g);">£0</div></div></div>
+          <div class="stat-card"><div class="stat-info"><div class="stat-label">Payouts this month</div><div class="stat-value" id="analytics-payouts-month" style="color: var(--g);">£0</div></div></div>
+          <div class="stat-card"><div class="stat-info"><div class="stat-label">Total members</div><div class="stat-value" id="analytics-members">0</div></div></div>
+          <div class="stat-card"><div class="stat-info"><div class="stat-label">Active tenants</div><div class="stat-value" id="analytics-active-tenants">0</div></div></div>
         </div>
-
-        <!-- NEW: Breakdown Table -->
         <div class="card">
           <div class="card__title">Contribution Breakdown by Tenant</div>
-          <div class="table-wrap" style="margin-top: 16px;">
+          <div class="table-wrap">
             <table class="table">
-              <thead>
-                <tr>
-                  <th>Tenant Name</th>
-                  <th>Total Contributions</th>
-                  <th>Number of Contributions</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Tenant Name</th><th>Total Contributions</th><th>Number of Contributions</th></tr></thead>
               <tbody id="analytics-breakdown-body">
                 <tr><td colspan="3" style="text-align: center;">Loading...</td></tr>
               </tbody>
@@ -993,43 +732,25 @@
       <!-- ═══ SETTINGS ═══ -->
       <section class="section" id="section-settings">
         <div class="page-header"><div><h1>Settings</h1><p>Your account and preferences.</p></div></div>
-
         <form id="profile-form">
           <div class="card">
             <div class="card__title">Your profile</div>
             <div class="form-grid">
-              <div class="form-row">
-                <label class="form-label" for="sf-fullname">Full name</label>
-                <input class="form-input" type="text" id="sf-fullname" disabled />
-                <span class="form-hint">Locked for security. Contact platform support to change.</span>
-              </div>
-              <div class="form-row">
-                <label class="form-label" for="sf-phone">Phone</label>
-                <input class="form-input" type="tel" id="sf-phone" disabled />
-                <span class="form-hint">Phone changes require OTP verification.</span>
-              </div>
-              <div class="form-row">
-                <label class="form-label" for="sf-email">Email</label>
-                <input class="form-input" type="email" id="sf-email" />
-              </div>
+              <div class="form-row"><label class="form-label" for="sf-fullname">Full name</label><input class="form-input" type="text" id="sf-fullname" disabled /><span class="form-hint">Locked for security.</span></div>
+              <div class="form-row"><label class="form-label" for="sf-phone">Phone</label><input class="form-input" type="tel" id="sf-phone" disabled /></div>
+              <div class="form-row"><label class="form-label" for="sf-email">Email</label><input class="form-input" type="email" id="sf-email" /></div>
             </div>
             <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
               <button type="submit" class="btn btn--primary" id="save-profile">Save profile</button>
             </div>
           </div>
         </form>
-
         <form id="password-form">
           <div class="card">
             <div class="card__title">Change password</div>
-            <div class="form-row">
-              <label class="form-label" for="sf-cur-pw">Current password</label>
-              <input class="form-input" type="password" id="sf-cur-pw" autocomplete="current-password" />
-            </div>
-            <div class="form-row">
-              <label class="form-label" for="sf-new-pw">New password</label>
-              <input class="form-input" type="password" id="sf-new-pw" autocomplete="new-password" />
-              <span class="form-hint">At least 10 chars, 1 number, 1 symbol.</span>
+            <div class="form-grid">
+              <div class="form-row"><label class="form-label" for="sf-cur-pw">Current password</label><input class="form-input" type="password" id="sf-cur-pw" /></div>
+              <div class="form-row"><label class="form-label" for="sf-new-pw">New password</label><input class="form-input" type="password" id="sf-new-pw" /></div>
             </div>
             <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
               <button type="submit" class="btn btn--primary" id="change-password">Update password</button>
@@ -1039,6 +760,14 @@
       </section>
 
     </div>
+
+    <footer>
+      <div><strong>Thrifty Technologies</strong> &nbsp;© 2025. All rights reserved.</div>
+      <div class="links">
+        <a href="/terms.html">Privacy Policy</a> | <a href="/terms.html">T&Cs</a> | <a href="#">Help Center</a> | <a href="#">FAQ</a>
+      </div>
+      <div class="social">Follow Us: &nbsp; in&nbsp; f&nbsp; X&nbsp; ▶</div>
+    </footer>
   </div>
 </div>
 
@@ -1047,8 +776,8 @@
   <div class="modal__content">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
       <div>
-        <h2 style="font-size: 24px; margin: 0;" id="modal-tenant-title">Tenant Members</h2>
-        <p style="color: var(--on-surface-variant); font-size: 14px; margin-top: 4px;" id="modal-tenant-subtitle">Loading...</p>
+        <h2 style="font-size: 24px; margin: 0; color: var(--ink);" id="modal-tenant-title">Tenant Members</h2>
+        <p style="color: var(--muted); font-size: 14px; margin-top: 4px;" id="modal-tenant-subtitle">Loading...</p>
       </div>
       <button class="btn btn--ghost btn--sm" onclick="document.getElementById('tenant-members-modal').classList.remove('is-open')">Close</button>
     </div>
@@ -1071,101 +800,9 @@
   </div>
 </div>
 
-<!-- ═══ PAY FEE MODAL ═══ -->
-<div class="modal" id="pay-fee-modal">
-  <div class="modal__content">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-      <h2 style="font-size: 24px; margin: 0;">Pay Platform Fee</h2>
-      <button class="btn btn--ghost btn--sm" onclick="document.getElementById('pay-fee-modal').classList.remove('is-open')">Close</button>
-    </div>
-    
-    <div id="fee-modal-body">
-      <p style="color: var(--on-surface-variant); font-size: 14px; margin-bottom: 16px;">
-        Transfer the platform fee to the account below, then upload your receipt.
-      </p>
-
-      <!-- The Account Details -->
-      <div class="card" style="margin-bottom: 24px; border-color: var(--brand-primary); background: rgba(0,218,243,0.03);">
-        <div class="card__title">Platform Maintenance Account</div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-          <div><div class="stat__label">Account Holder</div><div id="fee-acc-holder" style="font-weight: 600;">Loading...</div></div>
-          <div><div class="stat__label">Bank Name</div><div id="fee-acc-bank" style="font-weight: 600;">—</div></div>
-          <div><div class="stat__label">Sort Code</div><div id="fee-acc-sort" style="font-weight: 600;">—</div></div>
-          <div><div class="stat__label">Account Number</div><div id="fee-acc-number" style="font-weight: 600;">—</div></div>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <label class="form-label">Amount to Pay (GBP)</label>
-        <input class="form-input" type="text" id="fee-amount-display" readonly />
-      </div>
-
-      <div class="form-row">
-        <label class="form-label">Payment Reference</label>
-        <input class="form-input" type="text" id="fee-reference-display" readonly />
-      </div>
-
-      <div class="form-row">
-        <label class="form-label">Receipt Image</label>
-        <input class="form-input" type="file" id="fee-receipt-file" accept="image/png, image/jpeg, image/heic" required />
-      </div>
-
-      <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
-        <button class="btn btn--primary" id="fee-submit-btn">Upload Fee Receipt</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ UPLOAD PAYOUT RECEIPT MODAL ═══ -->
-<div class="modal" id="upload-payout-modal">
-  <div class="modal__content">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-      <h2 style="font-size: 24px; margin: 0;">Upload Payout Receipt</h2>
-      <button class="btn btn--ghost btn--sm" onclick="document.getElementById('upload-payout-modal').classList.remove('is-open')">Close</button>
-    </div>
-    
-    <div id="payout-modal-body">
-      <p style="color: var(--on-surface-variant); font-size: 14px; margin-bottom: 16px;">
-        Transfer the net payout to the recipient's account below, then upload your receipt.
-      </p>
-
-      <!-- The Saver's Bank Details -->
-      <div class="card" style="margin-bottom: 24px; border-color: var(--brand-primary); background: rgba(0,218,243,0.03);">
-        <div class="card__title" id="modal-payout-recipient">Saver's Account</div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-          <div><div class="stat__label">Account Holder</div><div id="payout-acc-holder" style="font-weight: 600;">Loading...</div></div>
-          <div><div class="stat__label">Bank Name</div><div id="payout-acc-bank" style="font-weight: 600;">—</div></div>
-          <div><div class="stat__label">Sort Code</div><div id="payout-acc-sort" style="font-weight: 600;">—</div></div>
-          <div><div class="stat__label">Account Number</div><div id="payout-acc-number" style="font-weight: 600;">—</div></div>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <label class="form-label">Amount to Pay (GBP)</label>
-        <input class="form-input" type="text" id="payout-amount-display" readonly style="background: var(--surface-container); cursor: not-allowed; color: var(--on-surface-variant);" />
-      </div>
-
-      <div class="form-row">
-        <label class="form-label">Payment Reference</label>
-        <input class="form-input" type="text" id="payout-reference-display" readonly style="background: var(--surface-container); cursor: not-allowed; color: var(--brand-primary); font-family: monospace; font-weight: 700; letter-spacing: 0.05em;" />
-        <span class="form-hint">Use this exact reference on your bank transfer.</span>
-      </div>
-
-      <div class="form-row">
-        <label class="form-label">Receipt Image</label>
-        <input class="form-input" type="file" id="payout-receipt-file" accept="image/png, image/jpeg, image/heic" required />
-      </div>
-
-      <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
-        <button class="btn btn--primary" id="payout-submit-btn">Upload Payout Receipt</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <div id="toast-container"></div>
 
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script src="/assets/js/config.js"></script>
 <script src="/assets/js/api.js"></script>
 <script>
@@ -1173,11 +810,8 @@
     'use strict';
 
     const api = window.ROSCA_API.api;
-    const homeForRole = window.ROSCA_API.homeForRole;
+    const state = { user: null, branch: null, poolAccount: null, tenants: [] };
 
-    const state = { user: null, branch: null, poolAccount: null };
-
-    // ── helpers ──────────────────────────────────────────────
     function escapeHtml(s) {
       return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
         return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
@@ -1185,12 +819,7 @@
     }
     function formatDate(s) {
       if (!s) return '—';
-      try {
-        return new Date(s).toLocaleString('en-GB', {
-          year: 'numeric', month: 'short', day: 'numeric',
-          hour: '2-digit', minute: '2-digit'
-        });
-      } catch (_) { return s; }
+      try { return new Date(s).toLocaleString('en-GB', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch (_) { return s; }
     }
     function penceToGbp(s) {
       if (s == null || s === '') return '£0';
@@ -1198,18 +827,36 @@
       if (!isFinite(n)) return '£0';
       return '£' + (n / 100).toFixed(2);
     }
+    function gbpLabel(v) {
+      if (v == null) return '£0.00';
+      var s = String(v).trim();
+      if (s.startsWith('£')) return s;
+      var n = Number(s);
+      if (!isFinite(n)) return s;
+      return '£' + n.toFixed(2);
+    }
+    function timeAgo(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      const diff = Math.floor((Date.now() - d.getTime()) / 1000);
+      if (diff < 60) return diff + 's ago';
+      if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+      if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+      return Math.floor(diff / 86400) + 'd ago';
+    }
     function toast(message, kind) {
       kind = kind || 'info';
       const el = document.createElement('div');
-      el.className = 'toast toast--' + kind;
+      el.className = 'toast';
+      el.style.borderLeftColor = kind === 'success' ? 'var(--g)' : kind === 'error' ? '#e32626' : '#176be5';
       el.textContent = message;
       document.getElementById('toast-container').appendChild(el);
-      setTimeout(function () { el.remove(); }, 4000);
+      setTimeout(function () { el.classList.add('show'); }, 10);
+      setTimeout(function () { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 4000);
     }
 
-    // ── sidebar nav ──────────────────────────────────────────
     const sectionTitles = {
-      'overview': 'Overview',
+      'dashboard': 'Dashboard',
       'branch-setup': 'Branch setup',
       'kyc-admin': 'Branch Verification',
       'kyc': 'Saver KYC',
@@ -1223,16 +870,13 @@
     function showSection(key) {
       document.querySelectorAll('.section').forEach(function (el) { el.classList.remove('is-active'); });
       document.querySelectorAll('.nav-item').forEach(function (el) { el.classList.remove('is-active'); });
-
       const section = document.getElementById('section-' + key);
       if (section) section.classList.add('is-active');
-
       const navItem = document.querySelector('.nav-item[data-section="' + key + '"]');
       if (navItem) navItem.classList.add('is-active');
-
       document.getElementById('topbar-title').textContent = sectionTitles[key] || 'Dashboard';
 
-      if (key === 'overview') loadOverview();
+      if (key === 'dashboard') loadDashboard();
       else if (key === 'branch-setup') loadBranchSetup();
       else if (key === 'kyc-admin') loadAdminKyc();
       else if (key === 'kyc') loadKyc();
@@ -1242,22 +886,24 @@
       else if (key === 'analytics') loadAnalytics();
       else if (key === 'settings') loadSettings();
 
-      closeDrawer();
+      closeSidebar();
     }
 
     document.querySelectorAll('.nav-item').forEach(function (el) {
       el.addEventListener('click', function () { showSection(el.dataset.section); });
     });
+    
+    document.querySelectorAll('[data-nav]').forEach(function (el) {
+      el.addEventListener('click', function (e) { e.preventDefault(); showSection(el.dataset.nav); });
+    });
 
-    // ── drawer ───────────────────────────────────────────────
     const sidebar = document.getElementById('sidebar');
-    const drawerOverlay = document.getElementById('drawer-overlay');
-    function openDrawer() { sidebar.classList.add('is-open'); drawerOverlay.classList.add('is-open'); }
-    function closeDrawer() { sidebar.classList.remove('is-open'); drawerOverlay.classList.remove('is-open'); }
-    document.getElementById('hamburger').addEventListener('click', openDrawer);
-    drawerOverlay.addEventListener('click', closeDrawer);
+    const overlay = document.getElementById('overlay');
+    function openSidebar() { sidebar.classList.add('is-open'); overlay.classList.add('is-open'); }
+    function closeSidebar() { sidebar.classList.remove('is-open'); overlay.classList.remove('is-open'); }
+    document.getElementById('menu-btn').addEventListener('click', openSidebar);
+    overlay.addEventListener('click', closeSidebar);
 
-    // ── logout ───────────────────────────────────────────────
     document.getElementById('logout-btn').addEventListener('click', function () {
       window.ROSCA_API.clearTokens();
       window.location.href = '/?login=1';
@@ -1268,12 +914,9 @@
       return name.trim().split(/\s+/).map(function (s) { return s[0]; }).slice(0, 2).join('').toUpperCase();
     }
 
-    // ── boot: load user, branch, verify role ─────────────────
+    // ── Boot ─────────────────────────────────────────────────
     async function loadMe() {
-      if (!window.ROSCA_API.getAccessToken()) {
-        window.location.href = '/?login=1';
-        return false;
-      }
+      if (!window.ROSCA_API.getAccessToken()) { window.location.href = '/?login=1'; return false; }
       try {
         const user = await api('/api/users/me');
         state.user = user;
@@ -1285,45 +928,39 @@
         }
 
         const ini = initials(user.fullName);
-        document.getElementById('topbar-avatar-initials').textContent = ini;
+        document.getElementById('topbar-avatar').textContent = ini;
         document.getElementById('sidebar-avatar-initials').textContent = ini;
         document.getElementById('sidebar-user-name').textContent = user.fullName;
-        document.getElementById('overview-welcome').textContent = 'Welcome back, ' + user.fullName.split(' ')[0];
+        document.getElementById('overview-user-name').textContent = user.fullName.split(' ')[0];
 
-        // Load KYC Profile Photo for the avatar
         try {
           const kyc = await api('/api/kyc/me');
           if (kyc && kyc.selfieUrl) {
-            const topLink = document.getElementById('topbar-avatar-link');
-            topLink.innerHTML = '<img src="' + kyc.selfieUrl + '" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" />';
-            topLink.href = kyc.selfieUrl;
-
-            const sideLink = document.getElementById('sidebar-avatar-link');
-            sideLink.innerHTML = '<img src="' + kyc.selfieUrl + '" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" />';
-            sideLink.href = kyc.selfieUrl;
+            document.getElementById('topbar-avatar').innerHTML = '<img src="' + kyc.selfieUrl + '" style="width:100%;height:100%;object-fit:cover;" />';
+            document.getElementById('sidebar-avatar-link').innerHTML = '<img src="' + kyc.selfieUrl + '" style="width:100%;height:100%;object-fit:cover;" />';
           }
         } catch (_) {}
 
         return true;
       } catch (err) {
-        console.error(err);
         window.ROSCA_API.clearTokens();
         window.location.href = '/?login=1';
         return false;
       }
     }
 
-    // ── OVERVIEW ─────────────────────────────────────────────
-    async function loadOverview() {
+    // ═══════════════════════════════════════════════════════
+    // DASHBOARD
+    // ═══════════════════════════════════════════════════════
+    async function loadDashboard() {
       const hasBranch = !!(state.user && state.user.branchId);
-
       document.getElementById('pending-banner').style.display = 'none';
       document.getElementById('no-branch-banner').style.display = 'none';
 
       if (!hasBranch) {
         document.getElementById('overview-body').style.display = 'none';
         document.getElementById('overview-empty').style.display = 'block';
-        document.getElementById('no-branch-banner').style.display = 'flex';
+        document.getElementById('no-branch-banner').style.display = 'block';
         return;
       }
 
@@ -1332,20 +969,24 @@
 
       try {
         const stats = await api('/api/branch-admin/stats');
-        
-        // Counters
         document.getElementById('stat-total-tenants').textContent = stats.tenants.total;
         document.getElementById('stat-active-tenants').textContent = stats.tenants.active;
         document.getElementById('stat-total-members').textContent = stats.members.total;
         document.getElementById('stat-pending-kyc').textContent = stats.members.kycPending;
-        
         document.getElementById('stat-pending-contribs').textContent = stats.contributions.pendingConfirmation;
         document.getElementById('stat-pending-payouts').textContent = stats.payouts.pendingFees + stats.payouts.pendingConfirmation;
-        
-        document.getElementById('stat-contribs-month').textContent = stats.contributions.thisMonthGbp;
-        document.getElementById('stat-payouts-month').textContent = stats.payouts.thisMonthGbp; // NEW
+        document.getElementById('stat-contribs-month').textContent = gbpLabel(stats.contributions.thisMonthGbp);
+        document.getElementById('stat-payouts-month').textContent = gbpLabel(stats.payouts.thisMonthGbp);
+      } catch (err) { console.error('[dashboard] stats failed', err); }
+
+      try {
+        const summary = await api('/api/branch-admin/tenants/summary');
+        state.tenants = summary.tenants || [];
+        await renderContributionChart(state.tenants);
       } catch (err) {
-        console.error(err);
+        console.error('[dashboard] tenants failed', err);
+        document.getElementById('chart-bars').innerHTML =
+          '<div style="padding:20px;color:var(--muted);font-size:13px;">Unable to load tenants.</div>';
       }
 
       if (state.branch) {
@@ -1353,44 +994,328 @@
         document.getElementById('branch-url-display').value = url;
         document.getElementById('open-branch-url').href = url;
       }
+
+      await renderUpcomingPayouts();
+      await renderRecentActivity();
     }
 
+    // ═══════════════════════════════════════════════════════
+    // CONTRIBUTION PERFORMANCE CHART (Fixed Slot Mapping)
+    // ═══════════════════════════════════════════════════════
+    async function renderContributionChart(tenants) {
+      const yAxis = document.getElementById('chart-yaxis');
+      const barsEl = document.getElementById('chart-bars');
+
+      // 1. Y-axis: £0 → £12,000
+      const yLabels = [];
+      for (let i = 12; i >= 0; i--) {
+        yLabels.push('£' + (i * 1000).toLocaleString());
+      }
+      yAxis.innerHTML = yLabels.map(v => `<div>${v}</div>`).join('');
+
+      // 2. Sort tenants OLDEST FIRST so Tn 1 is always the oldest tenant.
+      const sortedTenants = (tenants || []).slice().sort((a, b) => {
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      });
+
+      // 3. Fetch real data for each tenant, keeping identity intact.
+      const enriched = await Promise.all(sortedTenants.map(async (t) => {
+        let confirmedPence = 0;
+        try {
+          const cycle = await api('/api/branch-admin/contributions/tenants/' + t.id + '/cycle');
+          if (Array.isArray(cycle.contributions)) {
+            cycle.contributions.forEach(c => {
+              confirmedPence += Number(c.amountPence || 0);
+            });
+          }
+        } catch (e) {
+          console.warn('Failed to load cycle for tenant', t.id);
+        }
+        return {
+          id: t.id,
+          name: t.name || 'Unnamed Circle',
+          saverCount: t.memberCount || 12,
+          totalPence: confirmedPence,
+          currentCycle: t.currentCycle || 1,
+          currentTenure: t.currentTenure || 1,
+        };
+      }));
+
+      // 4. Fetch next beneficiary slot per tenant
+      let payoutsByTenant = {};
+      try {
+        const res = await api('/api/branch-admin/payouts?limit=100'); 
+        (res.intents || []).forEach(p => {
+          if (p.state !== 'CONFIRMED' && !payoutsByTenant[p.tenantId]) {
+            payoutsByTenant[p.tenantId] = p;
+          }
+        });
+      } catch (e) {}
+
+      // 5. Build 50 slots
+      const MAX_TENANTS = 50;
+      const slots = [];
+      for (let i = 0; i < MAX_TENANTS; i++) {
+        const t = enriched[i];
+        slots.push(t ? { filled: true, ...t } : { filled: false, index: i });
+      }
+
+      // 6. Render bars
+      barsEl.innerHTML = slots.map((s, idx) => {
+        const tnLabel = `Tn ${idx + 1}`;
+
+        if (!s.filled) {
+          return `
+            <div class="chart-slot is-empty" data-tenant-num="${idx + 1}" data-empty="true">
+              <div class="chart-cycle-tip"></div>
+              <div class="chart-track"><div class="chart-bar" style="height: 0%;"></div></div>
+              <div class="chart-tenant-id">${tnLabel}</div>
+            </div>
+          `;
+        }
+
+        const totalGbp = s.totalPence / 100;
+        const pct = Math.min(100, (totalGbp / 12000) * 100);
+        const payout = payoutsByTenant[s.id];
+
+        const tip = {
+          tenantName: s.name,
+          tnLabel,
+          saverCount: s.saverCount,
+          amount: '£' + totalGbp.toLocaleString('en-GB', { maximumFractionDigits: 2 }),
+          circle: s.currentCycle,
+          tenure: s.currentTenure,
+          beneficiarySlot: payout && payout.recipientSlot ? payout.recipientSlot : '—',
+        };
+        const tipJson = JSON.stringify(tip).replace(/'/g, '&#39;');
+
+        return `
+          <div class="chart-slot" data-tooltip='${tipJson}' data-tenant-num="${idx + 1}">
+            <div class="chart-cycle-tip">${s.currentCycle}</div>
+            <div class="chart-track"><div class="chart-bar" style="height: ${pct}%;"></div></div>
+            <div class="chart-tenant-id">${tnLabel}</div>
+          </div>
+        `;
+      }).join('');
+
+      // 7. Tooltip logic
+      const tooltip = document.getElementById('chart-tooltip');
+      barsEl.querySelectorAll('.chart-slot').forEach(slot => {
+        slot.addEventListener('mouseenter', (e) => {
+          const raw = slot.getAttribute('data-tooltip');
+          if (!raw) {
+            if (slot.getAttribute('data-empty') === 'true') {
+              tooltip.innerHTML = `<strong>Tenant ${slot.dataset.tenantNum}</strong><br><span style="color:#cbd5e1;">No tenant assigned</span>`;
+              positionTooltip(tooltip, e);
+              tooltip.classList.add('is-visible');
+            }
+            return;
+          }
+          const d = JSON.parse(raw);
+          tooltip.innerHTML = `
+            <strong>${escapeHtml(d.tenantName)}</strong> (${d.tnLabel})<br>
+            Slots: ${d.saverCount} savers<br>
+            Amount collected: <strong>${d.amount}</strong><br>
+            <strong>Circle ${d.circle} of 12</strong> · Tenure ${d.tenure}<br>
+            Next beneficiary slot: <strong>${d.beneficiarySlot}</strong>
+          `;
+          positionTooltip(tooltip, e);
+          tooltip.classList.add('is-visible');
+        });
+        slot.addEventListener('mousemove', (e) => positionTooltip(tooltip, e));
+        slot.addEventListener('mouseleave', () => tooltip.classList.remove('is-visible'));
+      });
+    }
+
+    function positionTooltip(el, event) {
+      const pad = 14;
+      const w = el.offsetWidth || 240;
+      const h = el.offsetHeight || 100;
+      let x = event.clientX + pad;
+      let y = event.clientY + pad;
+      if (x + w > window.innerWidth) x = event.clientX - w - pad;
+      if (y + h > window.innerHeight) y = event.clientY - h - pad;
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // UPCOMING PAYOUTS (REAL)
+    // ═══════════════════════════════════════════════════════
+    async function renderUpcomingPayouts() {
+      const tbody = document.getElementById('dashboard-payouts-list');
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;">Loading…</td></tr>';
+      try {
+        const result = await api('/api/branch-admin/payouts?limit=100');
+        let intents = (result.intents || []).filter(p => p.state !== 'CONFIRMED');
+        intents.sort((a, b) => new Date(a.dueDate || a.createdAt) - new Date(b.dueDate || b.createdAt));
+        intents = intents.slice(0, 5);
+
+        if (intents.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;">No upcoming payouts scheduled.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = intents.map(function (p) {
+          const badge = p.state === 'RECEIPT_UPLOADED' ? 'warning' : p.state === 'FAILED' ? 'error' : 'info';
+          const label = p.state === 'RECEIPT_UPLOADED' ? 'Receipt Uploaded' : p.state === 'FEE_PAID' ? 'Fee Paid' : p.state === 'FAILED' ? 'Failed' : 'Upcoming';
+          return `
+            <tr>
+              <td><strong style="font-size:12px;">Tenure ${p.tenure} · Cycle ${p.cycle}</strong><br><span style="font-size:11px;color:var(--muted);">${escapeHtml(p.tenantName || '—')}</span></td>
+              <td>${escapeHtml(p.tenantName || '—')}</td>
+              <td>${escapeHtml(p.recipientName || '—')} <span style="color:var(--muted);font-size:11px;">(slot ${p.recipientSlot || '—'})</span></td>
+              <td>${formatDate(p.dueDate || p.createdAt)}</td>
+              <td><span class="badge badge--${badge}">${label}</span></td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;">Unable to load payouts.</td></tr>';
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // RECENT ACTIVITY (REAL)
+    // ═══════════════════════════════════════════════════════
+    async function renderRecentActivity() {
+      const container = document.getElementById('dashboard-recent-activity');
+      container.innerHTML = '<div style="padding:20px;color:var(--muted);">Loading…</div>';
+      const events = [];
+      const safe = fn => fn().catch(err => { console.warn('[activity]', err); return null; });
+
+      const [kycRes, contribRes, payoutRes] = await Promise.all([
+        safe(() => api('/api/branch-admin/kyc?limit=20')),
+        safe(() => api('/api/branch-admin/contributions?status=CONFIRMED&limit=20')),
+        safe(() => api('/api/branch-admin/payouts?limit=20')),
+      ]);
+
+      if (kycRes && kycRes.submissions) {
+        kycRes.submissions.forEach(s => {
+          if (s.status === 'APPROVED' || s.status === 'REJECTED') {
+            events.push({
+              ts: s.updatedAt || s.createdAt,
+              icon: s.status === 'APPROVED' ? '✓' : '✕',
+              iconBg: s.status === 'APPROVED' ? '#d9f9e5' : '#feeceb',
+              iconColor: s.status === 'APPROVED' ? '#079455' : '#e32626',
+              title: 'KYC ' + (s.status === 'APPROVED' ? 'Approved' : 'Rejected'),
+              sub: s.legalName || s.tenantName || 'Saver',
+              amount: '',
+            });
+          }
+        });
+      }
+      if (contribRes && contribRes.contributions) {
+        contribRes.contributions.forEach(c => {
+          events.push({
+            ts: c.confirmedAt || c.createdAt,
+            icon: '↓', iconBg: '#d9f9e5', iconColor: '#079455',
+            title: 'Contribution Confirmed',
+            sub: (c.tenantName || 'Circle') + ' · ' + (c.userName || 'Saver'),
+            amount: '<span class="act-amount positive">+' + penceToGbp(c.amountPence) + '</span>',
+          });
+        });
+      }
+      if (payoutRes && payoutRes.intents) {
+        payoutRes.intents.forEach(p => {
+          if (p.state === 'CONFIRMED') {
+            events.push({
+              ts: p.confirmedAt || p.updatedAt || p.createdAt,
+              icon: '↑', iconBg: '#eee7ff', iconColor: '#7750d8',
+              title: 'Payout Confirmed',
+              sub: (p.tenantName || 'Circle') + ' · ' + (p.recipientName || 'Recipient'),
+              amount: '<span class="act-amount negative">-' + penceToGbp(p.netAmountPence || 0) + '</span>',
+            });
+          } else if (p.state === 'RECEIPT_UPLOADED') {
+            events.push({
+              ts: p.updatedAt || p.createdAt,
+              icon: '📎', iconBg: '#fef3c7', iconColor: '#d97706',
+              title: 'Payout Receipt Uploaded',
+              sub: (p.tenantName || 'Circle') + ' · ' + (p.recipientName || 'Recipient'),
+              amount: '',
+            });
+          }
+          if (p.feeIntent && p.feeIntent.state === 'CONFIRMED') {
+            events.push({
+              ts: p.feeIntent.updatedAt || p.feeIntent.createdAt,
+              icon: '£', iconBg: '#e0edff', iconColor: '#176be5',
+              title: 'Platform Fee Paid',
+              sub: (p.tenantName || 'Circle') + ' · Fee',
+              amount: '<span class="act-amount">' + penceToGbp(p.feeIntent.amountPence || 0) + '</span>',
+            });
+          }
+        });
+      }
+
+      events.sort((a, b) => new Date(b.ts) - new Date(a.ts));
+      const top = events.slice(0, 5);
+      if (top.length === 0) {
+        container.innerHTML = '<div style="padding:20px;color:var(--muted);">No recent activity yet.</div>';
+        return;
+      }
+      container.innerHTML = top.map(function (e) {
+        return `
+          <div class="activity-item">
+            <div class="act-icon" style="background:${e.iconBg};color:${e.iconColor}">${e.icon}</div>
+            <div class="act-body">
+              <div class="act-title">${escapeHtml(e.title)}</div>
+              <div class="act-sub">${escapeHtml(e.sub)}</div>
+            </div>
+            <div style="text-align:right;">
+              ${e.amount || ''}
+              <span class="act-time">${timeAgo(e.ts)}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Fix for Bug 1: Copy button not working
     document.getElementById('copy-branch-url').addEventListener('click', function () {
-      const input = document.getElementById('branch-url-display');
-      if (!input.value) return;
+      var input = document.getElementById('branch-url-display');
+      if (!input || !input.value) return;
+
+      var wasReadonly = input.readOnly;
+      input.readOnly = false;
+      input.focus();
       input.select();
-      document.execCommand('copy');
-      toast('Branch URL copied', 'success');
+      input.setSelectionRange(0, input.value.length);
+
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+
+      input.readOnly = wasReadonly;
+      input.blur();
+
+      if (ok) {
+        toast('Branch URL copied', 'success');
+      } else {
+        toast('Copy blocked by browser — select the link and press Ctrl+C.', 'error');
+      }
     });
 
-    // ── BRANCH SETUP ─────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════
+    // OTHER SECTIONS
+    // ═══════════════════════════════════════════════════════
+    
     async function loadBranchSetup() {
       if (!state.user || !state.user.branchId) {
         toast('Your account is not linked to a branch.', 'error');
         return;
       }
-
       try {
         const b = await api('/api/branches/id/' + state.user.branchId);
         state.branch = b;
-
         document.getElementById('bf-name').value = b.name || '';
         document.getElementById('bf-slug').value = b.slug || '';
         document.getElementById('bf-email').value = b.contactEmail || '';
         document.getElementById('bf-phone').value = b.contactPhone || '';
         document.getElementById('bf-about').value = b.aboutText || '';
-        
-        document.getElementById('sidebar-branch-name').textContent =
-          (b.branding && b.branding.displayName) || b.name;
+        document.getElementById('sidebar-branch-name').textContent = (b.branding && b.branding.displayName) || b.name;
         document.getElementById('topbar-subtitle').textContent = b.name;
 
-        if (b.onboardingStatus && b.onboardingStatus !== 'APPROVED') {
-          document.getElementById('pending-banner').style.display = 'flex';
-        } else {
-          document.getElementById('pending-banner').style.display = 'none';
-        }
+        document.getElementById('pending-banner').style.display =
+          (b.onboardingStatus && b.onboardingStatus !== 'APPROVED') ? 'flex' : 'none';
 
-        // Check if KYC is approved, and if so, populate the read-only box
         try {
           const kyc = await api('/api/kyc/me');
           if (kyc && kyc.status === 'APPROVED') {
@@ -1399,12 +1324,8 @@
             document.getElementById('view-pool-bank').value = kyc.bankName || '—';
             document.getElementById('view-pool-sort').value = kyc.sortCode || '—';
             document.getElementById('view-pool-number').value = kyc.accountNumber || '—';
-          } else {
-            document.getElementById('approved-pool-card').style.display = 'none';
           }
-        } catch (_) {
-          document.getElementById('approved-pool-card').style.display = 'none';
-        }
+        } catch (_) {}
       } catch (err) {
         toast('Could not load branch: ' + (err.message || 'unknown error'), 'error');
       }
@@ -1413,46 +1334,32 @@
     document.getElementById('branch-content-form').addEventListener('submit', async function (e) {
       e.preventDefault();
       const btn = document.getElementById('branch-content-submit');
-      btn.disabled = true;
-      btn.textContent = 'Saving…';
+      btn.disabled = true; btn.textContent = 'Saving…';
       try {
         if (!state.branch) throw new Error('Branch not loaded yet.');
-
-        const body = {
-          aboutText: document.getElementById('bf-about').value.trim() || null,
-        };
+        const body = { aboutText: document.getElementById('bf-about').value.trim() || null };
         const terms = document.getElementById('bf-terms').value.trim();
         const privacy = document.getElementById('bf-privacy').value.trim();
         if (terms) body.branchTerms = terms;
         if (privacy) body.branchPrivacy = privacy;
-
-        await api('/api/branch-admin/branches/' + state.branch.id + '/content', {
-          method: 'PATCH',
-          body: body,
-        });
+        await api('/api/branch-admin/branches/' + state.branch.id + '/content', { method: 'PATCH', body });
         toast('Branch content saved', 'success');
       } catch (err) {
         toast('Save failed: ' + (err.message || 'unknown error'), 'error');
       } finally {
-        btn.disabled = false;
-        btn.textContent = 'Save content';
+        btn.disabled = false; btn.textContent = 'Save content';
       }
     });
 
-    // ── ADMIN KYC ────────────────────────────────────────────
     async function loadAdminKyc() {
       const form = document.getElementById('kyc-admin-form');
       const submitBtn = document.getElementById('kyc-admin-submit');
       const inputs = form.querySelectorAll('input:not([type="file"]), select');
-
-      // Default state — enabled form
       form.style.display = 'block';
       inputs.forEach(el => el.disabled = false);
       submitBtn.disabled = false;
       submitBtn.textContent = 'Submit for Verification';
-      submitBtn.style.display = 'inline-block';
 
-      // Fetch branch name (source of truth for legal + account names)
       let branchName = '';
       try {
         if (state.user && state.user.branchId) {
@@ -1461,73 +1368,37 @@
           branchName = branch.name || '';
         }
       } catch (_) {}
-
       document.getElementById('kyc-admin-legal-name').value = branchName;
-      document.getElementById('kyc-admin-account-name').value = branchName;
 
       try {
         const kyc = await api('/api/kyc/me');
-
-        if (!kyc) {
-          // No submission yet — form enabled
-          return;
-        }
-
-        if (kyc.status === 'PENDING') {
+        if (!kyc) return;
+        if (kyc.status === 'PENDING' || kyc.status === 'APPROVED') {
           inputs.forEach(el => el.disabled = true);
           document.getElementById('kyc-admin-legal-name').value = kyc.legalName || branchName;
-          document.getElementById('kyc-admin-account-name').value = kyc.accountName || kyc.legalName || branchName;
           document.getElementById('kyc-admin-bank-name').value = kyc.bankName || '';
           document.getElementById('kyc-admin-sort-code').value = kyc.sortCode || '';
           document.getElementById('kyc-admin-account-number').value = kyc.accountNumber || '';
           submitBtn.disabled = true;
-          submitBtn.textContent = 'Awaiting approval';
-        } else if (kyc.status === 'APPROVED') {
-          inputs.forEach(el => el.disabled = true);
-          document.getElementById('kyc-admin-legal-name').value = kyc.legalName || branchName;
-          document.getElementById('kyc-admin-account-name').value = kyc.accountName || kyc.legalName || branchName;
-          document.getElementById('kyc-admin-bank-name').value = kyc.bankName || '';
-          document.getElementById('kyc-admin-sort-code').value = kyc.sortCode || '';
-          document.getElementById('kyc-admin-account-number').value = kyc.accountNumber || '';
-          submitBtn.disabled = true;
-          submitBtn.textContent = '✓ Verification Approved';
-        } else if (kyc.status === 'REJECTED') {
-          // Form enabled — allows re-submission
-          toast('Your previous KYC was rejected: ' + (kyc.rejectionReason || '') + '. Please re-submit.', 'error');
+          submitBtn.textContent = kyc.status === 'APPROVED' ? '✓ Verification Approved' : 'Awaiting approval';
         }
-      } catch (err) {
-        // No KYC record — leave form enabled
-      }
+      } catch (_) {}
     }
 
     document.getElementById('kyc-admin-form').addEventListener('submit', async function (e) {
       e.preventDefault();
       const btn = document.getElementById('kyc-admin-submit');
-      btn.disabled = true;
-      btn.textContent = 'Submitting…';
-
+      btn.disabled = true; btn.textContent = 'Submitting…';
       try {
         const fileInput = document.getElementById('kyc-admin-selfie');
         if (!fileInput.files.length) throw new Error('Please select a profile photo.');
-
         const sortCode = document.getElementById('kyc-admin-sort-code').value.trim();
-        if (!/^\d{6}$/.test(sortCode)) {
-          throw new Error('Sort code must be exactly 6 digits.');
-        }
-
+        if (!/^\d{6}$/.test(sortCode)) throw new Error('Sort code must be exactly 6 digits.');
         const accountNumber = document.getElementById('kyc-admin-account-number').value.trim();
-        if (!/^\d{8}$/.test(accountNumber)) {
-          throw new Error('Account number must be exactly 8 digits.');
-        }
-
+        if (!/^\d{8}$/.test(accountNumber)) throw new Error('Account number must be exactly 8 digits.');
         const bankName = document.getElementById('kyc-admin-bank-name').value.trim();
-        if (!bankName) {
-          throw new Error('Please select your bank.');
-        }
+        if (!bankName) throw new Error('Please select your bank.');
 
-        // legalName and accountName are NOT sent from the frontend — the backend
-        // enforces them from the branch name. We still pass placeholders to
-        // satisfy schema validation, but the backend will override them.
         const fd = new FormData();
         fd.append('selfie', fileInput.files[0]);
         fd.append('legalName', state.branch ? state.branch.name : '');
@@ -1541,112 +1412,85 @@
         loadAdminKyc();
       } catch (err) {
         toast('Submission failed: ' + err.message, 'error');
-        btn.disabled = false;
-        btn.textContent = 'Submit for Verification';
+        btn.disabled = false; btn.textContent = 'Submit for Verification';
       }
     });
 
-    // ── Branch Admin KYC input formatters ─────────────────────
-    const adminSort = document.getElementById('kyc-admin-sort-code');
-    if (adminSort) {
-      adminSort.addEventListener('input', function () {
-        this.value = this.value.replace(/\D/g, '').slice(0, 6);
-      });
-    }
-    const adminAcct = document.getElementById('kyc-admin-account-number');
-    if (adminAcct) {
-      adminAcct.addEventListener('input', function () {
-        this.value = this.value.replace(/\D/g, '').slice(0, 8);
-      });
-    }
-
-    // ── SAVER KYC ────────────────────────────────────────────
     async function loadKyc() {
       const tbody = document.querySelector('#kyc-table tbody');
-      const statusEl = document.getElementById('kyc-status-filter');
-      const tenantEl = document.getElementById('kyc-tenant-filter');
+      const statusFilter = document.getElementById('kyc-status-filter').value;
+      const tenantFilter = document.getElementById('kyc-tenant-filter').value;
       
-      const statusFilter = statusEl ? statusEl.value : 'PENDING';
-      const tenantFilter = tenantEl ? tenantEl.value : '';
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted);">Loading…</td></tr>';
       
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--on-surface-variant);">Loading…</td></tr>';
       try {
-        let url = '/api/branch-admin/kyc?limit=50&status=' + statusFilter;
+        let url = statusFilter === 'ALL' 
+          ? '/api/branch-admin/kyc?limit=50' 
+          : '/api/branch-admin/kyc?limit=50&status=' + statusFilter;
+
         if (tenantFilter) {
           url += '&tenantId=' + tenantFilter;
         }
-        
+
         const result = await api(url);
         const subs = result.submissions || [];
-        
         if (!subs.length) {
-          tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><div class="empty__icon">✓</div><h3>No records found</h3><p>Try changing the filters.</p></div></td></tr>';
+          tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><h3>No records found</h3><p>Try changing the filters.</p></div></td></tr>';
           return;
         }
-        
         tbody.innerHTML = subs.map(function (s) {
-          // If it's NOT_SUBMITTED, we don't have an approve/reject button, just a "Waiting" badge
           const isNotSubmitted = s.status === 'NOT_SUBMITTED';
-          const actionHtml = isNotSubmitted 
-            ? '<span style="color:var(--on-surface-variant);font-size:12px;">Awaiting Submission</span>'
-            : '<div class="table__actions">' +
+          
+          let actionHtml = '<span style="color:var(--muted);font-size:12px;">No action available</span>';
+          if (s.status === 'PENDING') {
+            actionHtml = '<div class="table__actions">' +
                 '<button class="btn btn--danger btn--sm" data-kyc-reject="' + s.id + '">Reject</button>' +
                 '<button class="btn btn--success btn--sm" data-kyc-approve="' + s.id + '">Approve</button>' +
               '</div>';
-              
-          const badgeClass = isNotSubmitted ? 'neutral' : (s.status === 'PENDING' ? 'warning' : (s.status === 'APPROVED' ? 'success' : 'error'));
+          } else if (isNotSubmitted) {
+            actionHtml = '<span style="color:var(--muted);font-size:12px;">Awaiting Submission</span>';
+          }
+
+          let badgeClass = 'neutral';
+          if (s.status === 'PENDING') badgeClass = 'warning';
+          else if (s.status === 'APPROVED') badgeClass = 'success';
+          else if (s.status === 'REJECTED') badgeClass = 'error';
 
           return '<tr>' +
             '<td>' +
-              '<strong style="color:var(--on-surface);">' + escapeHtml(s.tenantName || 'Unassigned') + '</strong><br>' +
-              '<span style="font-size:12px;color:var(--on-surface-variant);">' + escapeHtml(s.legalName || '—') + '</span><br>' +
-              (s.selfieUrl ? '<a href="' + s.selfieUrl + '" target="_blank" style="color:var(--brand-primary);font-size:12px;text-decoration:underline;">View Photo ↗</a>' : '') +
+              '<strong>' + escapeHtml(s.tenantName || 'Unassigned') + '</strong><br>' +
+              '<span style="font-size:12px;color:var(--muted);">' + escapeHtml(s.legalName || '—') + '</span>' +
+              (s.selfieUrl ? '<br><a href="' + s.selfieUrl + '" target="_blank" style="color:var(--g);font-size:12px;text-decoration:underline;">View Photo ↗</a>' : '') +
             '</td>' +
-            '<td>' +
-              (isNotSubmitted ? '<span style="color:var(--on-surface-variant);">—</span>' : 
-                '<strong>' + escapeHtml(s.accountName || s.legalName) + '</strong><br>' +
-                '<span style="color:var(--on-surface-variant);font-size:12px;">' +
-                escapeHtml(s.bankName || '—') + ' | ' + escapeHtml(s.sortCode || '—') + ' | ' + escapeHtml(s.accountNumber || '—') +
-                '</span>'
-              ) +
-            '</td>' +
+            '<td>' + (isNotSubmitted ? '—' : '<strong>' + escapeHtml(s.accountName || s.legalName) + '</strong><br><span style="color:var(--muted);font-size:12px;">' + escapeHtml(s.bankName || '—') + ' | ' + escapeHtml(s.sortCode || '—') + ' | ' + escapeHtml(s.accountNumber || '—') + '</span>') + '</td>' +
             '<td>' + formatDate(s.createdAt) + '</td>' +
             '<td><span class="badge badge--' + badgeClass + '">' + s.status.replace('_', ' ') + '</span></td>' +
             '<td>' + actionHtml + '</td>' +
           '</tr>';
         }).join('');
-        
-        // Re-bind buttons if they exist
-        tbody.querySelectorAll('[data-kyc-approve]').forEach(function (b) {
-          b.addEventListener('click', function () { kycAction(b.dataset.kycApprove, 'approve'); });
-        });
-        tbody.querySelectorAll('[data-kyc-reject]').forEach(function (b) {
-          b.addEventListener('click', function () { kycAction(b.dataset.kycReject, 'reject'); });
-        });
-        
+        tbody.querySelectorAll('[data-kyc-approve]').forEach(b => b.addEventListener('click', () => kycAction(b.dataset.kycApprove, 'approve')));
+        tbody.querySelectorAll('[data-kyc-reject]').forEach(b => b.addEventListener('click', () => kycAction(b.dataset.kycReject, 'reject')));
       } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err.message) + '</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#e32626;">' + escapeHtml(err.message) + '</td></tr>';
       }
     }
+
+    // Add the event listeners to trigger reload on dropdown change
+    document.getElementById('kyc-status-filter').addEventListener('change', loadKyc);
+    document.getElementById('kyc-tenant-filter').addEventListener('change', loadKyc);
 
     async function kycAction(id, action) {
       let reason = null;
       if (action === 'reject') {
         reason = window.prompt('Reason for rejection (min 5 characters):');
-        if (!reason || reason.trim().length < 5) {
-          toast('Rejection needs a reason of at least 5 characters.', 'error');
-          return;
-        }
+        if (!reason || reason.trim().length < 5) { toast('Rejection needs a reason of at least 5 characters.', 'error'); return; }
       }
       try {
         if (action === 'approve') {
           await api('/api/branch-admin/kyc/' + id + '/approve', { method: 'PATCH' });
           toast('KYC approved', 'success');
         } else {
-          await api('/api/branch-admin/kyc/' + id + '/reject', {
-            method: 'PATCH',
-            body: { reason: reason.trim() }
-          });
+          await api('/api/branch-admin/kyc/' + id + '/reject', { method: 'PATCH', body: { reason: reason.trim() } });
           toast('KYC rejected', 'info');
         }
         loadKyc();
@@ -1655,494 +1499,181 @@
       }
     }
 
-    // ── CONTRIBUTIONS ────────────────────────────────────────
     async function loadContributions() {
       const tbody = document.querySelector('#contrib-table tbody');
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--on-surface-variant);">Loading…</td></tr>';
-      
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted);">Loading…</td></tr>';
       const statusFilter = document.getElementById('contrib-status-filter').value;
-
+      const tenantFilter = document.getElementById('contrib-tenant-filter').value;
       try {
-        const result = await api('/api/branch-admin/contributions?status=' + statusFilter + '&limit=50');
-        
+        let url = '/api/branch-admin/contributions?status=' + statusFilter + '&limit=50';
+        if (tenantFilter) url += '&tenantId=' + encodeURIComponent(tenantFilter);
+        const result = await api(url);
         if (statusFilter === 'CONFIRMED') {
-          const list = result.contributions || [];
-          if (!list.length) {
-            tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty__icon">✓</div><h3>No confirmed contributions</h3><p>History will appear here.</p></div></td></tr>';
-            return;
-          }
-          tbody.innerHTML = list.map(function (c) {
-            return '<tr>' +
-              '<td><strong>' + escapeHtml(c.tenantName) + '</strong><br><span style="font-size:12px;color:var(--on-surface-variant);">' + escapeHtml(c.userName) + '</span></td>' +
-              '<td><code>' + escapeHtml(c.reference) + '</code></td>' +
-              '<td>' + c.cycle + '</td>' +
-              '<td>' + penceToGbp(c.amountPence) + '</td>' +
-              '<td><span class="badge badge--success">Confirmed</span></td>' +
-              '<td style="text-align: right; color: var(--on-surface-variant); font-size: 12px;">' + formatDate(c.confirmedAt) + '</td>' +
-            '</tr>';
-          }).join('');
+          let list = result.contributions || [];
+          if (!list.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No confirmed contributions</h3></div></td></tr>'; return; }
+          tbody.innerHTML = list.map(c => `
+            <tr>
+              <td><strong>${escapeHtml(c.tenantName)}</strong><br><span style="font-size:12px;color:var(--muted);">${escapeHtml(c.userName)}</span></td>
+              <td><code>${escapeHtml(c.reference)}</code></td>
+              <td>${c.cycle}</td>
+              <td>${penceToGbp(c.amountPence)}</td>
+              <td><span class="badge badge--success">Confirmed</span></td>
+              <td style="text-align: right; color: var(--muted); font-size: 12px;">${formatDate(c.confirmedAt)}</td>
+            </tr>
+          `).join('');
         } else {
-          const intents = result.intents || [];
-          if (!intents.length) {
-            tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty__icon">✓</div><h3>No pending contributions</h3><p>Receipts awaiting your confirmation will appear here.</p></div></td></tr>';
-            return;
-          }
-          tbody.innerHTML = intents.map(function (i) {
+          let intents = result.intents || [];
+          if (!intents.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No pending contributions</h3></div></td></tr>'; return; }
+          tbody.innerHTML = intents.map(i => {
             const amt = i.receipt && i.receipt.claimedAmountPence ? penceToGbp(i.receipt.claimedAmountPence) : '—';
-            const receiptBtn = i.receipt
-              ? '<a class="btn btn--ghost btn--sm" href="' + escapeHtml(i.receipt.objectUrl) + '" target="_blank" rel="noopener">View</a>'
-              : '<span style="color:var(--on-surface-variant);">none</span>';
-            return '<tr>' +
-              '<td><strong>' + escapeHtml(i.tenantName || 'Unassigned') + '</strong><br><span style="font-size:12px;color:var(--on-surface-variant);">' + escapeHtml(i.userName || 'Unknown') + '</span></td>' +
-              '<td><code>' + escapeHtml(i.reference) + '</code></td>' +
-              '<td>' + i.cycle + '</td>' +
-              '<td>' + amt + '</td>' +
-              '<td>' + receiptBtn + '</td>' +
-              '<td><div class="table__actions">' +
-                '<button class="btn btn--danger btn--sm" data-contrib-reject="' + i.id + '">Reject</button>' +
-                '<button class="btn btn--primary btn--sm" data-contrib-approve="' + i.id + '">Confirm</button>' +
-              '</div></td>' +
-            '</tr>';
+            const receiptBtn = i.receipt ? '<a class="btn btn--ghost btn--sm" href="' + escapeHtml(i.receipt.objectUrl) + '" target="_blank">View</a>' : '<span style="color:var(--muted);">none</span>';
+            return `
+              <tr>
+                <td><strong>${escapeHtml(i.tenantName || 'Unassigned')}</strong><br><span style="font-size:12px;color:var(--muted);">${escapeHtml(i.userName || 'Unknown')}</span></td>
+                <td><code>${escapeHtml(i.reference)}</code></td>
+                <td>${i.cycle}</td>
+                <td>${amt}</td>
+                <td>${receiptBtn}</td>
+                <td><div class="table__actions">
+                  <button class="btn btn--danger btn--sm" data-contrib-reject="${i.id}">Reject</button>
+                  <button class="btn btn--primary btn--sm" data-contrib-approve="${i.id}">Confirm</button>
+                </div></td>
+              </tr>
+            `;
           }).join('');
-          tbody.querySelectorAll('[data-contrib-approve]').forEach(function (b) {
-            b.addEventListener('click', function () { confirmContribution(b.dataset.contribApprove); });
-          });
-          tbody.querySelectorAll('[data-contrib-reject]').forEach(function (b) {
-            b.addEventListener('click', function () { rejectContribution(b.dataset.contribReject); });
-          });
+          tbody.querySelectorAll('[data-contrib-approve]').forEach(b => b.addEventListener('click', () => confirmContribution(b.dataset.contribApprove)));
+          tbody.querySelectorAll('[data-contrib-reject]').forEach(b => b.addEventListener('click', () => rejectContribution(b.dataset.contribReject)));
         }
       } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err.message) + '</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#e32626;">' + escapeHtml(err.message) + '</td></tr>';
       }
     }
+    document.getElementById('contrib-status-filter').addEventListener('change', loadContributions);
+    document.getElementById('contrib-tenant-filter').addEventListener('change', loadContributions);
 
     async function confirmContribution(intentId) {
       const amtStr = window.prompt('Confirm the amount received (in pence, e.g. 100000 = £1,000):', '100000');
       if (!amtStr) return;
       const amount = parseInt(amtStr, 10);
-      if (!isFinite(amount) || amount <= 0) {
-        toast('Amount must be a positive integer.', 'error');
-        return;
-      }
+      if (!isFinite(amount) || amount <= 0) { toast('Amount must be a positive integer.', 'error'); return; }
       try {
-        await api('/api/branch-admin/contributions/' + intentId + '/confirm', {
-          method: 'POST',
-          body: { intentId: intentId, amount: amount },
-        });
+        await api('/api/branch-admin/contributions/' + intentId + '/confirm', { method: 'POST', body: { intentId, amount } });
         toast('Contribution confirmed', 'success');
         loadContributions();
-      } catch (err) {
-        toast('Confirm failed: ' + err.message, 'error');
-      }
+      } catch (err) { toast('Confirm failed: ' + err.message, 'error'); }
     }
 
     async function rejectContribution(intentId) {
       const reason = window.prompt('Reason for rejection (min 5 characters):');
-      if (!reason || reason.trim().length < 5) {
-        toast('Rejection needs a reason of at least 5 characters.', 'error');
-        return;
-      }
+      if (!reason || reason.trim().length < 5) { toast('Rejection needs a reason of at least 5 characters.', 'error'); return; }
       try {
-        await api('/api/branch-admin/contributions/' + intentId + '/reject', {
-          method: 'POST',
-          body: { intentId: intentId, reason: reason.trim() },
-        });
+        await api('/api/branch-admin/contributions/' + intentId + '/reject', { method: 'POST', body: { intentId, reason: reason.trim() } });
         toast('Contribution rejected', 'info');
         loadContributions();
-      } catch (err) {
-        toast('Reject failed: ' + err.message, 'error');
-      }
+      } catch (err) { toast('Reject failed: ' + err.message, 'error'); }
     }
 
-    // ── PAYOUTS ──────────────────────────────────────────────
     async function loadPayouts() {
       const tbody = document.querySelector('#payouts-table tbody');
-      const filterEl = document.getElementById('payout-status-filter');
-      const tenantFilterEl = document.getElementById('payout-tenant-filter');
-      const searchEl = document.getElementById('payout-search');
-      
-      const filter = filterEl ? filterEl.value : 'PENDING';
-      const tenantFilter = tenantFilterEl ? tenantFilterEl.value : '';
-      const search = searchEl ? searchEl.value.toLowerCase() : '';
-      
-      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--on-surface-variant);">Loading…</td></tr>';
-      
+      const filter = document.getElementById('payout-status-filter').value;
+      const tenantFilter = document.getElementById('payout-tenant-filter').value;
+
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--muted);">Loading…</td></tr>';
       try {
-        // Fetch all so we can filter locally
         const result = await api('/api/branch-admin/payouts?limit=100');
         let intents = result.intents || [];
 
-        // Populate Tenant Filter Dropdown on first load
-        if (tenantFilterEl && tenantFilterEl.options.length === 1 && intents.length > 0) {
-          const uniqueTenants = [...new Set(intents.map(p => p.tenantName))];
-          uniqueTenants.forEach(t => {
-            const opt = document.createElement('option');
-            opt.value = t;
-            opt.textContent = t;
-            tenantFilterEl.appendChild(opt);
-          });
-        }
-
-        // Apply Filters
-        if (filter === 'CONFIRMED') {
-          intents = intents.filter(p => p.state === 'CONFIRMED');
-        } else if (filter === 'PENDING') {
-          // Include anything that isn't fully confirmed. FEE_PAID is still pending payout.
-          intents = intents.filter(p => p.state !== 'CONFIRMED');
-        }
-
+        if (filter === 'CONFIRMED') intents = intents.filter(p => p.state === 'CONFIRMED');
+        else if (filter === 'PENDING') intents = intents.filter(p => p.state !== 'CONFIRMED');
+        
         if (tenantFilter) {
           intents = intents.filter(p => p.tenantName === tenantFilter);
         }
 
-        if (search) {
-          intents = intents.filter(p => p.reference.toLowerCase().includes(search));
-        }
-
-        if (!intents.length) {
-          tbody.innerHTML = '<tr><td colspan="9"><div class="empty"><div class="empty__icon">✓</div><h3>No payouts found</h3></div></td></tr>';
-          return;
-        }
+        if (!intents.length) { tbody.innerHTML = '<tr><td colspan="9"><div class="empty"><h3>No payouts found</h3></div></td></tr>'; return; }
 
         const now = new Date();
-
         tbody.innerHTML = intents.map(function (p) {
-          // Determine if it's due
           const dueDate = new Date(p.dueDate || p.createdAt);
           const isDue = dueDate <= now;
-          
-          // Build the Due Date UI
-          let dueHtml = `<span style="color: var(--on-surface);">${formatDate(p.dueDate || p.createdAt)}</span>`;
-          if (p.state === 'PENDING' && p.feeIntent && p.feeIntent.state === 'PENDING') {
-            if (isDue) {
-              dueHtml = `<span class="badge badge--warning">DUE NOW</span><br><span style="font-size:11px;">${formatDate(p.dueDate)}</span>`;
-            } else {
-              dueHtml = `<span style="color: var(--on-surface-variant);">${formatDate(p.dueDate)}</span>`;
-            }
+          let dueHtml = `<span>${formatDate(p.dueDate || p.createdAt)}</span>`;
+          if (p.state === 'PENDING' && p.feeIntent && p.feeIntent.state === 'PENDING' && isDue) {
+            dueHtml = `<span class="badge badge--warning">DUE NOW</span><br><span style="font-size:11px;">${formatDate(p.dueDate)}</span>`;
           }
-
-          // Format Fee Intent State
-          let feeHtml = '<span style="color:var(--on-surface-variant);">—</span>';
+          let feeHtml = '—';
           let actionHtml = '';
-
           if (p.feeIntent) {
             if (p.feeIntent.state === 'PENDING') {
-              feeHtml = `<span style="color: var(--warning); font-weight: 600;">£${p.feeIntent.amountGbp} (Unpaid)</span>`;
-              // ONLY show Pay Fee button if it's due
-              if (isDue) {
-                actionHtml = `<button class="btn btn--primary btn--sm" data-pay-fee="${p.feeIntent.id}" data-fee-amount="${p.feeIntent.amountPence}" data-fee-ref="${p.feeIntent.reference}">Pay Fee</button>`;
-              } else {
-                actionHtml = `<span style="font-size: 12px; color: var(--on-surface-variant);">Not due yet</span>`;
-              }
+              feeHtml = `<span style="color: #d97706; font-weight: 600;">£${p.feeIntent.amountGbp} (Unpaid)</span>`;
+              actionHtml = isDue ? `<button class="btn btn--primary btn--sm" data-pay-fee="${p.feeIntent.id}" data-fee-amount="${p.feeIntent.amountPence}" data-fee-ref="${p.feeIntent.reference}">Pay Fee</button>` : `<span style="font-size: 12px; color: var(--muted);">Not due yet</span>`;
             } else if (p.feeIntent.state === 'RECEIPT_UPLOADED') {
-              feeHtml = `<span style="color: var(--brand-primary); font-weight: 600;">£${p.feeIntent.amountGbp} (Pending Review)</span>`;
+              feeHtml = `<span style="color: var(--g); font-weight: 600;">£${p.feeIntent.amountGbp} (Pending Review)</span>`;
               actionHtml = `<span class="badge badge--info">Awaiting Super Admin</span>`;
             } else if (p.feeIntent.state === 'CONFIRMED') {
-              feeHtml = `<span style="color: var(--success); font-weight: 600;">£${p.feeIntent.amountGbp} (Paid)</span>`;
-              // If fee is paid, we can upload the payout receipt
-              if (p.state === 'PENDING' || p.state === 'FEE_PAID') {
-                actionHtml = `<button class="btn btn--primary btn--sm" data-payout-receipt="${p.id}">Upload Payout Receipt</button>`;
-              }
+              feeHtml = `<span style="color: var(--g); font-weight: 600;">£${p.feeIntent.amountGbp} (Paid)</span>`;
+              if (p.state === 'PENDING' || p.state === 'FEE_PAID') actionHtml = `<button class="btn btn--primary btn--sm" data-payout-receipt="${p.id}">Upload Payout Receipt</button>`;
             }
           }
-
-          if (p.state === 'RECEIPT_UPLOADED') {
-            actionHtml = `<button class="btn btn--success btn--sm" data-payout-confirm="${p.id}">Confirm Payout</button>`;
-          } else if (p.state === 'CONFIRMED') {
-            actionHtml = `<span class="badge badge--success">Completed</span>`;
-          } else if (p.state === 'FAILED') {
-            actionHtml = `<button class="btn btn--ghost btn--sm" data-payout-retry="${p.id}">Retry</button>`;
-          }
-
-          const stateBadge = 
-            p.state === 'CONFIRMED' ? 'success' : 
-            p.state === 'FAILED' ? 'error' : 
-            p.state === 'FEE_PAID' ? 'info' : 'warning';
-
+          if (p.state === 'RECEIPT_UPLOADED') actionHtml = `<button class="btn btn--success btn--sm" data-payout-confirm="${p.id}">Confirm Payout</button>`;
+          else if (p.state === 'CONFIRMED') actionHtml = `<span class="badge badge--success">Completed</span>`;
+          else if (p.state === 'FAILED') actionHtml = `<button class="btn btn--ghost btn--sm" data-payout-retry="${p.id}">Retry</button>`;
+          const stateBadge = p.state === 'CONFIRMED' ? 'success' : p.state === 'FAILED' ? 'error' : p.state === 'FEE_PAID' ? 'info' : 'warning';
           return '<tr>' +
             '<td><code>' + escapeHtml(p.reference) + '</code></td>' +
             '<td>' + escapeHtml(p.tenantName || 'Unknown') + '</td>' +
             '<td>Cycle ' + p.cycle + ' / Tenure ' + p.tenure + '</td>' +
             '<td>' + escapeHtml(p.recipientName) + ' (slot ' + p.recipientSlot + ')</td>' +
-            '<td><strong style="color: var(--brand-primary);">£' + p.netAmountGbp + '</strong></td>' +
+            '<td><strong style="color: var(--g);">£' + p.netAmountGbp + '</strong></td>' +
             '<td>' + feeHtml + '</td>' +
             '<td>' + dueHtml + '</td>' +
             '<td><span class="badge badge--' + stateBadge + '">' + p.state.replace('_', ' ') + '</span></td>' +
             '<td><div class="table__actions">' + actionHtml + '</div></td>' +
           '</tr>';
         }).join('');
-
-        // Bind buttons
-        tbody.querySelectorAll('[data-pay-fee]').forEach(function (b) {
-          b.addEventListener('click', function () { 
-            openPayFeeModal(b.dataset.payFee, b.dataset.feeAmount, b.dataset.feeRef); 
-          });
-        });
-        tbody.querySelectorAll('[data-payout-receipt]').forEach(function (b) {
-          b.addEventListener('click', function () { uploadPayoutReceipt(b.dataset.payoutReceipt); });
-        });
-        tbody.querySelectorAll('[data-payout-confirm]').forEach(function (b) {
-          b.addEventListener('click', function () { confirmPayout(b.dataset.payoutConfirm); });
-        });
-        tbody.querySelectorAll('[data-payout-retry]').forEach(function (b) {
-          b.addEventListener('click', function () { retryPayout(b.dataset.payoutRetry); });
-        });
-
+        tbody.querySelectorAll('[data-pay-fee]').forEach(b => b.addEventListener('click', () => openPayFeeModal(b.dataset.payFee, b.dataset.feeAmount, b.dataset.feeRef)));
+        tbody.querySelectorAll('[data-payout-receipt]').forEach(b => b.addEventListener('click', () => uploadPayoutReceipt(b.dataset.payoutReceipt)));
+        tbody.querySelectorAll('[data-payout-confirm]').forEach(b => b.addEventListener('click', () => confirmPayout(b.dataset.payoutConfirm)));
+        tbody.querySelectorAll('[data-payout-retry]').forEach(b => b.addEventListener('click', () => retryPayout(b.dataset.payoutRetry)));
       } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err.message) + '</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:#e32626;">' + escapeHtml(err.message) + '</td></tr>';
       }
     }
+    document.getElementById('payout-status-filter').addEventListener('change', loadPayouts);
+    document.getElementById('payout-tenant-filter').addEventListener('change', loadPayouts);
 
-    // Add event listeners for the filter dropdowns + search
-    const payoutFilter = document.getElementById('payout-status-filter');
-    if (payoutFilter) {
-      payoutFilter.addEventListener('change', loadPayouts);
-    }
-
-    const payoutTenantFilter = document.getElementById('payout-tenant-filter');
-    if (payoutTenantFilter) {
-      payoutTenantFilter.addEventListener('change', loadPayouts);
-    }
-
-    const payoutSearch = document.getElementById('payout-search');
-    if (payoutSearch) {
-      payoutSearch.addEventListener('input', loadPayouts);
-    }
-
-    // ── PAY FEE MODAL ────────────────────────────────────────
-    let activeFeeIntentId = null;
-
-    async function openPayFeeModal(feeIntentId, amountPence, reference) {
-      activeFeeIntentId = feeIntentId;
-      
-      const modal = document.getElementById('pay-fee-modal');
-      modal.classList.add('is-open');
-      
-      document.getElementById('fee-amount-display').value = penceToGbp(Number(amountPence));
-      document.getElementById('fee-reference-display').value = reference;
-      document.getElementById('fee-receipt-file').value = ''; // clear previous
-
-      // Fetch maintenance account details
-      try {
-        const account = await api('/api/branch-admin/payouts/maintenance-account');
-        if (account) {
-          document.getElementById('fee-acc-holder').textContent = account.account_holder_name || '—';
-          document.getElementById('fee-acc-bank').textContent = account.bank_name || '—';
-          document.getElementById('fee-acc-sort').textContent = account.sort_code || '—';
-          document.getElementById('fee-acc-number').textContent = account.account_number || '—';
-        } else {
-          document.getElementById('fee-acc-holder').textContent = 'Not configured';
-        }
-      } catch (err) {
-        console.error('Failed to load maintenance account', err);
-      }
-    }
-
-    document.getElementById('fee-submit-btn').addEventListener('click', async function() {
-      const btn = this;
-      const fileInput = document.getElementById('fee-receipt-file');
-      const file = fileInput.files && fileInput.files[0];
-      
-      if (!file) {
-        toast('Please select a receipt image.', 'error');
-        return;
-      }
-
-      const amount = document.getElementById('fee-amount-display').value;
-      const ref = document.getElementById('fee-reference-display').value;
-      
-      btn.disabled = true;
-      btn.textContent = 'Uploading...';
-
-      const fd = new FormData();
-      fd.append('receipt', file);
-      fd.append('claimedAmount', String(Number(amount.replace(/[^0-9.]/g, '')) * 100)); // convert back to pence
-      fd.append('claimedReference', ref);
-      fd.append('claimedSenderName', 'DIGC Euro HQ'); // Assuming sender is the branch
-
-      try {
-        await api('/api/branch-admin/payouts/fees/' + activeFeeIntentId + '/receipt', {
-          method: 'POST',
-          body: fd,
-        });
-        toast('✓ Fee receipt uploaded! Awaiting Super Admin approval.', 'success');
-        document.getElementById('pay-fee-modal').classList.remove('is-open');
-        loadPayouts();
-      } catch (err) {
-        toast('Upload failed: ' + err.message, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Upload Fee Receipt';
-      }
-    });
-
-    function badgeForState(state) {
-      if (state === 'CONFIRMED') return 'success';
-      if (state === 'FAILED') return 'error';
-      if (state === 'PENDING') return 'warning';
-      return 'info';
-    }
-
-    // ── UPLOAD PAYOUT RECEIPT MODAL ──────────────────────────
-    let activePayoutId = null;
-
-    async function uploadPayoutReceipt(payoutId) {
-      activePayoutId = payoutId;
-      
-      const modal = document.getElementById('upload-payout-modal');
-      modal.classList.add('is-open');
-      document.getElementById('payout-receipt-file').value = ''; // clear previous
-      document.getElementById('payout-acc-holder').textContent = 'Loading...';
-
-      try {
-        // Fetch the payout intent to get the details
-        const result = await api('/api/branch-admin/payouts?limit=100');
-        const payout = result.intents.find(p => p.id === payoutId);
-        
-        if (!payout) throw new Error('Payout not found');
-
-        // Populate the modal
-        document.getElementById('modal-payout-recipient').textContent = `Pay to: ${payout.recipientName}`;
-        document.getElementById('payout-amount-display').value = '£' + payout.netAmountGbp;
-        document.getElementById('payout-reference-display').value = payout.reference;
-        
-        // Fetch the saver's bank details (with cache-buster to avoid stale 304s)
-        const raw = await api('/api/branch-admin/payouts/saver-details/' + payout.recipientUserId + '?t=' + Date.now());
-        
-        if (raw) {
-          // Backend returns snake_case column names from kyc_submissions:
-          //   legal_name, account_name, bank_name, sort_code, account_number
-          document.getElementById('payout-acc-holder').textContent = 
-            raw.account_name || raw.legal_name || '—';
-          document.getElementById('payout-acc-bank').textContent = 
-            raw.bank_name || '—';
-          document.getElementById('payout-acc-sort').textContent = 
-            raw.sort_code || '—';
-          document.getElementById('payout-acc-number').textContent = 
-            raw.account_number || '—';
-        } else {
-          document.getElementById('payout-acc-holder').textContent = 'No bank details found';
-        }
-      } catch (err) {
-        toast('Failed to load payout details: ' + err.message, 'error');
-      }
-    }
-
-    document.getElementById('payout-submit-btn').addEventListener('click', async function() {
-      const btn = this;
-      const fileInput = document.getElementById('payout-receipt-file');
-      const file = fileInput.files && fileInput.files[0];
-      
-      if (!file) {
-        toast('Please select a receipt image.', 'error');
-        return;
-      }
-
-      const amountStr = document.getElementById('payout-amount-display').value;
-      const ref = document.getElementById('payout-reference-display').value;
-      const name = document.getElementById('payout-acc-holder').textContent; // Use the saver's name
-
-      btn.disabled = true;
-      btn.textContent = 'Uploading...';
-
-      const fd = new FormData();
-      fd.append('receipt', file);
-      fd.append('claimedAmount', String(Number(amountStr.replace(/[^0-9.]/g, '')) * 100)); 
-      fd.append('claimedReference', ref);
-      fd.append('claimedRecipientName', name);
-
-      try {
-        await api('/api/branch-admin/payouts/' + activePayoutId + '/receipt', {
-          method: 'POST',
-          body: fd,
-        });
-        toast('✓ Payout receipt uploaded! Awaiting your confirmation.', 'success');
-        document.getElementById('upload-payout-modal').classList.remove('is-open');
-        loadPayouts();
-      } catch (err) {
-        toast('Upload failed: ' + err.message, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Upload Payout Receipt';
-      }
-    });
-
-    async function confirmPayout(payoutId) {
-      if (!window.confirm('Confirm this payout has been made to the recipient?')) return;
-      try {
-        await api('/api/branch-admin/payouts/' + payoutId + '/confirm', { method: 'POST' });
-        toast('Payout confirmed', 'success');
-        loadPayouts();
-      } catch (err) {
-        toast('Confirm failed: ' + err.message, 'error');
-      }
-    }
-
-    async function failPayout(payoutId) {
-      const reason = window.prompt('Reason for marking payout failed (min 5 characters):');
-      if (!reason || reason.trim().length < 5) {
-        toast('Reason must be at least 5 characters.', 'error');
-        return;
-      }
-      try {
-        await api('/api/branch-admin/payouts/' + payoutId + '/fail', {
-          method: 'POST',
-          body: { reason: reason.trim() },
-        });
-        toast('Payout marked failed', 'info');
-        loadPayouts();
-      } catch (err) {
-        toast('Fail failed: ' + err.message, 'error');
-      }
-    }
-
-    async function retryPayout(payoutId) {
-      if (!window.confirm('Create a retry for this failed payout?')) return;
-      try {
-        await api('/api/branch-admin/payouts/' + payoutId + '/retry', { method: 'POST' });
-        toast('Retry created', 'success');
-        loadPayouts();
-      } catch (err) {
-        toast('Retry failed: ' + err.message, 'error');
-      }
-    }
-
-    // ── TENANTS ──────────────────────────────────────────────
     async function loadTenants() {
       const tbody = document.querySelector('#tenants-table tbody');
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--on-surface-variant);">Loading…</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted);">Loading…</td></tr>';
       try {
         const summary = await api('/api/branch-admin/tenants/summary');
         const tenants = summary.tenants || [];
         if (!tenants.length) {
-          tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><div class="empty__icon">◎</div><h3>No circles yet</h3><p>Circles form automatically once 12 verified members join your branch.</p></div></td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No circles yet</h3><p>Circles form automatically once 12 verified members join your branch.</p></div></td></tr>';
           return;
         }
-        tbody.innerHTML = tenants.map(function (t) {
+        tbody.innerHTML = tenants.map(t => {
           const statusBadge = t.status === 'ACTIVE' ? 'success' : t.status === 'FILLING' ? 'info' : 'neutral';
-          return '<tr>' +
-            '<td><strong>' + escapeHtml(t.name || 'Unnamed Circle') + '</strong></td>' +
-            '<td><span class="badge badge--' + statusBadge + '">' + t.status + '</span></td>' +
-            '<td>' + t.currentCycle + '</td>' +
-            '<td>' + t.currentTenure + '</td>' +
-            '<td>' + t.memberCount + ' / 12</td>' +
-            '<td><div class="table__actions">' +
-              '<button class="btn btn--primary btn--sm" data-view-members="' + t.id + '" data-tenant-name="' + escapeHtml(t.name || 'Unnamed Circle') + '">View Members</button>' +
-            '</div></td>' +
-          '</tr>';
+          return `
+            <tr>
+              <td><strong>${escapeHtml(t.name || 'Unnamed Circle')}</strong></td>
+              <td><span class="badge badge--${statusBadge}">${t.status}</span></td>
+              <td>${t.currentCycle}</td>
+              <td>${t.currentTenure}</td>
+              <td>${t.memberCount} / 12</td>
+              <td><div class="table__actions">
+                <button class="btn btn--primary btn--sm" data-view-members="${t.id}" data-tenant-name="${escapeHtml(t.name || '')}">View Members</button>
+              </div></td>
+            </tr>
+          `;
         }).join('');
         
-        // Add click listeners for the new buttons
-        tbody.querySelectorAll('[data-view-members]').forEach(function (b) {
-          b.addEventListener('click', function () { openTenantMembersModal(b.dataset.viewMembers, b.dataset.tenantName); });
-        });
+        tbody.querySelectorAll('[data-view-members]').forEach(b => b.addEventListener('click', function () { openTenantMembersModal(b.dataset.viewMembers, b.dataset.tenantName); }));
         
       } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err.message) + '</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#e32626;">' + escapeHtml(err.message) + '</td></tr>';
       }
     }
 
-    // NEW: Function to open the modal and fetch members
     async function openTenantMembersModal(tenantId, tenantName) {
       const modal = document.getElementById('tenant-members-modal');
       const tbody = document.getElementById('modal-members-body');
@@ -2157,7 +1688,7 @@
         const members = await api('/api/branch-admin/tenants/' + tenantId + '/members');
         
         if (!members || !members.length) {
-          tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--on-surface-variant);">No members in this circle yet.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--muted);">No members in this circle yet.</td></tr>';
           return;
         }
 
@@ -2176,37 +1707,27 @@
       }
     }
 
-    // ── ANALYTICS ────────────────────────────────────────────
     async function loadAnalytics() {
       try {
         const stats = await api('/api/branch-admin/stats');
-        
-        document.getElementById('analytics-contribs-month').textContent = stats.contributions.thisMonthGbp;
-        document.getElementById('analytics-payouts-month').textContent = stats.payouts.thisMonthGbp; 
+        document.getElementById('analytics-contribs-month').textContent = gbpLabel(stats.contributions.thisMonthGbp);
+        document.getElementById('analytics-payouts-month').textContent = gbpLabel(stats.payouts.thisMonthGbp);
         document.getElementById('analytics-members').textContent = stats.members.total;
         document.getElementById('analytics-active-tenants').textContent = stats.tenants.active;
 
-        // Populate the Tenant Breakdown Table
         const tbody = document.getElementById('analytics-breakdown-body');
         if (stats.contributionsByTenant && stats.contributionsByTenant.length > 0) {
-          tbody.innerHTML = stats.contributionsByTenant.map(function(c) {
+          tbody.innerHTML = stats.contributionsByTenant.map(c => {
             const gbp = (Number(c.totalPence) / 100).toFixed(2);
-            return '<tr>' +
-              '<td><strong>' + escapeHtml(c.tenantName) + '</strong></td>' +
-              '<td style="color: var(--success);">£' + gbp + '</td>' +
-              '<td>' + c.count + '</td>' +
-            '</tr>';
+            return `<tr><td><strong>${escapeHtml(c.tenantName)}</strong></td><td style="color: var(--g);">£${gbp}</td><td>${c.count}</td></tr>`;
           }).join('');
         } else {
-          tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--on-surface-variant);">No contributions recorded yet.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--muted);">No contributions recorded yet.</td></tr>';
         }
-      } catch (err) {
-        console.error(err);
-      }
+      } catch (err) { console.error(err); }
     }
 
-    // ── SETTINGS ─────────────────────────────────────────────
-    async function loadSettings() {
+    function loadSettings() {
       if (!state.user) return;
       document.getElementById('sf-fullname').value = state.user.fullName || '';
       document.getElementById('sf-phone').value = state.user.phone || '';
@@ -2216,66 +1737,73 @@
     document.getElementById('profile-form').addEventListener('submit', async function (e) {
       e.preventDefault();
       const btn = document.getElementById('save-profile');
-      btn.disabled = true;
-      btn.textContent = 'Saving…';
+      btn.disabled = true; btn.textContent = 'Saving…';
       try {
         const body = {};
         const email = document.getElementById('sf-email').value.trim();
         if (email) body.email = email;
-        const updated = await api('/api/users/me', { method: 'PATCH', body: body });
-        state.user = updated;
+        state.user = await api('/api/users/me', { method: 'PATCH', body });
         toast('Profile saved', 'success');
       } catch (err) {
         toast('Save failed: ' + err.message, 'error');
       } finally {
-        btn.disabled = false;
-        btn.textContent = 'Save profile';
+        btn.disabled = false; btn.textContent = 'Save profile';
       }
     });
 
     document.getElementById('password-form').addEventListener('submit', async function (e) {
       e.preventDefault();
       const btn = document.getElementById('change-password');
-      btn.disabled = true;
-      btn.textContent = 'Updating…';
+      btn.disabled = true; btn.textContent = 'Updating…';
       try {
         await api('/api/users/me/password', {
           method: 'PATCH',
-          body: {
-            currentPassword: document.getElementById('sf-cur-pw').value,
-            newPassword: document.getElementById('sf-new-pw').value,
-          },
+          body: { currentPassword: document.getElementById('sf-cur-pw').value, newPassword: document.getElementById('sf-new-pw').value },
         });
         toast('Password updated. You will be logged out.', 'success');
-        setTimeout(function () {
-          window.ROSCA_API.clearTokens();
-          window.location.href = '/?login=1';
-        }, 1500);
+        setTimeout(() => { window.ROSCA_API.clearTokens(); window.location.href = '/?login=1'; }, 1500);
       } catch (err) {
         toast('Update failed: ' + err.message, 'error');
-        btn.disabled = false;
-        btn.textContent = 'Update password';
+        btn.disabled = false; btn.textContent = 'Update password';
       }
     });
 
-    // Listen for Contributions filter changes (KYC filters are wired in boot())
-    const contribFilter = document.getElementById('contrib-status-filter');
-    if (contribFilter) {
-      contribFilter.addEventListener('change', loadContributions);
-    }
-
-    // ── Populate Tenant filter (Step C) ──────────────────────
-    async function populateTenantFilter() {
+    // ── Populate Tenant filters ──────────────────────────────
+    async function populateTenantFilters() {
       try {
         const summary = await api('/api/branch-admin/tenants/summary');
         const tenants = summary.tenants || [];
-        const filter = document.getElementById('kyc-tenant-filter');
-        if (filter && tenants.length > 0) {
+        
+        // KYC filter
+        const kycFilter = document.getElementById('kyc-tenant-filter');
+        if (kycFilter && tenants.length > 0) {
           tenants.forEach(t => {
             const opt = document.createElement('option');
             opt.value = t.id;
             opt.textContent = t.name || 'Unnamed Tenant';
-            filter.appendChild(opt);
+            kycFilter.appendChild(opt);
+          });
+        }
+
+        // Contributions filter
+        const contribFilter = document.getElementById('contrib-tenant-filter');
+        if (contribFilter && tenants.length > 0) {
+          tenants.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.id;
+            opt.textContent = t.name || 'Unnamed Tenant';
+            contribFilter.appendChild(opt);
+          });
+        }
+
+        // Payouts filter
+        const payoutFilter = document.getElementById('payout-tenant-filter');
+        if (payoutFilter && tenants.length > 0) {
+          tenants.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.name || 'Unnamed Tenant';
+            opt.textContent = t.name || 'Unnamed Tenant';
+            payoutFilter.appendChild(opt);
           });
         }
       } catch (err) {
@@ -2283,22 +1811,14 @@
       }
     }
 
-    // ── boot ─────────────────────────────────────────────────
     (async function boot() {
       const ok = await loadMe();
       if (!ok) return;
-      
-      await populateTenantFilter(); // NEW
-      
-      showSection('overview');
-      
-      // Add listeners for filters
-      document.getElementById('kyc-status-filter').addEventListener('change', loadKyc);
-      document.getElementById('kyc-tenant-filter').addEventListener('change', loadKyc);
+      await populateTenantFilters();
+      showSection('dashboard');
     })();
 
   })();
 </script>
-
 </body>
 </html>
