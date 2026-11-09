@@ -25,11 +25,29 @@
     host === '0.0.0.0' ||
     host.endsWith('.local');
 
-  const API_BASE = isLocal
-    ? 'http://localhost:4001'
-    : 'https://rosca-thrift.onrender.com';
+  // Optional ?api=https://staging.example.com override — handy for testing
+  // a staging backend from a local browser without editing this file.
+  let apiOverride = null;
+  try {
+    const qs = new URLSearchParams(window.location.search);
+    const fromQuery = qs.get('api');
+    if (fromQuery && /^https?:\/\//i.test(fromQuery)) {
+      apiOverride = fromQuery.replace(/\/+$/, '');
+    }
+  } catch (_) {
+    // URLSearchParams unsupported or malformed URL — ignore.
+  }
+
+  const API_BASE = apiOverride
+    ? apiOverride
+    : (isLocal
+        ? 'http://localhost:4001'
+        : 'https://rosca-thrift.onrender.com');
 
   // ── localStorage keys ─────────────────────────────────────────
+  // These MUST be stable across deploys so that users logged in on an
+  // older build are still recognised after an upgrade. Renaming them
+  // silently logs everyone out.
   const ACCESS_KEY = 'rosca_access_token';
   const REFRESH_KEY = 'rosca_refresh_token';
 
@@ -45,11 +63,20 @@
 
   // ── Public API ────────────────────────────────────────────────
   window.ROSCA_CONFIG = Object.freeze({
+    // Environment
     API_BASE: API_BASE,
+    IS_LOCAL: isLocal,
+    IS_PROD: !isLocal && !apiOverride,
+    DEBUG: isLocal, // verbose console logging in local only
+
+    // Storage
     ACCESS_KEY: ACCESS_KEY,
     REFRESH_KEY: REFRESH_KEY,
+
+    // Compliance
     CONSENT_VERSIONS: CONSENT_VERSIONS,
-    IS_LOCAL: isLocal,
-    DEBUG: isLocal, // verbose console logging in local only
+
+    // Versioning (used by "About" footers / diagnostics)
+    VERSION: '1.0.0',
   });
 })();
