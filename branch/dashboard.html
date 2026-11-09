@@ -703,7 +703,7 @@ footer a:hover { color: var(--g); }
       <div class="spacer"></div>
 
       <!-- Clickable Profile Avatar -->
-      <button class="topbar__avatar-btn" id="topbar-avatar-btn" type="button" aria-label="Open profile settings" title="Profile settings" onclick="showSection('settings')">
+      <button class="topbar__avatar-btn" id="topbar-avatar-btn" type="button" aria-label="Open profile modal" title="Profile" onclick="openProfileModal()">
         <div class="topbar__avatar" id="topbar-avatar">A</div>
       </button>
     </header>
@@ -1172,6 +1172,50 @@ footer a:hover { color: var(--g); }
   </div>
 </div>
 
+<!-- ═══ PROFILE MODAL ═══ -->
+<div class="modal" id="profile-modal">
+  <div class="modal__content" style="max-width: 480px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h2 style="font-size: 20px; margin: 0; color: var(--ink);">Account Profile</h2>
+      <button class="btn btn--ghost btn--sm" onclick="document.getElementById('profile-modal').classList.remove('is-open')">✕</button>
+    </div>
+
+    <!-- User Header Card -->
+    <div style="display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 20px;">
+      <div id="modal-profile-avatar" style="width: 56px; height: 56px; border-radius: 50%; background: var(--g); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 20px; overflow: hidden; flex-shrink: 0;">
+        A
+      </div>
+      <div style="flex: 1; overflow: hidden;">
+        <div id="modal-profile-name" style="font-size: 16px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Admin</div>
+        <div id="modal-profile-email" style="font-size: 13px; color: var(--muted); margin-top: 2px;">loading...</div>
+        <span class="badge badge--success" id="modal-profile-role" style="margin-top: 6px;">Branch Admin</span>
+      </div>
+    </div>
+
+    <!-- Account Information -->
+    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line);">
+        <span style="color: var(--muted); font-size: 13px;">Phone Number</span>
+        <strong id="modal-profile-phone" style="font-size: 13px;">—</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line);">
+        <span style="color: var(--muted); font-size: 13px;">Branch Linked</span>
+        <strong id="modal-profile-branch" style="font-size: 13px;">—</strong>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+      <button class="btn btn--ghost btn--sm" style="flex: 1;" onclick="document.getElementById('profile-modal').classList.remove('is-open'); showSection('settings');">
+        ⚙ Account Settings
+      </button>
+      <button class="btn btn--danger btn--sm" style="flex: 1;" onclick="window.ROSCA_API.clearTokens(); window.location.href='/?login=1';">
+        Log Out
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="toast-container"></div>
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -1317,6 +1361,31 @@ footer a:hover { color: var(--g); }
       return name.trim().split(/\s+/).map(function (s) { return s[0]; }).slice(0, 2).join('').toUpperCase();
     }
 
+    // ── Profile Modal ─────────────────────────────────────────
+    window.openProfileModal = function() {
+      const modal = document.getElementById('profile-modal');
+      if (!modal) return;
+
+      const user = state.user || {};
+      const branch = state.branch || {};
+
+      document.getElementById('modal-profile-name').textContent = user.fullName || 'Admin User';
+      document.getElementById('modal-profile-email').textContent = user.email || '—';
+      document.getElementById('modal-profile-phone').textContent = user.phone || '—';
+      document.getElementById('modal-profile-branch').textContent = branch.name || 'Unassigned';
+      document.getElementById('modal-profile-role').textContent = user.role ? user.role.replace('_', ' ') : 'Branch Admin';
+
+      const avatarContainer = document.getElementById('modal-profile-avatar');
+      const selfieUrl = user.selfieUrl || (state.user && state.user.selfieUrl);
+      if (selfieUrl) {
+        avatarContainer.innerHTML = `<img src="${selfieUrl}" style="width:100%;height:100%;object-fit:cover;" />`;
+      } else {
+        avatarContainer.textContent = initials(user.fullName || 'A');
+      }
+
+      modal.classList.add('is-open');
+    };
+
     // ── Boot ─────────────────────────────────────────────────
     async function loadMe() {
       if (!window.ROSCA_API.getAccessToken()) { window.location.href = '/?login=1'; return false; }
@@ -1339,6 +1408,7 @@ footer a:hover { color: var(--g); }
         try {
           const kyc = await api('/api/kyc/me');
           if (kyc && kyc.selfieUrl) {
+            state.user.selfieUrl = kyc.selfieUrl;
             document.getElementById('topbar-avatar').innerHTML = '<img src="' + kyc.selfieUrl + '" style="width:100%;height:100%;object-fit:cover;" />';
             document.getElementById('sidebar-avatar-link').innerHTML = '<img src="' + kyc.selfieUrl + '" style="width:100%;height:100%;object-fit:cover;" />';
           }
