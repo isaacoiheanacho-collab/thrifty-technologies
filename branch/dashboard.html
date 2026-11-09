@@ -11,6 +11,7 @@
 
 <!-- iOS PWA Support -->
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ROSCA">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
@@ -2701,12 +2702,36 @@ footer a:hover { color: var(--g); }
       });
     }
 
+    // ── Hardened Mobile Boot Sequence ───────────────────────────
     (async function boot() {
-      const ok = await loadMe();
-      if (!ok) return;
-      setupMobileNav();
-      await populateTenantFilters();
-      showSection('dashboard');
+      // 1. Guard against multiple simultaneous boot executions on mobile wake-up
+      if (window.__ROSCA_BOOT_IN_PROGRESS) return;
+      window.__ROSCA_BOOT_IN_PROGRESS = true;
+
+      try {
+        // 2. Ensure token exists in localStorage before attempting anything
+        const token = window.ROSCA_API.getAccessToken();
+        if (!token) {
+          if (window.location.search.indexOf('login=1') === -1) {
+            window.location.href = '/?login=1';
+          }
+          return;
+        }
+
+        // 3. Await session validation / token refresh fully before rendering UI
+        const ok = await loadMe();
+        if (!ok) return;
+
+        // 4. Safe sequential initialization
+        setupMobileNav();
+        await populateTenantFilters();
+        showSection('dashboard');
+      } catch (err) {
+        console.error('[boot] Critical startup error:', err);
+        // Do NOT wipe tokens on random mobile wake-up network drops!
+      } finally {
+        window.__ROSCA_BOOT_IN_PROGRESS = false;
+      }
     })();
 
   })();
