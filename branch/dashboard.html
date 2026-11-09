@@ -395,6 +395,151 @@ footer a:hover { color: var(--g); }
   .stat-grid { grid-template-columns: 1fr !important; }
   .hero h1 { font-size: 20px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE APP OVERRIDES (Grid Stats & Hamburger Menu)
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+  /* 1. Show the hamburger button again */
+  .menu-btn { display: block !important; }
+
+  /* 2. Mobile Slide-out Drawer */
+  .mobile-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s;
+  }
+  .mobile-drawer-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .mobile-drawer {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 280px;
+    height: 100vh;
+    background: #fff;
+    z-index: 201;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+  }
+  .mobile-drawer.is-open {
+    transform: translateX(300px);
+  }
+
+  .mobile-drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .mobile-drawer-title { font-size: 18px; font-weight: 800; color: var(--ink); }
+  .mobile-drawer-close { background: none; border: none; font-size: 24px; color: var(--muted); }
+  
+  /* Grid layout for the drawer items */
+  .mobile-drawer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    flex: 1;
+    overflow-y: auto;
+    align-content: start;
+  }
+  
+  .mobile-drawer-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 8px;
+    text-align: center;
+    text-decoration: none;
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+  .mobile-drawer-item:active {
+    background: rgba(0, 139, 97, 0.08);
+    border-color: var(--g);
+  }
+  .mobile-drawer-item svg {
+    width: 24px;
+    height: 24px;
+    color: var(--g);
+  }
+  
+  /* 3. Fix the Overview Stat Grid to match the screenshot */
+  #overview-body > .stat-grid:nth-child(2) {
+    /* This targets the top 4 stats (Total Members, Active Tenants, etc) */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  
+  #overview-body > .stat-grid:nth-child(2) .stat-card {
+    padding: 12px;
+    gap: 10px;
+    border-radius: 10px;
+  }
+  
+  #overview-body > .stat-grid:nth-child(2) .stat-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  
+  #overview-body > .stat-grid:nth-child(2) .stat-label {
+    font-size: 9px;
+    margin-bottom: 2px;
+  }
+  
+  #overview-body > .stat-grid:nth-child(2) .stat-value {
+    font-size: 18px;
+  }
+
+  /* Make the second row (Pending Receipts, Payouts, Contribs, Payouts Month) a 2x2 grid too */
+  #overview-body > .stat-grid:nth-child(3) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  
+  #overview-body > .stat-grid:nth-child(3) .stat-card {
+    padding: 12px;
+    border-radius: 10px;
+  }
+  
+  #overview-body > .stat-grid:nth-child(3) .stat-label {
+    font-size: 9px;
+  }
+  
+  #overview-body > .stat-grid:nth-child(3) .stat-value {
+    font-size: 16px;
+  }
+
+  /* Hide desktop footer on mobile */
+  footer { display: none !important; }
+}
 </style>
 </head>
 <body>
@@ -864,6 +1009,47 @@ footer a:hover { color: var(--g); }
       </div>
       <div class="social">Follow Us: &nbsp; in&nbsp; f&nbsp; X&nbsp; ▶</div>
     </footer>
+  </div>
+</div>
+
+<!-- ═══ MOBILE HAMBURGER DRAWER ═══ -->
+<div class="mobile-drawer-overlay" id="mobile-drawer-overlay"></div>
+<div class="mobile-drawer" id="mobile-drawer">
+  <div class="mobile-drawer-header">
+    <div class="mobile-drawer-title">Menu</div>
+    <button class="mobile-drawer-close" id="mobile-drawer-close">&times;</button>
+  </div>
+  
+  <div class="mobile-drawer-grid">
+    <!-- Branch Setup -->
+    <button class="mobile-drawer-item" data-nav="branch-setup">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>
+      Branch Setup
+    </button>
+    
+    <!-- Branch Verification (KYC) -->
+    <button class="mobile-drawer-item" data-nav="kyc-admin">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.66 0 3.22.45 4.56 1.24"/></svg>
+      Verification
+    </button>
+    
+    <!-- Settings -->
+    <button class="mobile-drawer-item" data-nav="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </button>
+    
+    <!-- Analytics (Optional) -->
+    <button class="mobile-drawer-item" data-nav="analytics">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 4 4 5-7"/></svg>
+      Analytics
+    </button>
+    
+    <!-- Logout -->
+    <button class="mobile-drawer-item" id="mobile-logout-btn" style="color: #e32626; border-color: #feeceb; background: #fffcfc;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #e32626;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Log Out
+    </button>
   </div>
 </div>
 
@@ -2002,6 +2188,51 @@ footer a:hover { color: var(--g); }
           this.classList.add('is-active');
           showSection(this.dataset.section);
         });
+      });
+    }
+
+    // --- Mobile Drawer Logic ---
+    const mobileMenuBtn = document.getElementById('menu-btn');
+    const mobileDrawer = document.getElementById('mobile-drawer');
+    const mobileOverlay = document.getElementById('mobile-drawer-overlay');
+    const mobileCloseBtn = document.getElementById('mobile-drawer-close');
+    const mobileNavItems = document.querySelectorAll('.mobile-drawer-item[data-nav]');
+
+    function openMobileDrawer() {
+      mobileDrawer.classList.add('is-open');
+      mobileOverlay.classList.add('is-open');
+    }
+
+    function closeMobileDrawer() {
+      mobileDrawer.classList.remove('is-open');
+      mobileOverlay.classList.remove('is-open');
+    }
+
+    if (mobileMenuBtn) {
+      mobileMenuBtn.addEventListener('click', openMobileDrawer);
+    }
+    if (mobileCloseBtn) {
+      mobileCloseBtn.addEventListener('click', closeMobileDrawer);
+    }
+    if (mobileOverlay) {
+      mobileOverlay.addEventListener('click', closeMobileDrawer);
+    }
+
+    // Wire up drawer links to switch sections and close drawer
+    mobileNavItems.forEach(item => {
+      item.addEventListener('click', function() {
+        const sectionKey = this.dataset.nav;
+        showSection(sectionKey);
+        closeMobileDrawer();
+      });
+    });
+
+    // Wire up mobile logout
+    const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+    if (mobileLogoutBtn) {
+      mobileLogoutBtn.addEventListener('click', function() {
+        window.ROSCA_API.clearTokens();
+        window.location.href = '/?login=1';
       });
     }
 
