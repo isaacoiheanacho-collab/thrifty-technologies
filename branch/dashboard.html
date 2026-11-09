@@ -314,6 +314,149 @@ footer a:hover { color: var(--g); }
 .modal.is-open { display: flex; }
 .modal__content { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow); }
 
+/* ── Profile Modal Styling ───────────────────────────── */
+.profile-modal-card {
+  max-width: 440px !important;
+  padding: 24px !important;
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+.profile-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.profile-modal__close {
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.profile-card-hero {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.profile-card-banner {
+  height: 70px;
+  background: linear-gradient(135deg, var(--deep), var(--g));
+}
+
+.profile-card-body {
+  padding: 0 20px 20px;
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-top: -36px;
+}
+
+.profile-photo-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.profile-photo {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--g);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  object-fit: cover;
+}
+
+.profile-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-meta {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: 2px;
+}
+
+.profile-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-email {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.profile-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.profile-detail-label {
+  color: var(--muted);
+}
+
+.profile-detail-value {
+  color: var(--ink);
+  font-weight: 700;
+  text-align: right;
+  max-width: 60%;
+  overflow-wrap: anywhere;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.profile-action-btn {
+  flex: 1;
+  justify-content: center;
+  padding: 10px 14px;
+  font-size: 13px;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .sidebar { transform: translateX(-100%); transition: transform 250ms ease-out; }
@@ -1174,42 +1317,48 @@ footer a:hover { color: var(--g); }
 
 <!-- ═══ PROFILE MODAL ═══ -->
 <div class="modal" id="profile-modal">
-  <div class="modal__content" style="max-width: 480px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      <h2 style="font-size: 20px; margin: 0; color: var(--ink);">Account Profile</h2>
-      <button class="btn btn--ghost btn--sm" onclick="document.getElementById('profile-modal').classList.remove('is-open')">✕</button>
+  <div class="modal__content profile-modal-card">
+    <!-- Header Close Button -->
+    <div class="profile-modal__header">
+      <h2 style="font-size: 20px; font-weight: 800; margin: 0; color: var(--ink);">Account Profile</h2>
+      <button class="btn btn--ghost btn--sm profile-modal__close" onclick="document.getElementById('profile-modal').classList.remove('is-open')" type="button">✕</button>
     </div>
 
-    <!-- User Header Card -->
-    <div style="display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 20px;">
-      <div id="modal-profile-avatar" style="width: 56px; height: 56px; border-radius: 50%; background: var(--g); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 20px; overflow: hidden; flex-shrink: 0;">
-        A
-      </div>
-      <div style="flex: 1; overflow: hidden;">
-        <div id="modal-profile-name" style="font-size: 16px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Admin</div>
-        <div id="modal-profile-email" style="font-size: 13px; color: var(--muted); margin-top: 2px;">loading...</div>
-        <span class="badge badge--success" id="modal-profile-role" style="margin-top: 6px;">Branch Admin</span>
-      </div>
-    </div>
-
-    <!-- Account Information -->
-    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
-      <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line);">
-        <span style="color: var(--muted); font-size: 13px;">Phone Number</span>
-        <strong id="modal-profile-phone" style="font-size: 13px;">—</strong>
-      </div>
-      <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line);">
-        <span style="color: var(--muted); font-size: 13px;">Branch Linked</span>
-        <strong id="modal-profile-branch" style="font-size: 13px;">—</strong>
+    <!-- Full Banner / Hero Card with Photo -->
+    <div class="profile-card-hero">
+      <div class="profile-card-banner"></div>
+      <div class="profile-card-body">
+        <div class="profile-photo-wrapper">
+          <div id="modal-profile-avatar" class="profile-photo">A</div>
+        </div>
+        <div class="profile-meta">
+          <h3 id="modal-profile-name" class="profile-name">Admin</h3>
+          <div id="modal-profile-email" class="profile-email">loading...</div>
+          <div style="margin-top: 8px;">
+            <span class="badge badge--success" id="modal-profile-role">BRANCH ADMIN</span>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-      <button class="btn btn--ghost btn--sm" style="flex: 1;" onclick="document.getElementById('profile-modal').classList.remove('is-open'); showSection('settings');">
+    <!-- Details Table -->
+    <div class="profile-details">
+      <div class="profile-detail-row">
+        <span class="profile-detail-label">Phone Number</span>
+        <strong id="modal-profile-phone" class="profile-detail-value">—</strong>
+      </div>
+      <div class="profile-detail-row">
+        <span class="profile-detail-label">Branch Linked</span>
+        <strong id="modal-profile-branch" class="profile-detail-value">—</strong>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="profile-actions">
+      <button class="btn btn--ghost profile-action-btn" type="button" onclick="document.getElementById('profile-modal').classList.remove('is-open'); showSection('settings');">
         ⚙ Account Settings
       </button>
-      <button class="btn btn--danger btn--sm" style="flex: 1;" onclick="window.ROSCA_API.clearTokens(); window.location.href='/?login=1';">
+      <button class="btn btn--danger profile-action-btn" type="button" onclick="window.ROSCA_API.clearTokens(); window.location.href='/?login=1';">
         Log Out
       </button>
     </div>
@@ -1369,18 +1518,19 @@ footer a:hover { color: var(--g); }
       const user = state.user || {};
       const branch = state.branch || {};
 
-      document.getElementById('modal-profile-name').textContent = user.fullName || 'Admin User';
+      document.getElementById('modal-profile-name').textContent = user.fullName || 'Admin';
       document.getElementById('modal-profile-email').textContent = user.email || '—';
       document.getElementById('modal-profile-phone').textContent = user.phone || '—';
       document.getElementById('modal-profile-branch').textContent = branch.name || 'Unassigned';
-      document.getElementById('modal-profile-role').textContent = user.role ? user.role.replace('_', ' ') : 'Branch Admin';
+      document.getElementById('modal-profile-role').textContent = user.role ? user.role.replace('_', ' ') : 'BRANCH ADMIN';
 
-      const avatarContainer = document.getElementById('modal-profile-avatar');
-      const selfieUrl = user.selfieUrl || (state.user && state.user.selfieUrl);
-      if (selfieUrl) {
-        avatarContainer.innerHTML = `<img src="${selfieUrl}" style="width:100%;height:100%;object-fit:cover;" />`;
+      const avatarEl = document.getElementById('modal-profile-avatar');
+
+      if (user.selfieUrl || user.avatarUrl) {
+        const photoUrl = user.selfieUrl || user.avatarUrl;
+        avatarEl.innerHTML = `<img src="${photoUrl}" alt="${escapeHtml(user.fullName || 'Profile')}" />`;
       } else {
-        avatarContainer.textContent = initials(user.fullName || 'A');
+        avatarEl.textContent = initials(user.fullName || 'A');
       }
 
       modal.classList.add('is-open');
