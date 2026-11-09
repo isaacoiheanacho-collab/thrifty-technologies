@@ -2,9 +2,20 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#008b61">
 <title>Branch Dashboard | ROSCA Thrift & Savings</title>
+
+<!-- PWA Manifest -->
+<link rel="manifest" href="/manifest.json">
+
+<!-- iOS PWA Support -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ROSCA">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<!-- iOS Home Screen Icon -->
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -486,55 +497,48 @@ footer a:hover { color: var(--g); }
     color: var(--g);
   }
   
-  /* 3. Fix the Overview Stat Grid to match the screenshot */
-  #overview-body > .stat-grid:nth-child(2) {
-    /* This targets the top 4 stats (Total Members, Active Tenants, etc) */
+  /* 3. FIRST ROW: Overview Stat Grid (2x2) */
+  #overview-body > .stat-grid:nth-of-type(1) {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     margin-bottom: 16px;
   }
   
-  #overview-body > .stat-grid:nth-child(2) .stat-card {
+  #overview-body > .stat-grid:nth-of-type(1) .stat-card {
     padding: 12px;
     gap: 10px;
     border-radius: 10px;
+    flex-direction: column;
+    align-items: flex-start;
   }
   
-  #overview-body > .stat-grid:nth-child(2) .stat-icon {
+  #overview-body > .stat-grid:nth-of-type(1) .stat-icon {
     width: 32px;
     height: 32px;
     font-size: 14px;
   }
   
-  #overview-body > .stat-grid:nth-child(2) .stat-label {
+  #overview-body > .stat-grid:nth-of-type(1) .stat-label {
     font-size: 9px;
     margin-bottom: 2px;
   }
   
-  #overview-body > .stat-grid:nth-child(2) .stat-value {
+  #overview-body > .stat-grid:nth-of-type(1) .stat-value {
     font-size: 18px;
   }
 
-  /* Make the second row (Pending Receipts, Payouts, Contribs, Payouts Month) a 2x2 grid too */
-  #overview-body > .stat-grid:nth-child(3) {
+  /* 4. SECOND ROW: Single column stack */
+  #overview-body > .stat-grid:nth-of-type(2) {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 10px;
     margin-bottom: 16px;
   }
   
-  #overview-body > .stat-grid:nth-child(3) .stat-card {
-    padding: 12px;
+  #overview-body > .stat-grid:nth-of-type(2) .stat-card {
+    padding: 14px;
     border-radius: 10px;
-  }
-  
-  #overview-body > .stat-grid:nth-child(3) .stat-label {
-    font-size: 9px;
-  }
-  
-  #overview-body > .stat-grid:nth-child(3) .stat-value {
-    font-size: 16px;
   }
 
   /* Hide desktop footer on mobile */
