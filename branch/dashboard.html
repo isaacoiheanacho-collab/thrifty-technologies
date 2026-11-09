@@ -301,215 +301,244 @@ footer a:hover { color: var(--g); }
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   MOBILE-FIRST GRID ARCHITECTURE & HEADER FIXES
+   UNIVERSAL MOBILE APP OVERRIDES
+   Apply this to Super Admin, Branch Admin, and Saver dashboards
    ═══════════════════════════════════════════════════════════════ */
 
-/* 1. The Topbar (Hamburger, Title, Profile) */
-.menu-btn { 
-  display: none; 
-  border: 0; 
-  background: transparent; 
-  font-size: 24px; 
-  cursor: pointer; 
-  color: var(--ink);
-}
-.topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; height: 64px; }
-.topbar__left { display: flex; align-items: center; gap: 12px; }
-.topbar__title-group { display: flex; flex-direction: column; }
-.topbar__title { font-size: 16px; font-weight: 800; margin: 0; }
-.topbar__subtitle { font-size: 11px; color: var(--muted); margin: 0; }
-
-/* 2. Clickable Profile Avatar */
-.topbar__avatar-btn {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  border-radius: 50%;
-  overflow: hidden;
-  width: 36px;
-  height: 36px;
-  transition: transform 0.2s;
-}
-.topbar__avatar-btn:active { transform: scale(0.95); }
-.topbar__avatar {
-  width: 100%;
-  height: 100%;
-  background: var(--g);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 14px;
-  object-fit: cover;
-}
-
-/* 3. Mobile Grid Layout */
 @media (max-width: 900px) {
-  /* Hide desktop sidebar & overlay */
+  /* 1. Hide Desktop Sidebar & Adjust Main Layout */
   .sidebar { display: none !important; }
   .overlay { display: none !important; }
   .main { margin-left: 0 !important; padding-bottom: 80px; /* Space for bottom nav */ }
-  footer { display: none !important; } /* Hide desktop footer */
-
-  /* Show hamburger */
-  .menu-btn { display: block; }
-
-  /* Main Dashboard Container: Single Column */
-  .content { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
   
-  /* Hero Card: Full width */
-  .hero { padding: 20px; min-height: auto; border-radius: 16px; margin-bottom: 0; }
-  .hero h1 { font-size: 22px; }
-  .hero p { font-size: 13px; margin-bottom: 16px; }
-  .hero .btn { width: 100%; justify-content: center; border-radius: 12px; padding: 12px; }
+  /* 2. Topbar Adjustments */
+  .topbar { padding: 0 16px; height: 64px; }
+  .menu-btn { display: none !important; } /* Hide hamburger if using bottom nav */
+  .topbar__title { font-size: 16px; }
+  .topbar__subtitle { font-size: 11px; }
 
-  /* Summary Cards Grid (2x2) */
-  #overview-body > .stat-grid:nth-child(2) {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    margin-bottom: 0;
+  /* 3. Content Padding */
+  .content { padding: 16px; }
+
+  /* 4. Stack all Grids */
+  .dash-grid-main, .dash-grid-bottom, .grid-2, .grid-3, .grid-4, .grid-mobile-section {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
   }
   
-  #overview-body > .stat-grid:nth-child(2) .stat-card {
+  /* Stat grids become 2x2 (or 1x1 on very small screens) */
+  .stat-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+  
+  /* 5. Hero & Headers */
+  .hero { padding: 20px; min-height: 140px; border-radius: 12px; margin-bottom: 16px; }
+  .hero h1 { font-size: 22px; margin-bottom: 6px; }
+  .hero p { font-size: 13px; margin-bottom: 16px; max-width: 100%; }
+  .hero .btn { width: 100%; justify-content: center; }
+  
+  .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .page-header h1 { font-size: 24px; }
+  .page-header .row { width: 100%; flex-wrap: wrap; gap: 8px; }
+  .page-header .form-input, .page-header select { width: 100% !important; }
+
+  /* 6. Tables become Mobile Cards */
+  .table-wrap { background: transparent; border: none; box-shadow: none; overflow: visible; }
+  .table { display: block; width: 100%; }
+  .table thead { display: none; } /* Hide headers */
+  .table tbody { display: block; width: 100%; }
+  
+  .table tr {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
     padding: 16px;
-    flex-direction: column; /* Stack icon above text for a tighter grid */
-    align-items: flex-start;
-    gap: 12px;
-    border-radius: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
   }
   
-  #overview-body > .stat-grid:nth-child(2) .stat-icon {
-    width: 36px; height: 36px; font-size: 16px;
-  }
-  
-  #overview-body > .stat-grid:nth-child(2) .stat-label {
-    font-size: 10px; margin-bottom: 4px;
-  }
-  
-  #overview-body > .stat-grid:nth-child(2) .stat-value {
-    font-size: 20px;
-  }
-
-  /* The second row of stats (Pending Receipts, etc) - Single Column Stack */
-  #overview-body > .stat-grid:nth-child(3) {
-    display: grid;
-    grid-template-columns: 1fr; /* Stack vertically */
-    gap: 12px;
-    margin-bottom: 0;
-  }
-
-  #overview-body > .stat-grid:nth-child(3) .stat-card {
-    padding: 16px;
-    flex-direction: row;
+  .table td {
+    display: flex;
     justify-content: space-between;
     align-items: center;
-    border-radius: 12px;
+    padding: 8px 0 !important;
+    border-bottom: 1px solid #f1f5f9;
+    text-align: right;
+    white-space: normal;
+    font-size: 13px;
+  }
+  .table td:last-child { border-bottom: none; padding-bottom: 0 !important; }
+  
+  /* Add labels using data-label attribute */
+  .table td::before {
+    content: attr(data-label);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    flex-shrink: 0;
+    margin-right: 16px;
   }
 
-  /* Chart & Panels: Single-column, full-width */
-  .dash-grid-main, .dash-grid-bottom { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 16px; 
-    margin-bottom: 0; 
-  }
-  
-  .panel { margin-bottom: 0; border-radius: 16px; }
+  /* 7. Modals Full Screen */
+  .modal__content { width: 95%; max-width: none; height: 90vh; padding: 20px; display: flex; flex-direction: column; }
+  .modal__content > div:nth-child(2) { overflow-y: auto; flex: 1; }
+
+  /* 8. Specific Padding Adjustments */
   .panel-head { padding: 16px; }
   .chart-area { padding: 16px; }
-  
-  /* Payout Math Card (Flexible two-part horizontal layout) */
-  #payout-math-card > div:first-child { grid-template-columns: 1fr; gap: 12px; }
-  #payout-math-card > div:nth-child(2) { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-    flex-wrap: wrap;
-  }
+  .list-area, .activity-list { padding: 0 16px 16px; }
+}
 
-  /* 4. Bottom Navigation (4-column equal-width grid) */
-  .mobile-bottom-nav {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: #fff;
-    border-top: 1px solid var(--line);
-    z-index: 100;
-    padding: 8px 0;
-    box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
-  }
-  
-  .mobile-nav-item {
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
-    color: var(--muted); font-size: 10px; font-weight: 600;
-    background: none; border: none; padding: 4px 8px;
-  }
-  .mobile-nav-item svg { width: 22px; height: 22px; }
-  .mobile-nav-item.is-active { color: var(--g); }
+@media (max-width: 480px) {
+  .stat-grid { grid-template-columns: 1fr !important; }
+  .hero h1 { font-size: 20px; }
+}
 
-  /* 5. Mobile Drawer & Grid (for hidden links) */
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE APP OVERRIDES (Grid Stats & Hamburger Menu)
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+  /* 1. Show the hamburger button again */
+  .menu-btn { display: block !important; }
+
+  /* 2. Mobile Slide-out Drawer */
   .mobile-drawer-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200;
-    opacity: 0; visibility: hidden; transition: opacity 0.3s;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s;
   }
-  .mobile-drawer-overlay.is-open { opacity: 1; visibility: visible; }
+  .mobile-drawer-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
   
   .mobile-drawer {
-    position: fixed; top: 0; left: -300px; width: 280px; height: 100vh;
-    background: #fff; z-index: 201; padding: 24px;
-    display: flex; flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 280px;
+    height: 100vh;
+    background: #fff;
+    z-index: 201;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 10px 0 30px rgba(0,0,0,0.1);
   }
-  .mobile-drawer.is-open { transform: translateX(300px); }
+  .mobile-drawer.is-open {
+    transform: translateX(300px);
+  }
 
   .mobile-drawer-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
   }
-  .mobile-drawer-title { font-size: 18px; font-weight: 800; }
+  .mobile-drawer-title { font-size: 18px; font-weight: 800; color: var(--ink); }
   .mobile-drawer-close { background: none; border: none; font-size: 24px; color: var(--muted); }
   
+  /* Grid layout for the drawer items */
   .mobile-drawer-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-    flex: 1; overflow-y: auto; align-content: start;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    flex: 1;
+    overflow-y: auto;
+    align-content: start;
   }
   
   .mobile-drawer-item {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 8px; background: var(--bg); border: 1px solid var(--line);
-    border-radius: 12px; padding: 16px 8px; text-align: center;
-    text-decoration: none; color: var(--ink); font-size: 11px; font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 8px;
+    text-align: center;
+    text-decoration: none;
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 700;
     transition: all 0.2s;
   }
-  .mobile-drawer-item:active { background: rgba(0, 139, 97, 0.08); border-color: var(--g); }
-  .mobile-drawer-item svg { width: 24px; height: 24px; color: var(--g); }
+  .mobile-drawer-item:active {
+    background: rgba(0, 139, 97, 0.08);
+    border-color: var(--g);
+  }
+  .mobile-drawer-item svg {
+    width: 24px;
+    height: 24px;
+    color: var(--g);
+  }
   
-  /* Tables become Mobile Cards */
-  .table-wrap { background: transparent; border: none; box-shadow: none; overflow: visible; }
-  .table { display: block; width: 100%; }
-  .table thead { display: none; }
-  .table tbody { display: block; width: 100%; }
-  .table tr {
-    display: flex; flex-direction: column;
-    background: #fff; border: 1px solid var(--line); border-radius: 16px;
-    padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+  /* 3. Fix the Overview Stat Grid to match the screenshot */
+  #overview-body > .stat-grid:nth-child(2) {
+    /* This targets the top 4 stats (Total Members, Active Tenants, etc) */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
   }
-  .table td {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 8px 0 !important; border-bottom: 1px solid #f1f5f9;
-    text-align: right; white-space: normal; font-size: 13px;
+  
+  #overview-body > .stat-grid:nth-child(2) .stat-card {
+    padding: 12px;
+    gap: 10px;
+    border-radius: 10px;
   }
-  .table td:last-child { border-bottom: none; padding-bottom: 0 !important; }
-  .table td::before {
-    content: attr(data-label); font-size: 11px; font-weight: 700;
-    text-transform: uppercase; color: var(--muted);
-    text-align: left; flex-shrink: 0; margin-right: 16px;
+  
+  #overview-body > .stat-grid:nth-child(2) .stat-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
   }
+  
+  #overview-body > .stat-grid:nth-child(2) .stat-label {
+    font-size: 9px;
+    margin-bottom: 2px;
+  }
+  
+  #overview-body > .stat-grid:nth-child(2) .stat-value {
+    font-size: 18px;
+  }
+
+  /* Make the second row (Pending Receipts, Payouts, Contribs, Payouts Month) a 2x2 grid too */
+  #overview-body > .stat-grid:nth-child(3) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  
+  #overview-body > .stat-grid:nth-child(3) .stat-card {
+    padding: 12px;
+    border-radius: 10px;
+  }
+  
+  #overview-body > .stat-grid:nth-child(3) .stat-label {
+    font-size: 9px;
+  }
+  
+  #overview-body > .stat-grid:nth-child(3) .stat-value {
+    font-size: 16px;
+  }
+
+  /* Hide desktop footer on mobile */
+  footer { display: none !important; }
 }
 </style>
 </head>
@@ -586,18 +615,13 @@ footer a:hover { color: var(--g); }
   <!-- ── MAIN CONTENT ───────────────────────────────────── -->
   <div class="main">
     <header class="topbar">
-      <div class="topbar__left">
-        <button class="menu-btn" id="menu-btn">☰</button>
-        <div class="topbar__title-group">
-          <div class="topbar__title" id="topbar-title">Dashboard</div>
-          <div class="topbar__subtitle" id="topbar-subtitle">Branch Dashboard</div>
-        </div>
+      <button class="menu-btn" id="menu-btn">☰</button>
+      <div>
+        <div class="topbar__title" id="topbar-title">Dashboard</div>
+        <div class="topbar__subtitle" id="topbar-subtitle">Branch Dashboard</div>
       </div>
-      
-      <!-- Clickable Profile Avatar -->
-      <button class="topbar__avatar-btn" onclick="showSection('settings')">
-        <div class="topbar__avatar" id="topbar-avatar">A</div>
-      </button>
+      <div class="spacer"></div>
+      <div class="topbar__avatar" id="topbar-avatar">A</div>
     </header>
 
     <div class="content">
@@ -988,7 +1012,7 @@ footer a:hover { color: var(--g); }
   </div>
 </div>
 
-<!-- MOBILE HAMBURGER DRAWER -->
+<!-- ═══ MOBILE HAMBURGER DRAWER ═══ -->
 <div class="mobile-drawer-overlay" id="mobile-drawer-overlay"></div>
 <div class="mobile-drawer" id="mobile-drawer">
   <div class="mobile-drawer-header">
@@ -1031,22 +1055,8 @@ footer a:hover { color: var(--g); }
 
 <!-- ═══ UNIVERSAL MOBILE BOTTOM NAV ═══ -->
 <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
-  <button class="mobile-nav-item is-active" data-section="dashboard">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
-    <span>Home</span>
-  </button>
-  <button class="mobile-nav-item" data-section="kyc">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.66 0 3.22.45 4.56 1.24"/></svg>
-    <span>KYC</span>
-  </button>
-  <button class="mobile-nav-item" data-section="contributions">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-    <span>Contribs</span>
-  </button>
-  <button class="mobile-nav-item" data-section="payouts">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-    <span>Payouts</span>
-  </button>
+  <!-- SUPER ADMIN / BRANCH ADMIN / SAVER buttons will be injected here dynamically, 
+       or you can hardcode the 4-5 most important tabs -->
 </nav>
 
 <!-- ═══ TENANT MEMBERS MODAL ═══ -->
