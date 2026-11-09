@@ -299,6 +299,102 @@ footer a:hover { color: var(--g); }
   .card { padding: 16px; }
   .dash-grid-main, .dash-grid-bottom { grid-template-columns: 1fr; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   UNIVERSAL MOBILE APP OVERRIDES
+   Apply this to Super Admin, Branch Admin, and Saver dashboards
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+  /* 1. Hide Desktop Sidebar & Adjust Main Layout */
+  .sidebar { display: none !important; }
+  .overlay { display: none !important; }
+  .main { margin-left: 0 !important; padding-bottom: 80px; /* Space for bottom nav */ }
+  
+  /* 2. Topbar Adjustments */
+  .topbar { padding: 0 16px; height: 64px; }
+  .menu-btn { display: none !important; } /* Hide hamburger if using bottom nav */
+  .topbar__title { font-size: 16px; }
+  .topbar__subtitle { font-size: 11px; }
+
+  /* 3. Content Padding */
+  .content { padding: 16px; }
+
+  /* 4. Stack all Grids */
+  .dash-grid-main, .dash-grid-bottom, .grid-2, .grid-3, .grid-4, .grid-mobile-section {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  
+  /* Stat grids become 2x2 (or 1x1 on very small screens) */
+  .stat-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+  
+  /* 5. Hero & Headers */
+  .hero { padding: 20px; min-height: 140px; border-radius: 12px; margin-bottom: 16px; }
+  .hero h1 { font-size: 22px; margin-bottom: 6px; }
+  .hero p { font-size: 13px; margin-bottom: 16px; max-width: 100%; }
+  .hero .btn { width: 100%; justify-content: center; }
+  
+  .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .page-header h1 { font-size: 24px; }
+  .page-header .row { width: 100%; flex-wrap: wrap; gap: 8px; }
+  .page-header .form-input, .page-header select { width: 100% !important; }
+
+  /* 6. Tables become Mobile Cards */
+  .table-wrap { background: transparent; border: none; box-shadow: none; overflow: visible; }
+  .table { display: block; width: 100%; }
+  .table thead { display: none; } /* Hide headers */
+  .table tbody { display: block; width: 100%; }
+  
+  .table tr {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+  }
+  
+  .table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0 !important;
+    border-bottom: 1px solid #f1f5f9;
+    text-align: right;
+    white-space: normal;
+    font-size: 13px;
+  }
+  .table td:last-child { border-bottom: none; padding-bottom: 0 !important; }
+  
+  /* Add labels using data-label attribute */
+  .table td::before {
+    content: attr(data-label);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    flex-shrink: 0;
+    margin-right: 16px;
+  }
+
+  /* 7. Modals Full Screen */
+  .modal__content { width: 95%; max-width: none; height: 90vh; padding: 20px; display: flex; flex-direction: column; }
+  .modal__content > div:nth-child(2) { overflow-y: auto; flex: 1; }
+
+  /* 8. Specific Padding Adjustments */
+  .panel-head { padding: 16px; }
+  .chart-area { padding: 16px; }
+  .list-area, .activity-list { padding: 0 16px 16px; }
+}
+
+@media (max-width: 480px) {
+  .stat-grid { grid-template-columns: 1fr !important; }
+  .hero h1 { font-size: 20px; }
+}
 </style>
 </head>
 <body>
@@ -771,6 +867,12 @@ footer a:hover { color: var(--g); }
   </div>
 </div>
 
+<!-- ═══ UNIVERSAL MOBILE BOTTOM NAV ═══ -->
+<nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+  <!-- SUPER ADMIN / BRANCH ADMIN / SAVER buttons will be injected here dynamically, 
+       or you can hardcode the 4-5 most important tabs -->
+</nav>
+
 <!-- ═══ TENANT MEMBERS MODAL ═══ -->
 <div class="modal" id="tenant-members-modal">
   <div class="modal__content">
@@ -875,6 +977,15 @@ footer a:hover { color: var(--g); }
       const navItem = document.querySelector('.nav-item[data-section="' + key + '"]');
       if (navItem) navItem.classList.add('is-active');
       document.getElementById('topbar-title').textContent = sectionTitles[key] || 'Dashboard';
+
+      // Sync active state on mobile bottom nav
+      const mobileNav = document.getElementById('mobile-bottom-nav');
+      if (mobileNav) {
+        mobileNav.querySelectorAll('.mobile-nav-item').forEach(function (btn) {
+          if (btn.dataset.section === key) btn.classList.add('is-active');
+          else btn.classList.remove('is-active');
+        });
+      }
 
       if (key === 'dashboard') loadDashboard();
       else if (key === 'branch-setup') loadBranchSetup();
@@ -1161,11 +1272,11 @@ footer a:hover { color: var(--g); }
           const label = p.state === 'RECEIPT_UPLOADED' ? 'Receipt Uploaded' : p.state === 'FEE_PAID' ? 'Fee Paid' : p.state === 'FAILED' ? 'Failed' : 'Upcoming';
           return `
             <tr>
-              <td><strong style="font-size:12px;">Tenure ${p.tenure} · Cycle ${p.cycle}</strong><br><span style="font-size:11px;color:var(--muted);">${escapeHtml(p.tenantName || '—')}</span></td>
-              <td>${escapeHtml(p.tenantName || '—')}</td>
-              <td>${escapeHtml(p.recipientName || '—')} <span style="color:var(--muted);font-size:11px;">(slot ${p.recipientSlot || '—'})</span></td>
-              <td>${formatDate(p.dueDate || p.createdAt)}</td>
-              <td><span class="badge badge--${badge}">${label}</span></td>
+              <td data-label="Tenure / Cycle"><strong style="font-size:12px;">Tenure ${p.tenure} · Cycle ${p.cycle}</strong><br><span style="font-size:11px;color:var(--muted);">${escapeHtml(p.tenantName || '—')}</span></td>
+              <td data-label="Tenant">${escapeHtml(p.tenantName || '—')}</td>
+              <td data-label="Beneficiary">${escapeHtml(p.recipientName || '—')} <span style="color:var(--muted);font-size:11px;">(slot ${p.recipientSlot || '—'})</span></td>
+              <td data-label="Due Date">${formatDate(p.dueDate || p.createdAt)}</td>
+              <td data-label="Status"><span class="badge badge--${badge}">${label}</span></td>
             </tr>
           `;
         }).join('');
@@ -1457,15 +1568,15 @@ footer a:hover { color: var(--g); }
           else if (s.status === 'REJECTED') badgeClass = 'error';
 
           return '<tr>' +
-            '<td>' +
+            '<td data-label="Tenant & Saver">' +
               '<strong>' + escapeHtml(s.tenantName || 'Unassigned') + '</strong><br>' +
               '<span style="font-size:12px;color:var(--muted);">' + escapeHtml(s.legalName || '—') + '</span>' +
               (s.selfieUrl ? '<br><a href="' + s.selfieUrl + '" target="_blank" style="color:var(--g);font-size:12px;text-decoration:underline;">View Photo ↗</a>' : '') +
             '</td>' +
-            '<td>' + (isNotSubmitted ? '—' : '<strong>' + escapeHtml(s.accountName || s.legalName) + '</strong><br><span style="color:var(--muted);font-size:12px;">' + escapeHtml(s.bankName || '—') + ' | ' + escapeHtml(s.sortCode || '—') + ' | ' + escapeHtml(s.accountNumber || '—') + '</span>') + '</td>' +
-            '<td>' + formatDate(s.createdAt) + '</td>' +
-            '<td><span class="badge badge--' + badgeClass + '">' + s.status.replace('_', ' ') + '</span></td>' +
-            '<td>' + actionHtml + '</td>' +
+            '<td data-label="Bank Details">' + (isNotSubmitted ? '—' : '<strong>' + escapeHtml(s.accountName || s.legalName) + '</strong><br><span style="color:var(--muted);font-size:12px;">' + escapeHtml(s.bankName || '—') + ' | ' + escapeHtml(s.sortCode || '—') + ' | ' + escapeHtml(s.accountNumber || '—') + '</span>') + '</td>' +
+            '<td data-label="Date Submitted">' + formatDate(s.createdAt) + '</td>' +
+            '<td data-label="Status"><span class="badge badge--' + badgeClass + '">' + s.status.replace('_', ' ') + '</span></td>' +
+            '<td data-label="Actions">' + actionHtml + '</td>' +
           '</tr>';
         }).join('');
         tbody.querySelectorAll('[data-kyc-approve]').forEach(b => b.addEventListener('click', () => kycAction(b.dataset.kycApprove, 'approve')));
@@ -1513,12 +1624,12 @@ footer a:hover { color: var(--g); }
           if (!list.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No confirmed contributions</h3></div></td></tr>'; return; }
           tbody.innerHTML = list.map(c => `
             <tr>
-              <td><strong>${escapeHtml(c.tenantName)}</strong><br><span style="font-size:12px;color:var(--muted);">${escapeHtml(c.userName)}</span></td>
-              <td><code>${escapeHtml(c.reference)}</code></td>
-              <td>${c.cycle}</td>
-              <td>${penceToGbp(c.amountPence)}</td>
-              <td><span class="badge badge--success">Confirmed</span></td>
-              <td style="text-align: right; color: var(--muted); font-size: 12px;">${formatDate(c.confirmedAt)}</td>
+              <td data-label="Tenant & Saver"><strong>${escapeHtml(c.tenantName)}</strong><br><span style="font-size:12px;color:var(--muted);">${escapeHtml(c.userName)}</span></td>
+              <td data-label="Reference"><code>${escapeHtml(c.reference)}</code></td>
+              <td data-label="Cycle">${c.cycle}</td>
+              <td data-label="Amount">${penceToGbp(c.amountPence)}</td>
+              <td data-label="Receipt"><span class="badge badge--success">Confirmed</span></td>
+              <td data-label="Actions" style="text-align: right; color: var(--muted); font-size: 12px;">${formatDate(c.confirmedAt)}</td>
             </tr>
           `).join('');
         } else {
@@ -1529,12 +1640,12 @@ footer a:hover { color: var(--g); }
             const receiptBtn = i.receipt ? '<a class="btn btn--ghost btn--sm" href="' + escapeHtml(i.receipt.objectUrl) + '" target="_blank">View</a>' : '<span style="color:var(--muted);">none</span>';
             return `
               <tr>
-                <td><strong>${escapeHtml(i.tenantName || 'Unassigned')}</strong><br><span style="font-size:12px;color:var(--muted);">${escapeHtml(i.userName || 'Unknown')}</span></td>
-                <td><code>${escapeHtml(i.reference)}</code></td>
-                <td>${i.cycle}</td>
-                <td>${amt}</td>
-                <td>${receiptBtn}</td>
-                <td><div class="table__actions">
+                <td data-label="Tenant & Saver"><strong>${escapeHtml(i.tenantName || 'Unassigned')}</strong><br><span style="font-size:12px;color:var(--muted);">${escapeHtml(i.userName || 'Unknown')}</span></td>
+                <td data-label="Reference"><code>${escapeHtml(i.reference)}</code></td>
+                <td data-label="Cycle">${i.cycle}</td>
+                <td data-label="Amount">${amt}</td>
+                <td data-label="Receipt">${receiptBtn}</td>
+                <td data-label="Actions"><div class="table__actions">
                   <button class="btn btn--danger btn--sm" data-contrib-reject="${i.id}">Reject</button>
                   <button class="btn btn--primary btn--sm" data-contrib-approve="${i.id}">Confirm</button>
                 </div></td>
@@ -1619,15 +1730,15 @@ footer a:hover { color: var(--g); }
           else if (p.state === 'FAILED') actionHtml = `<button class="btn btn--ghost btn--sm" data-payout-retry="${p.id}">Retry</button>`;
           const stateBadge = p.state === 'CONFIRMED' ? 'success' : p.state === 'FAILED' ? 'error' : p.state === 'FEE_PAID' ? 'info' : 'warning';
           return '<tr>' +
-            '<td><code>' + escapeHtml(p.reference) + '</code></td>' +
-            '<td>' + escapeHtml(p.tenantName || 'Unknown') + '</td>' +
-            '<td>Cycle ' + p.cycle + ' / Tenure ' + p.tenure + '</td>' +
-            '<td>' + escapeHtml(p.recipientName) + ' (slot ' + p.recipientSlot + ')</td>' +
-            '<td><strong style="color: var(--g);">£' + p.netAmountGbp + '</strong></td>' +
-            '<td>' + feeHtml + '</td>' +
-            '<td>' + dueHtml + '</td>' +
-            '<td><span class="badge badge--' + stateBadge + '">' + p.state.replace('_', ' ') + '</span></td>' +
-            '<td><div class="table__actions">' + actionHtml + '</div></td>' +
+            '<td data-label="Reference"><code>' + escapeHtml(p.reference) + '</code></td>' +
+            '<td data-label="Tenant">' + escapeHtml(p.tenantName || 'Unknown') + '</td>' +
+            '<td data-label="Cycle / Tenure">Cycle ' + p.cycle + ' / Tenure ' + p.tenure + '</td>' +
+            '<td data-label="Recipient">' + escapeHtml(p.recipientName) + ' (slot ' + p.recipientSlot + ')</td>' +
+            '<td data-label="Net Payout"><strong style="color: var(--g);">£' + p.netAmountGbp + '</strong></td>' +
+            '<td data-label="Platform Fee">' + feeHtml + '</td>' +
+            '<td data-label="Due Date">' + dueHtml + '</td>' +
+            '<td data-label="State"><span class="badge badge--' + stateBadge + '">' + p.state.replace('_', ' ') + '</span></td>' +
+            '<td data-label="Actions"><div class="table__actions">' + actionHtml + '</div></td>' +
           '</tr>';
         }).join('');
         tbody.querySelectorAll('[data-pay-fee]').forEach(b => b.addEventListener('click', () => openPayFeeModal(b.dataset.payFee, b.dataset.feeAmount, b.dataset.feeRef)));
@@ -1655,12 +1766,12 @@ footer a:hover { color: var(--g); }
           const statusBadge = t.status === 'ACTIVE' ? 'success' : t.status === 'FILLING' ? 'info' : 'neutral';
           return `
             <tr>
-              <td><strong>${escapeHtml(t.name || 'Unnamed Circle')}</strong></td>
-              <td><span class="badge badge--${statusBadge}">${t.status}</span></td>
-              <td>${t.currentCycle}</td>
-              <td>${t.currentTenure}</td>
-              <td>${t.memberCount} / 12</td>
-              <td><div class="table__actions">
+              <td data-label="Circle"><strong>${escapeHtml(t.name || 'Unnamed Circle')}</strong></td>
+              <td data-label="Status"><span class="badge badge--${statusBadge}">${t.status}</span></td>
+              <td data-label="Cycle">${t.currentCycle}</td>
+              <td data-label="Tenure">${t.currentTenure}</td>
+              <td data-label="Members">${t.memberCount} / 12</td>
+              <td data-label="Details"><div class="table__actions">
                 <button class="btn btn--primary btn--sm" data-view-members="${t.id}" data-tenant-name="${escapeHtml(t.name || '')}">View Members</button>
               </div></td>
             </tr>
@@ -1695,10 +1806,10 @@ footer a:hover { color: var(--g); }
         tbody.innerHTML = members.map(function(m) {
           const statusBadge = m.status === 'ACTIVE' ? 'success' : m.status === 'REMOVED' ? 'error' : 'neutral';
           return '<tr>' +
-            '<td><span class="badge badge--neutral">' + m.slotNumber + '</span></td>' +
-            '<td><strong>' + escapeHtml(m.fullName) + '</strong></td>' +
-            '<td><span class="badge badge--' + statusBadge + '">' + m.status + '</span></td>' +
-            '<td>' + formatDate(m.joinedAt) + '</td>' +
+            '<td data-label="Slot"><span class="badge badge--neutral">' + m.slotNumber + '</span></td>' +
+            '<td data-label="Member Name"><strong>' + escapeHtml(m.fullName) + '</strong></td>' +
+            '<td data-label="Status"><span class="badge badge--' + statusBadge + '">' + m.status + '</span></td>' +
+            '<td data-label="Joined Date">' + formatDate(m.joinedAt) + '</td>' +
           '</tr>';
         }).join('');
         
@@ -1719,7 +1830,7 @@ footer a:hover { color: var(--g); }
         if (stats.contributionsByTenant && stats.contributionsByTenant.length > 0) {
           tbody.innerHTML = stats.contributionsByTenant.map(c => {
             const gbp = (Number(c.totalPence) / 100).toFixed(2);
-            return `<tr><td><strong>${escapeHtml(c.tenantName)}</strong></td><td style="color: var(--g);">£${gbp}</td><td>${c.count}</td></tr>`;
+            return `<tr><td data-label="Tenant Name"><strong>${escapeHtml(c.tenantName)}</strong></td><td data-label="Total Contributions" style="color: var(--g);">£${gbp}</td><td data-label="Number of Contributions">${c.count}</td></tr>`;
           }).join('');
         } else {
           tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--muted);">No contributions recorded yet.</td></tr>';
@@ -1811,9 +1922,93 @@ footer a:hover { color: var(--g); }
       }
     }
 
+    // ═══════════════════════════════════════════════════════
+    // MOBILE BOTTOM NAV LOGIC
+    // ═══════════════════════════════════════════════════════
+    function setupMobileNav() {
+      const nav = document.getElementById('mobile-bottom-nav');
+      const topTabs = {
+        'super-admin': ['overview', 'branches', 'payout-approvals', 'tenants'],
+        'branch-admin': ['dashboard', 'kyc', 'contributions', 'payouts', 'tenants'],
+        'saver': ['dashboard', 'contribution', 'tenant', 'payouts']
+      };
+      
+      // Detect role based on file or global state
+      let role = 'saver'; 
+      if (document.getElementById('section-branch-accounts')) role = 'super-admin';
+      else if (document.getElementById('section-kyc-admin')) role = 'branch-admin';
+
+      const tabs = topTabs[role] || [];
+      
+      // Map icon SVGs
+      const icons = {
+        'overview': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>',
+        'dashboard': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>',
+        'branches': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>',
+        'tenants': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>',
+        'kyc': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.66 0 3.22.45 4.56 1.24"/></svg>',
+        'contributions': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+        'payouts': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>',
+        'contribution': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+        'tenant': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>',
+        'payout-approvals': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+      };
+      
+      const titles = {
+        'overview': 'Home', 'branches': 'Branches', 'payout-approvals': 'Fees', 'tenants': 'Tenants',
+        'dashboard': 'Home', 'kyc': 'KYC', 'contributions': 'Contribs', 'payouts': 'Payouts',
+        'contribution': 'Contribs', 'tenant': 'Circle'
+      };
+
+      nav.innerHTML = tabs.map((tab, index) => `
+        <button class="mobile-nav-item ${index === 0 ? 'is-active' : ''}" data-section="${tab}">
+          ${icons[tab] || icons['overview']}
+          <span>${titles[tab] || tab}</span>
+        </button>
+      `).join('');
+
+      // CSS for Bottom Nav
+      const style = document.createElement('style');
+      style.textContent = `
+        .mobile-bottom-nav {
+          display: none;
+          position: fixed;
+          bottom: 0; left: 0; right: 0;
+          background: #fff;
+          border-top: 1px solid var(--line);
+          z-index: 100;
+          padding: 8px;
+          justify-content: space-around;
+          box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+        }
+        .mobile-nav-item {
+          display: flex; flex-direction: column; align-items: center; gap: 4px;
+          color: var(--muted); font-size: 10px; font-weight: 600;
+          background: none; border: none; padding: 4px 8px; border-radius: 8px;
+        }
+        .mobile-nav-item svg { width: 22px; height: 22px; }
+        .mobile-nav-item.is-active { color: var(--g); background: rgba(0, 139, 97, 0.08); }
+        
+        @media (max-width: 900px) {
+          .mobile-bottom-nav { display: flex; }
+        }
+      `;
+      document.head.appendChild(style);
+
+      // Add click listeners
+      nav.querySelectorAll('.mobile-nav-item').forEach(btn => {
+        btn.addEventListener('click', function() {
+          nav.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('is-active'));
+          this.classList.add('is-active');
+          showSection(this.dataset.section);
+        });
+      });
+    }
+
     (async function boot() {
       const ok = await loadMe();
       if (!ok) return;
+      setupMobileNav();
       await populateTenantFilters();
       showSection('dashboard');
     })();
