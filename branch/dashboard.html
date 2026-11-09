@@ -323,7 +323,8 @@ footer a:hover { color: var(--g); }
   .main { margin-left: 0 !important; padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
   
   /* 2. Topbar Adjustments */
-  .topbar { padding: env(safe-area-inset-top) 16px 0; height: calc(64px + env(safe-area-inset-top)); min-height: calc(64px + env(safe-area-inset-top)); }
+  .topbar { padding: env(safe-area-inset-top) 16px 0; height: calc(64px + env(safe-area-inset-top)); min-height: calc(64px + env(safe-area-inset-top)); gap: 10px; }
+  .back-btn { width: 38px; height: 38px; flex-basis: 38px; }
   .menu-btn { display: none !important; } /* Hide hamburger if using bottom nav */
   .topbar__title { font-size: 16px; }
   .topbar__subtitle { font-size: 11px; }
@@ -578,6 +579,25 @@ footer a:hover { color: var(--g); }
     min-height: calc(60px + env(safe-area-inset-bottom));
   }
 }
+
+/* In-app previous-page control */
+.back-btn {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 23px;
+  line-height: 1;
+  cursor: pointer;
+}
+.back-btn:active { background: #f1f5f9; }
+
 </style>
 </head>
 <body>
@@ -653,6 +673,7 @@ footer a:hover { color: var(--g); }
   <!-- ── MAIN CONTENT ───────────────────────────────────── -->
   <div class="main">
     <header class="topbar">
+      <button class="back-btn" id="back-btn" type="button" aria-label="Go back" title="Go back" style="display:none">←</button>
       <button class="menu-btn" id="menu-btn">☰</button>
       <div>
         <div class="topbar__title" id="topbar-title">Dashboard</div>
@@ -1193,7 +1214,26 @@ footer a:hover { color: var(--g); }
       'settings': 'Settings',
     };
 
-    function showSection(key) {
+    const sectionHistory = [];
+    let currentSectionKey = 'dashboard';
+
+    function updateBackButton() {
+      const backBtn = document.getElementById('back-btn');
+      if (!backBtn) return;
+      backBtn.style.display = currentSectionKey !== 'dashboard' ? 'inline-flex' : 'none';
+    }
+
+    function goToPreviousSection() {
+      const previous = sectionHistory.pop() || 'dashboard';
+      showSection(previous, true);
+    }
+
+    function showSection(key, fromBack) {
+      if (!key) return;
+      if (!fromBack && currentSectionKey && currentSectionKey !== key) {
+        sectionHistory.push(currentSectionKey);
+      }
+      currentSectionKey = key;
       document.querySelectorAll('.section').forEach(function (el) { el.classList.remove('is-active'); });
       document.querySelectorAll('.nav-item').forEach(function (el) { el.classList.remove('is-active'); });
       const section = document.getElementById('section-' + key);
@@ -1201,6 +1241,7 @@ footer a:hover { color: var(--g); }
       const navItem = document.querySelector('.nav-item[data-section="' + key + '"]');
       if (navItem) navItem.classList.add('is-active');
       document.getElementById('topbar-title').textContent = sectionTitles[key] || 'Dashboard';
+      updateBackButton();
 
       // Sync active state on mobile bottom nav
       const mobileNav = document.getElementById('mobile-bottom-nav');
@@ -1227,6 +1268,8 @@ footer a:hover { color: var(--g); }
     document.querySelectorAll('.nav-item').forEach(function (el) {
       el.addEventListener('click', function () { showSection(el.dataset.section); });
     });
+
+    document.getElementById('back-btn')?.addEventListener('click', goToPreviousSection);
     
     document.querySelectorAll('[data-nav]').forEach(function (el) {
       el.addEventListener('click', function (e) { e.preventDefault(); showSection(el.dataset.nav); });
