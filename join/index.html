@@ -18,6 +18,10 @@
     body { overflow-x: hidden; }
     .page { min-height: 100vh; display: flex; flex-direction: column; }
 
+    /* ── Network banner ──────────────────────────────────── */
+    #network-banner { position: fixed; top: 0; left: 0; right: 0; background: #d97706; color: white; padding: 8px 16px; text-align: center; font-size: 13px; font-weight: 600; z-index: 10000; transform: translateY(-100%); transition: transform 0.3s ease-out; }
+    #network-banner.show { transform: translateY(0); }
+
     /* ── Header & Mobile Menu ─────────────────────────────────── */
     .header { padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: rgba(17, 20, 20, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); z-index: 300; border-bottom: 1px solid #1f242b; }
     
@@ -35,7 +39,6 @@
     .header__login:hover { color: #00daf3; border-color: #00daf3; }
     .header__cta { background: #00daf3; color: #00363d; font-weight: 700; border-radius: 6px; padding: 10px 20px; font-size: 14px; text-decoration: none; white-space: nowrap; }
 
-    /* Hamburger Button (Hidden on Desktop) */
     .mobile-menu-btn {
       display: none;
       background: transparent;
@@ -47,7 +50,6 @@
       z-index: 400;
     }
 
-    /* Mobile Slide-out Menu (Drawer) */
     .mobile-nav-overlay {
       position: fixed;
       inset: 0;
@@ -135,7 +137,6 @@
       text-align: center;
     }
 
-    /* Login dropdown (anchored) */
     .login-dropdown {
       position: fixed;
       z-index: 500;
@@ -254,7 +255,6 @@
     .login-dropdown .form-status--error { background: rgba(255, 180, 171, 0.1); border: 1px solid var(--error, #f43f5e); color: var(--error, #f43f5e); }
     .login-dropdown .form-status--info { background: rgba(0, 218, 243, 0.08); border: 1px solid var(--brand-primary, #00daf3); color: var(--brand-primary, #00daf3); }
 
-    /* ── Loading / Error states ───────────────────────────── */
     .state-center {
       display: flex;
       flex-direction: column;
@@ -276,7 +276,6 @@
     .state-center h2 { font-size: 24px; margin-bottom: 12px; }
     .state-center p { color: var(--on-surface-variant, #94a3b8); max-width: 420px; line-height: 1.6; }
 
-    /* ── Hero ──────────────────────────────────────────────── */
     .hero {
       position: relative;
       padding: 120px 24px 100px;
@@ -342,7 +341,6 @@
       .hero__stat-value { font-size: 24px; }
     }
 
-    /* ── Buttons ────────────────────────────────────────────── */
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       padding: 14px 28px;
@@ -366,7 +364,6 @@
     .btn--ghost { background: rgba(30, 32, 33, 0.6); color: var(--on-surface, #f1f5f9); border-color: var(--outline-variant, #252b33); backdrop-filter: blur(8px); }
     .btn--ghost:hover:not(:disabled) { background: var(--surface-container, #1e252e); border-color: var(--outline, #334155); opacity: 1; }
 
-    /* ── Sections ──────────────────────────────────────────── */
     .section { padding: 96px 24px; border-top: 1px solid var(--outline-variant, #252b33); position: relative; }
     .section--alt { background: var(--surface-container-lowest, #11161b); }
     .section--center { text-align: center; }
@@ -446,7 +443,6 @@
     .accordion__content p { margin-bottom: 12px; }
     .accordion__content p:last-child { margin-bottom: 0; }
 
-    /* ── Consent gate ─────────────────────────────────────── */
     .consent-gate {
       max-width: 720px;
       margin: 0 auto;
@@ -481,7 +477,6 @@
     .consent-locked-msg { text-align: center; font-size: 13px; color: var(--on-surface-variant, #94a3b8); margin-top: 16px; }
     @media (max-width: 640px) { .consent-gate { padding: 24px; } }
 
-    /* ── Footer ──────────────────────────────────────────── */
     .footer { padding: 56px 24px 32px; border-top: 1px solid var(--outline-variant, #252b33); margin-top: auto; background: var(--surface-container-lowest, #11161b); }
     .footer__inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; }
     @media (min-width: 720px) { .footer__inner { grid-template-columns: 2fr 1fr 1fr; gap: 64px; align-items: start; } }
@@ -511,7 +506,6 @@
     .reveal--delay-1 { transition-delay: 100ms; }
     .reveal--delay-2 { transition-delay: 200ms; }
 
-    /* Mobile Responsive Header Rules */
     @media (max-width: 820px) {
       .mobile-menu-btn { display: block; }
       .header__right-group { display: none; }
@@ -520,6 +514,8 @@
   </style>
 </head>
 <body>
+
+<div id="network-banner">You are offline — we'll retry when you're back.</div>
 
 <div class="page">
 
@@ -540,14 +536,12 @@
   <!-- MAIN -->
   <div id="main-content" style="display: none;">
 
-    <!-- 1. HEADER -->
     <header class="header">
       <a href="/" class="header__brand">
         <span class="header__brand-top" id="brand-branch">Loading…</span>
         <span class="header__brand-bottom">ROSCA Thrift &amp; Savings</span>
       </a>
       
-      <!-- Desktop Nav -->
       <div class="header__right-group">
         <nav class="header__nav">
           <a href="#how-it-works">How it works</a>
@@ -560,13 +554,11 @@
         </div>
       </div>
 
-      <!-- Mobile Hamburger Button -->
       <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
         ☰
       </button>
     </header>
 
-    <!-- Mobile Slide-out Drawer -->
     <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
     <div class="mobile-nav-drawer" id="mobile-nav-drawer">
       <div class="mobile-nav-header">
@@ -584,7 +576,6 @@
       </div>
     </div>
 
-    <!-- Login dropdown -->
     <div class="login-dropdown" id="login-dropdown" role="dialog" aria-hidden="true">
       <h2 class="login-dropdown__title">Log in</h2>
       <p class="login-dropdown__subtitle">Access your savings circle.</p>
@@ -606,7 +597,6 @@
       </form>
     </div>
 
-    <!-- HERO -->
     <section class="hero">
       <div class="hero__media">
         <video autoplay muted loop playsinline poster="/assets/images/hero-community.jpg">
@@ -641,7 +631,6 @@
       </div>
     </section>
 
-    <!-- HOW IT WORKS -->
     <section class="section" id="how-it-works">
       <div class="section__inner">
         <div class="section__eyebrow">The mechanic</div>
@@ -689,7 +678,6 @@
       </div>
     </section>
 
-    <!-- ABOUT THIS COMMUNITY (Dynamic from DB) -->
     <section class="section section--alt" id="about-branch">
       <div class="section__inner">
         <div class="section__eyebrow">About this community</div>
@@ -705,7 +693,6 @@
       </div>
     </section>
 
-    <!-- COMMUNITY RULES (Dynamic from DB) -->
     <section class="section" id="branch-rules">
       <div class="section__inner section__inner--narrow">
         <div class="section__eyebrow">Community rules</div>
@@ -723,7 +710,6 @@
       </div>
     </section>
 
-    <!-- COMMUNITY PRIVACY (Dynamic from DB) -->
     <section class="section section--alt" id="branch-privacy">
       <div class="section__inner section__inner--narrow">
         <div class="section__eyebrow">Community privacy</div>
@@ -741,7 +727,6 @@
       </div>
     </section>
 
-    <!-- CONSENT GATE -->
     <section class="section section--center" id="consent">
       <div class="section__inner">
         <div class="section__eyebrow" style="display: inline-block;">Before you join</div>
@@ -786,7 +771,6 @@
       </div>
     </section>
 
-    <!-- FOOTER -->
     <footer class="footer">
       <div class="footer__inner">
         <div class="footer__brand-col">
@@ -824,7 +808,6 @@
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
 </button>
 
-<!-- Slide-out Menu Toggle -->
 <script>
   const mobileBtn = document.getElementById('mobile-menu-btn');
   const mobileDrawer = document.getElementById('mobile-nav-drawer');
@@ -862,55 +845,22 @@
     const mainContent = document.getElementById('main-content');
     const backToTop = document.getElementById('back-to-top');
 
-    async function showError(title, body) {
-      loadingState.style.display = 'none';
-      mainContent.style.display = 'none';
-      errorState.style.display = 'flex';
-      document.getElementById('error-title').textContent = title;
-      if (body) document.getElementById('error-body').textContent = body;
-
-      const actionsContainer = document.getElementById('error-extra-actions');
-      actionsContainer.innerHTML = ''; 
-
-      let isOwnAdmin = false;
-      if (window.ROSCA_API && window.ROSCA_API.getAccessToken()) {
-        try {
-          const token = window.ROSCA_API.getAccessToken();
-          const payload = JSON.parse(atob(token.split('.')[1]));
-
-          if (payload.role === 'BRANCH_ADMIN' && payload.branchId) {
-            const b = await api('/api/branches/id/' + encodeURIComponent(payload.branchId));
-            if (b.slug === branchSlug) {
-              isOwnAdmin = true;
-            }
-          }
-        } catch (e) {}
-      }
-
-      if (isOwnAdmin) {
-        actionsContainer.innerHTML =
-          '<a href="/branch/dashboard.html" class="btn btn--primary">Return to your Dashboard</a>';
-      } else {
-        let contactPhone = null;
-        try {
-          const status = await api('/api/branches/' + encodeURIComponent(branchSlug) + '/status');
-          contactPhone = status.contactPhone;
-        } catch (e) {}
-
-        if (contactPhone) {
-          actionsContainer.innerHTML =
-            '<div style="text-align: center;">' +
-              '<p style="font-size: 14px; color: var(--on-surface-variant, #94a3b8); margin-bottom: 12px;">' +
-                'Please contact the community partner admin directly:' +
-              '</p>' +
-              '<a href="tel:' + escapeHtml(contactPhone) + '" class="btn btn--primary">Call ' + escapeHtml(contactPhone) + '</a>' +
-            '</div>';
-        } else {
-          actionsContainer.innerHTML =
-            '<a href="/" class="btn btn--ghost">Back to home</a>';
-        }
-      }
+    // ── Network banner helpers ─────────────────────────────
+    let networkBannerTimer = null;
+    function showNetworkBanner() {
+      const banner = document.getElementById('network-banner');
+      if (!banner) return;
+      banner.classList.add('show');
+      if (networkBannerTimer) clearTimeout(networkBannerTimer);
+      networkBannerTimer = setTimeout(function () { banner.classList.remove('show'); }, 4000);
     }
+    function hideNetworkBanner() {
+      const banner = document.getElementById('network-banner');
+      if (banner) banner.classList.remove('show');
+      if (networkBannerTimer) { clearTimeout(networkBannerTimer); networkBannerTimer = null; }
+    }
+    window.addEventListener('online', hideNetworkBanner);
+    window.addEventListener('offline', showNetworkBanner);
 
     function escapeHtml(s) {
       return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -930,25 +880,126 @@
       }).join('');
     }
 
-    async function load() {
-      if (!branchSlug) {
-        return await showError('No community specified', 'This link is missing a community identifier.');
+    // ── Error state ────────────────────────────────────────
+    async function showError(title, body) {
+      loadingState.style.display = 'none';
+      mainContent.style.display = 'none';
+      errorState.style.display = 'flex';
+      document.getElementById('error-title').textContent = title;
+      if (body) document.getElementById('error-body').textContent = body;
+
+      const actionsContainer = document.getElementById('error-extra-actions');
+      actionsContainer.innerHTML = '';
+
+      let isOwnAdmin = false;
+      if (window.ROSCA_API && window.ROSCA_API.getAccessToken()) {
+        try {
+          const token = window.ROSCA_API.getAccessToken();
+          const payload = JSON.parse(atob(token.split('.')[1]));
+
+          if (payload.role === 'BRANCH_ADMIN' && payload.branchId) {
+            const b = await api('/api/branches/id/' + encodeURIComponent(payload.branchId));
+            if (b.slug === branchSlug) {
+              isOwnAdmin = true;
+            }
+          }
+        } catch (e) {
+          // Ignore — may be a transient network issue. Show default actions below.
+        }
       }
 
-      if (branchSlug) {
-        document.querySelectorAll('.js-platform-link').forEach(function(link) {
-          const href = link.getAttribute('href');
-          if (href) {
-            link.setAttribute('href', href + '?branch=' + encodeURIComponent(branchSlug));
-          }
-        });
+      if (isOwnAdmin) {
+        actionsContainer.innerHTML =
+          '<a href="/branch/dashboard.html" class="btn btn--primary">Return to your Dashboard</a>';
+      } else {
+        let contactPhone = null;
+        try {
+          const status = await api('/api/branches/' + encodeURIComponent(branchSlug) + '/status');
+          contactPhone = status.contactPhone;
+        } catch (e) {
+          // Ignore — fall through to generic "back to home".
+        }
+
+        if (contactPhone) {
+          actionsContainer.innerHTML =
+            '<div style="text-align: center;">' +
+              '<p style="font-size: 14px; color: var(--on-surface-variant, #94a3b8); margin-bottom: 12px;">' +
+                'Please contact the community partner admin directly:' +
+              '</p>' +
+              '<a href="tel:' + escapeHtml(contactPhone) + '" class="btn btn--primary">Call ' + escapeHtml(contactPhone) + '</a>' +
+            '</div>';
+        } else {
+          actionsContainer.innerHTML =
+            '<a href="/" class="btn btn--ghost">Back to home</a>';
+        }
       }
+    }
+
+    // ── Retry helper for cold mobile wake-ups ──────────────
+    function showRetryingState(message) {
+      loadingState.style.display = 'flex';
+      errorState.style.display = 'none';
+      mainContent.style.display = 'none';
+      const h2 = loadingState.querySelector('h2');
+      const p = loadingState.querySelector('p');
+      if (h2) h2.textContent = 'Reconnecting…';
+      if (p) p.textContent = message || 'Waiting for network. Retrying shortly.';
+    }
+
+    let retryAttempts = 0;
+    const MAX_RETRIES = 3;
+
+    async function loadWithRetry() {
+      if (!branchSlug) {
+        return await showError(
+          'No community specified',
+          'This link is missing a community identifier.'
+        );
+      }
+
+      // Decorate platform links with the branch slug
+      document.querySelectorAll('.js-platform-link').forEach(function(link) {
+        const href = link.getAttribute('href');
+        if (href && href.indexOf('branch=') === -1) {
+          link.setAttribute('href', href + (href.indexOf('?') === -1 ? '?' : '&') + 'branch=' + encodeURIComponent(branchSlug));
+        }
+      });
 
       try {
         const b = await api('/api/branches/' + encodeURIComponent(branchSlug) + '/public');
+        retryAttempts = 0;
         render(b);
       } catch (err) {
         const code = err && err.code;
+
+        // ── Network errors: retry a few times, then show a friendly error ──
+        if (code === 'NETWORK_ERROR') {
+          showNetworkBanner();
+          if (retryAttempts < MAX_RETRIES) {
+            retryAttempts++;
+            showRetryingState('Connection issue. Retrying (' + retryAttempts + '/' + MAX_RETRIES + ')…');
+            setTimeout(loadWithRetry, 1500 * retryAttempts);
+            return;
+          }
+          // Give up — show error with a manual retry button
+          await showError(
+            'Could not reach the server',
+            'Please check your connection and try again.'
+          );
+          const actionsContainer = document.getElementById('error-extra-actions');
+          actionsContainer.innerHTML = '<button type="button" class="btn btn--primary" id="retry-load-btn">Retry now</button>';
+          const retryBtn = document.getElementById('retry-load-btn');
+          if (retryBtn) {
+            retryBtn.addEventListener('click', function () {
+              retryAttempts = 0;
+              showRetryingState('Retrying…');
+              loadWithRetry();
+            });
+          }
+          return;
+        }
+
+        // ── Real branch errors ──
         if (code === 'NOT_FOUND') {
           return await showError('Community not found', 'This community does not exist on the platform. Check the link you were given.');
         }
@@ -964,7 +1015,8 @@
             'This community is approved but its bank details have not yet been verified. Please contact the community partner admin directly.'
           );
         }
-        await showError('Could not load community', err && err.message ? err.message : 'Unknown error');
+
+        await showError('Could not load community', (err && err.message) || 'Unknown error');
       }
     }
 
@@ -1012,6 +1064,7 @@
       wireConsent(branchSlug);
     }
 
+    // ── Login dropdown positioning ─────────────────────────
     const dropdown = document.getElementById('login-dropdown');
     let currentTrigger = null;
 
@@ -1071,6 +1124,12 @@
       if (currentTrigger && dropdown.classList.contains('is-open')) positionDropdown(currentTrigger);
     });
 
+    // ── Login handler ──────────────────────────────────────
+    // NOTE: the clearTokens() calls below are INTENTIONAL — the user
+    // just attempted to log in with the wrong role / wrong branch,
+    // so we scrub the fresh tokens to prevent a half-logged-in state.
+    // They are NOT session-destroying on wake-up; they only run after
+    // a successful server response with a role/branch mismatch.
     function wireLogin(slug, branchId) {
       const loginForm = document.getElementById('login-form');
       const loginStatus = document.getElementById('login-status');
@@ -1109,6 +1168,8 @@
           });
 
           const role = data.user.role;
+
+          // ── INTENTIONAL LOGOUT #1: wrong role ──
           if (role !== 'SAVER') {
             window.ROSCA_API.clearTokens();
             if (role === 'BRANCH_ADMIN' || role === 'SUPER_ADMIN') {
@@ -1120,11 +1181,19 @@
           try {
             const branch = await api('/api/branches/' + encodeURIComponent(slug));
             if (data.user.branchId !== branch.id) {
+              // ── INTENTIONAL LOGOUT #2: wrong branch (via slug) ──
               window.ROSCA_API.clearTokens();
               return setLoginStatus('You are not a member of this community. Please log in from your own community page.', 'error');
             }
-          } catch (_) {
-            if (branchId && data.user.branchId !== branchId) {
+          } catch (branchErr) {
+            // If the slug lookup failed due to network, fall back to branchId
+            if (branchErr && branchErr.code === 'NETWORK_ERROR') {
+              showNetworkBanner();
+              // Don't wipe tokens — the login itself succeeded, we just
+              // can't verify the branch right now. Let the saver in; the
+              // dashboard will re-verify when the network recovers.
+            } else if (branchId && data.user.branchId !== branchId) {
+              // ── INTENTIONAL LOGOUT #3: wrong branch (via branchId) ──
               window.ROSCA_API.clearTokens();
               return setLoginStatus('You are not a member of this community. Please log in from your own community page.', 'error');
             }
@@ -1138,6 +1207,16 @@
           }, 700);
         } catch (err) {
           const code = err && err.code;
+
+          // Network failures do NOT invalidate the user's existing session.
+          if (code === 'NETWORK_ERROR') {
+            showNetworkBanner();
+            setLoginStatus('Network issue — please check your connection and try again.', 'error');
+            loginSubmit.disabled = false;
+            loginSubmit.textContent = 'Log in';
+            return;
+          }
+
           if (code === 'AUTH_INVALID_CREDENTIALS') {
             setLoginStatus('Invalid phone or password. Try again.', 'error');
           } else if (code === 'AUTH_ACCOUNT_SUSPENDED') {
@@ -1158,6 +1237,7 @@
       });
     }
 
+    // ── Consent gate ───────────────────────────────────────
     function wireConsent(slug) {
       const cbBranchTerms = document.getElementById('consent-branch-terms');
       const cbBranchPrivacy = document.getElementById('consent-branch-privacy');
@@ -1193,6 +1273,7 @@
       update();
     }
 
+    // ── Scroll to top ──────────────────────────────────────
     let ticking = false;
     window.addEventListener('scroll', function () {
       if (!ticking) {
@@ -1206,7 +1287,8 @@
     });
     backToTop.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
 
-    load();
+    // ── Boot ───────────────────────────────────────────────
+    loadWithRetry();
   })();
 </script>
 

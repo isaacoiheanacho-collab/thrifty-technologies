@@ -30,6 +30,10 @@
     button, input, select { font: inherit; }
     button { cursor: pointer; }
 
+    /* ── Network banner ─────────────────────────────────────── */
+    #network-banner { position: fixed; top: 0; left: 0; right: 0; background: #d97706; color: white; padding: 8px 16px; text-align: center; font-size: 13px; font-weight: 600; z-index: 10000; transform: translateY(-100%); transition: transform 0.3s ease-out; }
+    #network-banner.show { transform: translateY(0); }
+
     /* ── App Layout ─────────────────────────────────────────── */
     .app { min-height: 100vh; display: flex; }
 
@@ -129,7 +133,6 @@
     .stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em; margin-bottom: 4px; }
     .stat-value { font-size: 24px; font-weight: 800; line-height: 1; color: var(--ink); }
     
-    /* New Trend indicators */
     .trend { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; margin-top: 6px; color: var(--success); }
     .trend--down { color: var(--error); }
 
@@ -148,17 +151,14 @@
     .dot-g { background: var(--g); }
     .dot-gray { background: #d9dee7; }
 
-    /* Master Grid Layout for Dashboard */
     .dash-grid-main { display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; margin-bottom: 24px; }
     .dash-grid-bottom { display: grid; grid-template-columns: 1.2fr 1fr 300px; gap: 24px; }
     @media (max-width: 1024px) { 
       .dash-grid-main, .dash-grid-bottom { grid-template-columns: 1fr; } 
     }
 
-    /* Container for the chart. Height maintained at 460px. */
     .chart-shell { display: flex; gap: 0; height: 460px; position: relative; }
     
-    /* Y-axis. Padding-bottom reduced to 15px to match the plot area. */
     .chart-yaxis { 
       width: 62px; 
       flex-shrink: 0; 
@@ -174,7 +174,6 @@
       top: -10px; 
     }
     
-    /* Plot area. Padding-bottom reduced to 15px. */
     .chart-plot { 
       flex: 1; 
       overflow-x: auto; 
@@ -185,7 +184,6 @@
       padding-bottom: 15px; 
     }
     
-    /* The container holding the bars. Gap reduced from 16px to 8px. */
     .chart-bars { 
       display: flex; 
       align-items: flex-end; 
@@ -206,7 +204,6 @@
       cursor: pointer;
     }
     
-    /* The track filling the slot. */
     .chart-track { 
       width: 22px; 
       background: var(--bg); 
@@ -221,16 +218,13 @@
     
     .chart-bar { width: 100%; background: var(--g); transition: height .5s ease-out; border-radius: 0; }
     
-    /* Tooltip above the bar */
     .chart-cycle-tip { position: absolute; top: -28px; left: 50%; transform: translateX(-50%); font-size: 11px; font-weight: 800; color: var(--ink); white-space: nowrap; }
 
-    /* Empty slot styling */
     .chart-slot.is-empty .chart-track { background: #f9fafb; }
     .chart-slot.is-empty .chart-bar { background: #e5e7eb; }
     .chart-slot.is-empty .chart-cycle-tip { color: #cbd5e1; }
     .chart-slot.is-empty .hover-card { display: none !important; }
 
-    /* ── RICH HOVER CARD ──────────────────────────────────────── */
     .chart-slot .hover-card {
       display: none;
       position: absolute;
@@ -261,7 +255,6 @@
     }
     .chart-slot:hover .hover-card { display: block; }
 
-    /* ── Trust / Promo Card ───────────────────────────────────── */
     .trust-card { 
       background: linear-gradient(145deg, #003d32, #005c47 75%, #009c69); 
       color: white; 
@@ -287,7 +280,6 @@
       font-size: 13px;
     }
 
-    /* ── Tables ─────────────────────────────────────────────── */
     .table-wrap { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); overflow-x: auto; box-shadow: var(--shadow); }
     .table { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; }
     .table th { text-align: left; padding: 14px 16px; background: var(--bg); font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); letter-spacing: 0.05em; }
@@ -296,7 +288,6 @@
     .table tr:hover { background: rgba(0,0,0,0.01); }
     .table__actions { display: flex; gap: 8px; justify-content: flex-end; }
 
-    /* ── Badges ─────────────────────────────────────────────── */
     .badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
     .badge--success { background: #d9f9df; color: #07823c; }
     .badge--warning { background: #fef3c7; color: #d97706; }
@@ -304,7 +295,6 @@
     .badge--info { background: #e0edff; color: #176be5; }
     .badge--neutral { background: #f3f4f6; color: #667085; }
 
-    /* ── Buttons ────────────────────────────────────────────── */
     .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 8px; border: 1px solid transparent; font-weight: 600; transition: all 0.2s; text-decoration: none; }
     .btn--primary { background: var(--g); color: white; }
     .btn--primary:hover { filter: brightness(1.1); }
@@ -314,7 +304,6 @@
     .btn--success { background: #d9f9df; color: #07823c; }
     .btn--sm { padding: 8px 16px; font-size: 12px; }
 
-    /* ── Forms ──────────────────────────────────────────────── */
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
     .form-row { margin-bottom: 16px; }
@@ -325,12 +314,10 @@
 
     .row { display: flex; align-items: center; }
 
-    /* ── Empty States ───────────────────────────────────────── */
     .empty { text-align: center; padding: 48px 24px; border: 1px dashed var(--line); border-radius: var(--radius); background: #fff; }
     .empty h3 { font-size: 16px; font-weight: 700; margin: 0 0 4px; }
     .empty p { font-size: 13px; color: var(--muted); margin: 0; }
 
-    /* ── Toasts ─────────────────────────────────────────────── */
     #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
     .toast { background: var(--deep); color: white; padding: 14px 20px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); opacity: 0; transform: translateY(10px); transition: 0.2s; pointer-events: auto; border-left: 4px solid var(--g); }
     .toast.show { opacity: 1; transform: translateY(0); }
@@ -338,12 +325,10 @@
     .toast--error { border-left-color: var(--error); }
     .toast--info { border-left-color: #176be5; }
 
-    /* ── Modals ─────────────────────────────────────────────── */
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
     .modal.is-open { display: flex; }
     .modal__content { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow); }
 
-    /* ── Responsive ─────────────────────────────────────────── */
     @media (max-width: 900px) {
       .sidebar { transform: translateX(-100%); transition: transform 250ms ease-out; }
       .sidebar.is-open { transform: translateX(0); }
@@ -362,6 +347,8 @@
   </style>
 </head>
 <body>
+
+<div id="network-banner">You are offline — we'll retry when you're back.</div>
 
 <div class="app">
 
@@ -415,6 +402,10 @@
           <div class="sidebar__user-role">Super Admin</div>
         </div>
       </div>
+      <!--
+        INTENTIONAL LOGOUT — user clicked "Log out" in the sidebar.
+        Wiping tokens here is correct.
+      -->
       <button class="logout-btn" id="logout-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         Log out
@@ -442,7 +433,6 @@
       <section class="section is-active" id="section-overview">
         <div class="page-header"><div><h1>Dashboard</h1><p>System-wide statistics and quick actions.</p></div></div>
         
-        <!-- Quick Actions Hero -->
         <div class="hero">
           <div class="hero-content">
             <h2>Welcome back, Super Admin</h2>
@@ -465,7 +455,6 @@
         </div>
 
         <div class="stat-grid" style="grid-template-columns: repeat(4, 1fr);">
-          <!-- Row 1 -->
           <div class="stat-card">
             <div class="stat-info">
               <div class="stat-label">Total Branches</div>
@@ -493,7 +482,6 @@
             </div>
           </div>
           
-          <!-- Row 2 -->
           <div class="stat-card">
             <div class="stat-info">
               <div class="stat-label">Total Tenants</div>
@@ -521,12 +509,8 @@
           </div>
         </div>
 
-        <!-- ═══ DASHBOARD GRID LAYOUT ═══ -->
-        
-        <!-- Top Row: Chart & Fee Approvals -->
         <div class="dash-grid-main">
           
-          <!-- Left Column: Chart -->
           <div class="panel" style="margin-bottom: 0;">
             <div class="panel-head">
               <h2>▥ Platform Revenue Performance</h2>
@@ -540,19 +524,14 @@
                 <div><span class="dot dot-gray"></span>12 Cycle Target</div>
               </div>
               <div class="chart-shell">
-                <div class="chart-yaxis" id="chart-yaxis">
-                  <!-- populated by JS -->
-                </div>
+                <div class="chart-yaxis" id="chart-yaxis"></div>
                 <div class="chart-plot">
-                  <div class="chart-bars" id="chart-bars">
-                    <!-- populated by JS -->
-                  </div>
+                  <div class="chart-bars" id="chart-bars"></div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Right Column: Fee Live Approvals -->
           <div class="panel" style="margin-bottom: 0;">
             <div class="panel-head">
               <h2>Fee Live Approvals</h2>
@@ -575,10 +554,8 @@
           
         </div>
 
-        <!-- Bottom Row: Activity, Top Branches, & Green Trust Card -->
         <div class="dash-grid-bottom">
           
-          <!-- Recent Activity Feed -->
           <div class="panel">
             <div class="panel-head">
               <h2>Live Platform Activity</h2>
@@ -600,7 +577,6 @@
             </div>
           </div>
 
-          <!-- Top Branches Leaderboard -->
           <div class="panel">
             <div class="panel-head">
               <h2>Top Branches (This Month)</h2>
@@ -621,7 +597,6 @@
             </div>
           </div>
 
-          <!-- Trust / Advert Card -->
           <div class="trust-card">
             <div class="icon">♢</div>
             <h3>Trusted. Transparent. Secure.</h3>
@@ -833,7 +808,6 @@
               </div>
             </div>
 
-            <!-- The Action Buttons -->
             <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px;">
               <button type="button" class="btn btn--ghost" id="ma-cancel-btn" style="display: none;">Cancel</button>
               <button type="button" class="btn btn--primary" id="ma-edit-btn">Edit Details</button>
@@ -871,7 +845,6 @@
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;">
           
-          <!-- Top Branches -->
           <div class="card">
             <div class="card__title">Top Branches by Volume</div>
             <div class="table-wrap" style="margin-top: 16px;">
@@ -890,7 +863,6 @@
             </div>
           </div>
 
-          <!-- Recent Activity -->
           <div class="card">
             <div class="card__title">Recent Platform Activity</div>
             <div class="table-wrap" style="margin-top: 16px;">
@@ -955,7 +927,7 @@
     </div>
     
     <div id="modal-branch-body">
-      <div class="empty"><div class="spinner"></div><p>Loading branch data...</p></div>
+      <div class="empty"><p>Loading branch data...</p></div>
     </div>
   </div>
 </div>
@@ -995,6 +967,23 @@
       setTimeout(function () { el.classList.add('show'); }, 10);
       setTimeout(function () { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 4000);
     }
+
+    // ── Network banner ─────────────────────────────────────
+    let networkBannerTimer = null;
+    function showNetworkBanner() {
+      const banner = document.getElementById('network-banner');
+      if (!banner) return;
+      banner.classList.add('show');
+      if (networkBannerTimer) clearTimeout(networkBannerTimer);
+      networkBannerTimer = setTimeout(function () { banner.classList.remove('show'); }, 4000);
+    }
+    function hideNetworkBanner() {
+      const banner = document.getElementById('network-banner');
+      if (banner) banner.classList.remove('show');
+      if (networkBannerTimer) { clearTimeout(networkBannerTimer); networkBannerTimer = null; }
+    }
+    window.addEventListener('online', hideNetworkBanner);
+    window.addEventListener('offline', showNetworkBanner);
 
     const sectionTitles = {
       'overview': 'Dashboard',
@@ -1043,6 +1032,9 @@
     document.getElementById('menu-btn').addEventListener('click', openDrawer);
     drawerOverlay.addEventListener('click', closeDrawer);
 
+    // ═════════════════════════════════════════════════════════
+    // INTENTIONAL LOGOUT — user clicked "Log out" in the sidebar.
+    // ═════════════════════════════════════════════════════════
     document.getElementById('logout-btn').addEventListener('click', function () {
       window.ROSCA_API.clearTokens();
       window.location.href = '/?login=1';
@@ -1053,9 +1045,24 @@
       return name.trim().split(/\s+/).map(function (s) { return s[0]; }).slice(0, 2).join('').toUpperCase();
     }
 
-    // ── Boot: load user ──────────────────────────────────────
+    // ═══════════════════════════════════════════════════════
+    // BOOT — loadMe is the critical path.
+    //
+    // CRITICAL RULES:
+    //   1. Only wipe tokens if the SERVER definitively rejected
+    //      the session (api.js already redirected on that).
+    //   2. Never wipe on network errors, cold-start races, or 5xx.
+    //   3. If neither access nor refresh token is present, bounce
+    //      to login — that's a real session-end.
+    // ═══════════════════════════════════════════════════════
     async function loadMe() {
-      if (!window.ROSCA_API.getAccessToken()) { window.location.href = '/?login=1'; return false; }
+      const hasAccess  = !!window.ROSCA_API.getAccessToken();
+      const hasRefresh = !!window.ROSCA_API.getRefreshToken();
+      if (!hasAccess && !hasRefresh) {
+        window.location.href = '/?login=1';
+        return false;
+      }
+
       try {
         const user = await api('/api/users/me');
         state.user = user;
@@ -1072,10 +1079,24 @@
         document.getElementById('sidebar-user-name').textContent = user.fullName;
         return true;
       } catch (err) {
-        console.error(err);
-        window.ROSCA_API.clearTokens();
-        window.location.href = '/?login=1';
-        return false;
+        // api.js already handled definitive session-end cases.
+        if (err && (err.code === 'AUTH_TOKEN_INVALID' || err.code === 'AUTH_SESSION_ENDED')) {
+          return false;
+        }
+        // Raw 401/403 = api.js's refresh also gave up.
+        if (err && (err.status === 401 || err.status === 403)) {
+          return false;
+        }
+        // Transient network / server wake-up race — PRESERVE session.
+        if (err && err.code === 'NETWORK_ERROR') {
+          showNetworkBanner();
+          toast('Connection issue — retrying shortly.', 'info');
+          return true; // render dashboard in degraded state
+        }
+        // Unknown error — preserve session, soft warning.
+        console.warn('[boot] loadMe failed:', err);
+        toast('Could not reach server. Please retry.', 'info');
+        return true;
       }
     }
 
@@ -1084,12 +1105,10 @@
       try {
         const stats = await api('/api/super-admin/stats');
         
-        // Update Hero Quick Actions
         document.getElementById('hero-pending-branches').textContent = stats.branches.pending || 0;
         document.getElementById('hero-pending-kyc').textContent = stats.branches.pendingKyc || 0;
         document.getElementById('hero-pending-fees').textContent = stats.payouts.pendingFees || 0;
 
-        // Update Stats Grid
         document.getElementById('stat-branches-total').textContent = stats.branches.total;
         document.getElementById('stat-branches-active').textContent = stats.branches.active || 0;
         document.getElementById('stat-members-total').textContent = stats.members.total;
@@ -1100,15 +1119,12 @@
         document.getElementById('stat-monthly-payouts').textContent = '£' + (stats.payouts.thisMonthGbp || '0.00');
         document.getElementById('stat-total-revenue').textContent = '£' + (stats.platformRevenueGbp || '0.00');
 
-        // Fetch real fee data for the chart
         const feeData = await api('/api/super-admin/stats/fees-by-branch');
         renderRevenueChart(feeData);
 
-        // Fetch Analytics data for Recent Activity & Top Branches
         try {
           const analytics = await api('/api/super-admin/stats/analytics');
           
-          // Recent Activity
           const tbActivity = document.getElementById('dash-recent-activity-body');
           if (!analytics.recentActivity || analytics.recentActivity.length === 0) {
             tbActivity.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--muted); padding: 20px;">No recent activity.</td></tr>';
@@ -1129,7 +1145,6 @@
             }).join('');
           }
 
-          // Top Branches
           const tbBranches = document.getElementById('dash-top-branches-body');
           if (!analytics.topBranches || analytics.topBranches.length === 0) {
             tbBranches.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--muted); padding: 20px;">No volume yet.</td></tr>';
@@ -1143,10 +1158,10 @@
             `).join('');
           }
         } catch (anaErr) {
+          if (anaErr && anaErr.code === 'NETWORK_ERROR') showNetworkBanner();
           console.error('Failed to load overview analytics', anaErr);
         }
 
-        // Fetch Pending Fees for the new Dashboard widget
         try {
           const feesResult = await api('/api/super-admin/payouts/fees?state=PENDING&limit=5');
           const pendingFees = feesResult.intents || [];
@@ -1167,16 +1182,17 @@
               </tr>
             `).join('');
             
-            // Add event listeners for the confirm buttons
             tbFees.querySelectorAll('[data-approve-fee]').forEach(b => {
               b.addEventListener('click', () => approveFee(b.dataset.approveFee));
             });
           }
         } catch (feesErr) {
+          if (feesErr && feesErr.code === 'NETWORK_ERROR') showNetworkBanner();
           console.error('Failed to load pending fees', feesErr);
         }
 
       } catch (err) {
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
         console.error(err);
       }
     }
@@ -1186,28 +1202,23 @@
       const yAxis = document.getElementById('chart-yaxis');
       const barsEl = document.getElementById('chart-bars');
       
-      // Constants based on your rules
       const UNIT_FEE = 178.35; 
       const MAX_CYCLES = 12;
-      const MAX_VAL = UNIT_FEE * MAX_CYCLES; // £2,140.20
+      const MAX_VAL = UNIT_FEE * MAX_CYCLES;
       const MAX_BARS = 50;
 
-      // 1. Y-axis: £0 to £2,140.20 (12 levels)
       const yLabels = [];
       for (let i = MAX_CYCLES; i >= 0; i--) {
         yLabels.push('£' + (i * UNIT_FEE).toFixed(2));
       }
       yAxis.innerHTML = yLabels.map(v => `<div>${v}</div>`).join('');
 
-      // 2. Parse real data
       let realBranches = Array.isArray(feeData) ? feeData : [];
 
-      // 3. Build 50 slots (Option 3)
       const slots = [];
       for (let i = 0; i < MAX_BARS; i++) {
         const branch = realBranches[i];
         if (branch) {
-          // Parse from pence (safe, no £ symbol) and convert to GBP
           const val = parseFloat(branch.feesPaidPence || 0) / 100;
           slots.push({
             filled: true,
@@ -1223,9 +1234,7 @@
         }
       }
 
-      // 4. Render bars
       barsEl.innerHTML = slots.map((s) => {
-        // Calculate percentage (max 100%)
         const pct = Math.min(100, (s.value / MAX_VAL) * 100);
 
         if (!s.filled) {
@@ -1242,7 +1251,6 @@
             <div class="chart-cycle-tip" style="font-size: 10px; color: var(--muted);">£${s.value.toFixed(2)}</div>
             <div class="chart-track"><div class="chart-bar" style="height: ${pct}%;"></div></div>
             
-            <!-- CUSTOM HOVER CARD (Always on right) -->
             <div class="hover-card">
               <div style="font-weight: 800; color: #8de54c; margin-bottom: 6px;">${escapeHtml(s.name)}</div>
               <div style="display: flex; justify-content: space-between; gap: 16px; margin-bottom: 4px;">
@@ -1275,7 +1283,6 @@
         const result = await api('/api/super-admin/branches?limit=100');
         let branches = result.branches || [];
 
-        // Apply frontend filter (without forcing onboardingStatus === 'APPROVED')
         if (filter === 'ONBOARDING_PENDING') {
           branches = branches.filter(b => b.onboardingStatus === 'PENDING');
         } else if (filter === 'KYC_NOT_SUBMITTED') {
@@ -1283,9 +1290,7 @@
             !b.adminKycStatus || b.adminKycStatus === 'NOT_SUBMITTED'
           );
         } else if (filter === 'KYC_PENDING') {
-          branches = branches.filter(b => 
-            b.adminKycStatus === 'PENDING'
-          );
+          branches = branches.filter(b => b.adminKycStatus === 'PENDING');
         } else if (filter === 'ACTIVE') {
           branches = branches.filter(b => 
             b.onboardingStatus === 'APPROVED' && 
@@ -1304,7 +1309,6 @@
         }
 
         tbody.innerHTML = branches.map(function (b) {
-          // Determine Lifecycle Status
           let badgeClass = 'neutral';
           let statusText = 'Unknown';
           
@@ -1346,7 +1350,6 @@
           '</tr>';
         }).join('');
         
-        // Event Listeners
         tbody.querySelectorAll('[data-approve]').forEach(function (btn) {
           btn.addEventListener('click', function () { approveBranch(btn.dataset.approve); });
         });
@@ -1358,11 +1361,11 @@
         });
         
       } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err.message) + '</td></tr>';
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err && err.message ? err.message : 'Error') + '</td></tr>';
       }
     }
 
-    // Listen for filter changes
     const branchFilter = document.getElementById('branch-status-filter');
     if (branchFilter) {
       branchFilter.addEventListener('change', loadBranches);
@@ -1378,13 +1381,11 @@
       body.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--muted);">Fetching branch details...</div>';
       
       try {
-        // Fetch the branch details
         const branch = await api('/api/super-admin/branches/' + branchId);
         
         title.textContent = branch.name;
         subtitle.innerHTML = 'Admin: ' + (branch.adminName || 'Unknown') + ' | Contact: ' + (branch.contactEmail || 'N/A');
         
-        // Fetch the tenants for this branch
         const tenantsResult = await api('/api/super-admin/tenants/by-branch/' + branchId + '?limit=50');
         const tenants = tenantsResult.tenants || [];
         
@@ -1418,7 +1419,6 @@
           `;
         }
         
-        // Format the KYC status for display
         let kycDisplay = branch.adminKycStatus;
         if (kycDisplay === 'NOT_SUBMITTED' || !kycDisplay) kycDisplay = 'Not Submitted';
         if (kycDisplay === 'PENDING') kycDisplay = 'Pending Review';
@@ -1437,7 +1437,8 @@
         `;
         
       } catch (err) {
-        body.innerHTML = '<div style="color: var(--error); padding: 20px;">Failed to load branch: ' + err.message + '</div>';
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        body.innerHTML = '<div style="color: var(--error); padding: 20px;">Failed to load branch: ' + (err && err.message ? err.message : 'Error') + '</div>';
       }
     }
 
@@ -1448,7 +1449,8 @@
         toast('Branch approved', 'success');
         loadBranches();
       } catch (err) {
-        toast('Approve failed: ' + err.message, 'error');
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        toast('Approve failed: ' + (err && err.message ? err.message : 'Error'), 'error');
       }
     }
 
@@ -1460,7 +1462,8 @@
         toast('Branch rejected', 'info');
         loadBranches();
       } catch (err) {
-        toast('Reject failed: ' + err.message, 'error');
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        toast('Reject failed: ' + (err && err.message ? err.message : 'Error'), 'error');
       }
     }
 
@@ -1476,7 +1479,6 @@
         const result = await api('/api/super-admin/branch-pool-account/pending');
         let accounts = result || [];
 
-        // Filter based on dropdown
         accounts = accounts.filter(a => a.kyc_status === statusFilter);
 
         if (!accounts.length) {
@@ -1485,13 +1487,11 @@
         }
 
         tbody.innerHTML = accounts.map(function (a) {
-          // Determine badge class based on status
           let badgeClass = 'warning';
           if (a.kyc_status === 'APPROVED') badgeClass = 'success';
           if (a.kyc_status === 'REJECTED') badgeClass = 'error';
           if (a.kyc_status === 'NOT_SUBMITTED') badgeClass = 'neutral';
 
-          // Actions (only show approve/reject if pending)
           let actionHtml = '<span style="color:var(--muted);font-size:12px;">Reviewed</span>';
           if (a.kyc_status === 'PENDING') {
             actionHtml = `
@@ -1527,11 +1527,11 @@
           b.addEventListener('click', function () { accountAction(b.dataset.acctReject, 'reject'); });
         });
       } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err.message) + '</td></tr>';
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err && err.message ? err.message : 'Error') + '</td></tr>';
       }
     }
 
-    // Listen for filter changes
     const adminKycFilter = document.getElementById('admin-kyc-status-filter');
     if (adminKycFilter) {
       adminKycFilter.addEventListener('change', loadBranchAccounts);
@@ -1553,7 +1553,8 @@
         }
         loadBranchAccounts();
       } catch (err) {
-        toast((action === 'approve' ? 'Approve' : 'Reject') + ' failed: ' + err.message, 'error');
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        toast((action === 'approve' ? 'Approve' : 'Reject') + ' failed: ' + (err && err.message ? err.message : 'Error'), 'error');
       }
     }
 
@@ -1571,11 +1572,9 @@
       tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted);">Loading…</td></tr>';
       
       try {
-        // Use the new state-filtered route
         let url = '/api/super-admin/payouts/fees?limit=100';
         if (statusFilter === 'PENDING') url += '&state=PENDING';
         else if (statusFilter === 'CONFIRMED') url += '&state=CONFIRMED';
-        // 'ALL' -> no state param (backend defaults to PENDING, so pass explicit ALL)
 
         if (statusFilter === 'ALL') {
           url = '/api/super-admin/payouts/fees?limit=100&state=ALL';
@@ -1584,7 +1583,6 @@
         const result = await api(url);
         let fees = result.intents || [];
         
-        // Populate Branch dropdown from all fees on first load
         if (branchEl && branchEl.options.length === 1) {
           try {
             const allFeesResult = await api('/api/super-admin/payouts/fees?state=ALL&limit=100');
@@ -1596,11 +1594,11 @@
               branchEl.appendChild(opt);
             });
           } catch (e) {
+            if (e && e.code === 'NETWORK_ERROR') showNetworkBanner();
             console.error('Failed to populate branch dropdown', e);
           }
         }
 
-        // Apply frontend filters (branch and search only — state is server-side)
         if (branchFilter) {
           fees = fees.filter(f => f.branchName === branchFilter);
         }
@@ -1617,25 +1615,19 @@
         }
 
         tbody.innerHTML = fees.map(function (f) {
-          // Determine Action and Badge based on Fee Intent State
-          // (f.state is the FEE intent state: PENDING / RECEIPT_UPLOADED / CONFIRMED)
           let actionHtml = '';
           let stateBadgeHtml = '';
 
           if (f.state === 'RECEIPT_UPLOADED') {
-            // Waiting for Super Admin review
             actionHtml = `<button class="btn btn--success btn--sm" data-approve-fee="${f.id}">Confirm Fee</button>`;
             stateBadgeHtml = `<span class="badge badge--warning">Pending Review</span>`;
           } else if (f.state === 'CONFIRMED') {
-            // Already approved
             actionHtml = `<span class="badge badge--success">Confirmed</span>`;
             stateBadgeHtml = `<span class="badge badge--success">Confirmed</span>`;
           } else if (f.state === 'PENDING') {
-            // Branch Admin hasn't paid yet
             actionHtml = `<span style="color: var(--muted); font-size: 12px;">Awaiting Payment</span>`;
             stateBadgeHtml = `<span class="badge badge--neutral">Unpaid</span>`;
           } else {
-            // Unknown state fallback
             actionHtml = `<span style="color: var(--muted); font-size: 12px;">—</span>`;
             stateBadgeHtml = `<span class="badge badge--neutral">${escapeHtml(f.state || 'Unknown')}</span>`;
           }
@@ -1663,11 +1655,11 @@
           b.addEventListener('click', function () { approveFee(b.dataset.approveFee); });
         });
       } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err.message) + '</td></tr>';
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err && err.message ? err.message : 'Error') + '</td></tr>';
       }
     }
 
-    // Bind filter events
     ['fee-status-filter', 'fee-branch-filter'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.addEventListener('change', loadPayoutApprovals);
@@ -1691,7 +1683,8 @@
         toast('Fee confirmed. Payout unlocked.', 'success');
         loadPayoutApprovals();
       } catch (err) {
-        toast('Confirmation failed: ' + err.message, 'error');
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        toast('Confirmation failed: ' + (err && err.message ? err.message : 'Error'), 'error');
       }
     }
 
@@ -1727,11 +1720,11 @@
           btn.addEventListener('click', function () { openTenantModal(btn.dataset.tenantId, btn.dataset.tenantName); });
         });
       } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err.message) + '</td></tr>';
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err && err.message ? err.message : 'Error') + '</td></tr>';
       }
     }
 
-    // ── FIXED: openTenantModal ──────────────────────────────────
     async function openTenantModal(tenantId, tenantName) {
       const modal = document.getElementById('tenant-modal');
       const title = document.getElementById('modal-tenant-title');
@@ -1742,7 +1735,6 @@
       body.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--muted);">Fetching member details...</div>';
       
       try {
-        // Fetch the tenant details AND the members
         const [data, response] = await Promise.all([
           api('/api/super-admin/tenants/' + tenantId),
           api('/api/super-admin/tenants/' + tenantId + '/members')
@@ -1751,12 +1743,8 @@
         const members = response.members || [];
         const memberData = response; 
         
-        // --- FIX: Calculate current cycle totals from the roster ---
-        // A circle has max 12 slots. We count how many have paid in the *current* cycle.
         const currentCycleContributionsCount = members.filter(m => m.intentState === 'CONFIRMED').length;
         
-        // Calculate the GBP total for the current cycle contributions
-        // (Assuming £1,000 per contribution, or calculate from the actual amounts returned in the roster)
         let currentCycleContribsPence = 0;
         members.forEach(m => {
            if (m.intentState === 'CONFIRMED' && m.contributionAmountPence) {
@@ -1765,12 +1753,6 @@
         });
 
         const contribGbp = (currentCycleContribsPence / 100).toFixed(2);
-        
-        // Payouts: Since we are in cycle 2, and cycle 1's payout is confirmed, 
-        // the current cycle might have 0 payouts made yet (until the cycle completes).
-        // If you want the payout intent amount for this cycle, we need to check if it exists.
-        // For now, we'll show the cumulative payouts from the backend, but you can adjust this
-        // if you have a specific way to determine if the current cycle's payout has been made.
         const payoutGbp = memberData.totalPayoutsPence ? (Number(memberData.totalPayoutsPence) / 100).toFixed(2) : '0.00';
 
         let membersHtml = '';
@@ -1791,7 +1773,6 @@
                 </thead>
                 <tbody>
                   ${members.map(m => {
-                    // Determine cycle status badge
                     let statusBadge = 'neutral';
                     let statusText = 'PENDING';
                     if (m.intentState === 'CONFIRMED') {
@@ -1829,7 +1810,6 @@
             <div class="stat"><div class="stat__label">Cycle</div><div class="stat__value" style="font-size: 18px;">${data.currentCycle}</div></div>
             <div class="stat"><div class="stat__label">Members</div><div class="stat__value" style="font-size: 18px;">${data.memberCount} / 12</div></div>
             
-            <!-- FIXED COUNTERS -->
             <div class="stat">
               <div class="stat__label">Contributions</div>
               <div class="stat__value stat__value--success" style="font-size: 18px;">${currentCycleContributionsCount} / 12</div>
@@ -1848,7 +1828,8 @@
         `;
         
       } catch (err) {
-        body.innerHTML = '<div style="color: var(--error); padding: 20px;">Failed to load tenant: ' + err.message + '</div>';
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        body.innerHTML = '<div style="color: var(--error); padding: 20px;">Failed to load tenant: ' + (err && err.message ? err.message : 'Error') + '</div>';
       }
     }
 
@@ -1868,7 +1849,6 @@
         const result = await api('/api/users/admin/savers');
         state.allSavers = result || [];
         
-        // Populate dropdowns
         const branches = [...new Set(state.allSavers.map(s => s.branch_name).filter(Boolean))];
         const tenants = [...new Set(state.allSavers.map(s => s.tenant_name).filter(Boolean))];
         
@@ -1897,7 +1877,8 @@
         filterAndRenderSavers();
         
       } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err.message) + '</td></tr>';
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--error);">' + escapeHtml(err && err.message ? err.message : 'Error') + '</td></tr>';
       }
     }
 
@@ -1953,7 +1934,6 @@
       });
     }
 
-    // Listen for filter changes
     ['saver-branch-filter', 'saver-tenant-filter', 'saver-kyc-filter'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.addEventListener('change', filterAndRenderSavers);
@@ -1971,16 +1951,13 @@
       body.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--muted);">Fetching full profile...</div>';
 
       try {
-        // Fetch the rich profile from the new endpoint
         const user = await api('/api/users/admin/savers/' + saverId);
         
         title.textContent = user.full_name;
         
-        // Determine KYC badge
         const kycBadge = user.kyc_status === 'APPROVED' ? 'success' : user.kyc_status === 'PENDING' ? 'warning' : user.kyc_status === 'REJECTED' ? 'error' : 'neutral';
         const kycText = user.kyc_status ? user.kyc_status.replace('_', ' ') : 'NOT SUBMITTED';
 
-        // Photo block
         let photoHtml = '<p style="color: var(--muted); font-size: 14px;">No photo uploaded.</p>';
         if (user.selfieUrl) {
           photoHtml = `
@@ -1991,7 +1968,6 @@
           `;
         }
 
-        // Bank details block
         let bankHtml = '<p style="color: var(--muted); font-size: 14px;">No bank details submitted.</p>';
         if (user.bank_name) {
           bankHtml = `
@@ -2044,7 +2020,8 @@
         `;
         
       } catch (err) {
-        body.innerHTML = '<div style="color: var(--error); padding: 20px;">Failed to load profile: ' + err.message + '</div>';
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        body.innerHTML = '<div style="color: var(--error); padding: 20px;">Failed to load profile: ' + (err && err.message ? err.message : 'Error') + '</div>';
       }
     }
 
@@ -2055,7 +2032,7 @@
     const maSaveBtn = document.getElementById('ma-save-btn');
     const maCancelBtn = document.getElementById('ma-cancel-btn');
 
-    let originalMaData = null; // Store original data to restore on Cancel
+    let originalMaData = null;
 
     async function loadPlatformSettings() {
       try {
@@ -2073,11 +2050,11 @@
           document.getElementById('ma-number').value = originalMaData.number;
         }
       } catch (err) {
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
         console.error('Failed to load maintenance account', err);
       }
     }
 
-    // Toggle Edit Mode
     function toggleMaEditMode(isEditing) {
       maInputs.forEach(input => {
         input.readOnly = !isEditing;
@@ -2100,7 +2077,6 @@
     maEditBtn.addEventListener('click', () => toggleMaEditMode(true));
 
     maCancelBtn.addEventListener('click', () => {
-      // Revert to original data
       if (originalMaData) {
         document.getElementById('ma-holder').value = originalMaData.holder;
         document.getElementById('ma-bank').value = originalMaData.bank;
@@ -2128,7 +2104,6 @@
           body: payload
         });
         
-        // Update original data to the new saved values
         originalMaData = {
           holder: payload.accountHolderName,
           bank: payload.bankName,
@@ -2139,7 +2114,8 @@
         toast('Maintenance account saved successfully', 'success');
         toggleMaEditMode(false);
       } catch (err) {
-        toast('Failed to save: ' + err.message, 'error');
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        toast('Failed to save: ' + (err && err.message ? err.message : 'Error'), 'error');
       } finally {
         maSaveBtn.disabled = false;
         maSaveBtn.textContent = 'Save Changes';
@@ -2151,14 +2127,12 @@
       try {
         const data = await api('/api/super-admin/stats/analytics');
         
-        // 1. Totals
         document.getElementById('ana-total-contribs').textContent = '£' + data.totalContributionsGbp;
         document.getElementById('ana-total-contribs-count').textContent = data.totalContributionsCount + ' payments';
         
         document.getElementById('ana-total-payouts').textContent = '£' + data.totalPayoutsGbp;
         document.getElementById('ana-total-payouts-count').textContent = data.totalPayoutsCount + ' payouts';
 
-        // 2. Top Branches
         const tbBranches = document.getElementById('ana-top-branches-body');
         if (data.topBranches.length === 0) {
           tbBranches.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--muted);">No contributions yet.</td></tr>';
@@ -2172,7 +2146,6 @@
           `).join('');
         }
 
-        // 3. Recent Activity
         const tbActivity = document.getElementById('ana-recent-activity-body');
         if (data.recentActivity.length === 0) {
           tbActivity.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--muted);">No recent activity.</td></tr>';
@@ -2194,15 +2167,27 @@
         }
 
       } catch (err) {
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
         console.error(err);
-        toast('Failed to load analytics: ' + err.message, 'error');
+        toast('Failed to load analytics: ' + (err && err.message ? err.message : 'Error'), 'error');
       }
     }
 
+    // ── Boot sequence ─────────────────────────────────────────
     (async function boot() {
-      const ok = await loadMe();
-      if (!ok) return;
-      showSection('overview');
+      if (window.__ROSCA_BOOT_IN_PROGRESS) return;
+      window.__ROSCA_BOOT_IN_PROGRESS = true;
+
+      try {
+        const ok = await loadMe();
+        if (!ok) return;
+        showSection('overview');
+      } catch (err) {
+        // Never wipe tokens here — this is a mobile wake-up catch.
+        console.error('[boot] Critical startup error:', err);
+      } finally {
+        window.__ROSCA_BOOT_IN_PROGRESS = false;
+      }
     })();
 
   })();

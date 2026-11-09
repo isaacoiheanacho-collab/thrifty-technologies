@@ -18,6 +18,10 @@
   <link rel="stylesheet" href="/assets/css/base.css">
 
   <style>
+    /* ── Network banner ──────────────────────────────────── */
+    #network-banner { position: fixed; top: 0; left: 0; right: 0; background: #d97706; color: white; padding: 8px 16px; text-align: center; font-size: 13px; font-weight: 600; z-index: 10000; transform: translateY(-100%); transition: transform 0.3s ease-out; }
+    #network-banner.show { transform: translateY(0); }
+
     /* ── Homepage Specific Layout Styles ──────────────────────── */
     html { scroll-behavior: smooth; }
     body { overflow-x: hidden; background-color: #0b0e11; color: #e1e3e5; font-family: 'Inter', sans-serif; }
@@ -444,6 +448,8 @@
   </style>
 </head>
 <body>
+
+<div id="network-banner">You are offline — we'll retry when you're back.</div>
 
 <div class="page">
 
@@ -964,6 +970,23 @@
     const loginSubmit = document.getElementById('login-submit');
     const phoneInput = document.getElementById('login-phone');
 
+    // ── Network banner helpers ─────────────────────────────
+    let networkBannerTimer = null;
+    function showNetworkBanner() {
+      const banner = document.getElementById('network-banner');
+      if (!banner) return;
+      banner.classList.add('show');
+      if (networkBannerTimer) clearTimeout(networkBannerTimer);
+      networkBannerTimer = setTimeout(function () { banner.classList.remove('show'); }, 4000);
+    }
+    function hideNetworkBanner() {
+      const banner = document.getElementById('network-banner');
+      if (banner) banner.classList.remove('show');
+      if (networkBannerTimer) { clearTimeout(networkBannerTimer); networkBannerTimer = null; }
+    }
+    window.addEventListener('online', hideNetworkBanner);
+    window.addEventListener('offline', showNetworkBanner);
+
     // ── Dropdown open / close ───────────────────────────────────
     function positionDropdown(trigger) {
       const rect = trigger.getBoundingClientRect();
@@ -1068,6 +1091,14 @@
         });
 
         const role = data.user.role;
+
+        // ────────────────────────────────────────────────────
+        // INTENTIONAL LOGOUT — user logged in successfully but
+        // with a role that doesn't belong on this landing page
+        // (i.e. a SAVER tried to use the admin login form).
+        // Wiping the freshly-issued tokens prevents a half-
+        // logged-in state. This is NOT a session-destroying bug.
+        // ────────────────────────────────────────────────────
         if (role !== 'BRANCH_ADMIN' && role !== 'SUPER_ADMIN') {
           window.ROSCA_API.clearTokens();
           return setLoginStatus(
@@ -1085,6 +1116,16 @@
         }, 700);
       } catch (err) {
         const code = err && err.code;
+
+        // Network failures do NOT invalidate the user's existing session.
+        if (code === 'NETWORK_ERROR') {
+          showNetworkBanner();
+          setLoginStatus('Network issue — please check your connection and try again.', 'error');
+          loginSubmit.disabled = false;
+          loginSubmit.textContent = 'Log in';
+          return;
+        }
+
         if (code === 'AUTH_INVALID_CREDENTIALS') {
           setLoginStatus('Invalid phone or password. Try again.', 'error');
         } else if (code === 'AUTH_ACCOUNT_SUSPENDED') {

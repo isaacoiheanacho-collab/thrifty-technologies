@@ -147,6 +147,10 @@ button { cursor: pointer; }
 .toast { background: var(--deep); color: white; padding: 14px 20px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); opacity: 0; transform: translateY(10px); transition: 0.2s; pointer-events: auto; border-left: 4px solid var(--g); }
 .toast.show { opacity: 1; transform: translateY(0); }
 
+/* ── Network banner ─────────────────────────────────────── */
+#network-banner { position: fixed; top: 0; left: 0; right: 0; background: #d97706; color: white; padding: 8px 16px; text-align: center; font-size: 13px; font-weight: 600; z-index: 10000; transform: translateY(-100%); transition: transform 0.3s ease-out; }
+#network-banner.show { transform: translateY(0); }
+
 /* ── Overlay for Mobile Sidebar ─────────────────────────── */
 .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 95; }
 .overlay.is-open { display: block; }
@@ -225,6 +229,8 @@ footer a:hover { color: var(--g); }
 </style>
 </head>
 <body>
+
+<div id="network-banner">You are offline — we'll retry when you're back.</div>
 
 <div class="app">
 
@@ -839,6 +845,25 @@ footer a:hover { color: var(--g); }
       setTimeout(function () { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 4000);
     }
 
+    // ── Network banner (shown when transient errors happen) ─
+    let networkBannerTimer = null;
+    function showNetworkBanner() {
+      const banner = document.getElementById('network-banner');
+      if (!banner) return;
+      banner.classList.add('show');
+      if (networkBannerTimer) clearTimeout(networkBannerTimer);
+      networkBannerTimer = setTimeout(function () {
+        banner.classList.remove('show');
+      }, 4000);
+    }
+    function hideNetworkBanner() {
+      const banner = document.getElementById('network-banner');
+      if (banner) banner.classList.remove('show');
+      if (networkBannerTimer) { clearTimeout(networkBannerTimer); networkBannerTimer = null; }
+    }
+    window.addEventListener('online', hideNetworkBanner);
+    window.addEventListener('offline', showNetworkBanner);
+
     const sectionTitles = {
       'dashboard': 'Dashboard',
       'contribution': 'My Contribution',
@@ -885,6 +910,7 @@ footer a:hover { color: var(--g); }
     document.getElementById('menu-btn').addEventListener('click', openSidebar);
     overlay.addEventListener('click', closeSidebar);
 
+    // ── Logout (intentional — wipes tokens, that's correct) ──
     document.getElementById('logout-btn').addEventListener('click', async function () {
       let redirectUrl = '/';
       try {
@@ -892,7 +918,7 @@ footer a:hover { color: var(--g); }
           const branch = await api('/api/branches/id/' + state.user.branchId);
           if (branch && branch.slug) redirectUrl = '/join/index.html?branch=' + encodeURIComponent(branch.slug);
         }
-      } catch (e) {}
+      } catch (e) { /* ignore — still log out */ }
       window.ROSCA_API.clearTokens();
       window.location.href = redirectUrl;
     });
@@ -902,9 +928,14 @@ footer a:hover { color: var(--g); }
       return name.trim().split(/\s+/).map(function (s) { return s[0]; }).slice(0, 2).join('').toUpperCase();
     }
 
-    // ── Boot ─────────────────────────────────────────────────
+    // ── Boot: loadMe is the critical path. DO NOT wipe tokens on transient errors. ──
     async function loadMe() {
-      if (!window.ROSCA_API.getAccessToken()) { window.location.href = '/?login=1'; return false; }
+      // No access token at all → the refresh flow needs at least a refresh token.
+      // If neither exists, then genuinely bounce to login.
+      if (!window.ROSCA_API.getAccessToken() && !window.ROSCA_API.getRefreshToken()) {
+        window.location.href = '/?login=1';
+        return false;
+      }
       try {
         const user = await api('/api/users/me');
         state.user = user;
@@ -927,7 +958,7 @@ footer a:hover { color: var(--g); }
             document.getElementById('sidebar-branch-name').textContent = 
               (branch.branding && branch.branding.displayName) || branch.name;
             state.branch = branch;
-          } catch (err) {}
+          } catch (err) { /* ignore — cosmetic only */ }
         }
 
         try {
@@ -940,7 +971,7 @@ footer a:hover { color: var(--g); }
               document.getElementById('nav-renewal').style.display = 'flex';
             }
           }
-        } catch (err) {}
+        } catch (err) { /* ignore — user may not be in a circle yet */ }
 
         // Check KYC status for banner
         try {
@@ -968,8 +999,23 @@ footer a:hover { color: var(--g); }
 
         return true;
       } catch (err) {
-        window.ROSCA_API.clearTokens();
-        window.location.href = '/?login=1';
+        // ─────────────────────────────────────────────────────
+        // CRITICAL: never wipe tokens on transient errors.
+        // api.js already redirected if the session genuinely expired.
+        // ─────────────────────────────────────────────────────
+        if (err && (err.code === 'AUTH_TOKEN_INVALID' || err.code === 'AUTH_SESSION_ENDED')) {
+          // api.js has already called redirectToLogin. Nothing else to do.
+          return false;
+        }
+        if (err && err.code === 'NETWORK_ERROR') {
+          // Cold mobile wake-up — radio not ready yet. KEEP THE SESSION.
+          showNetworkBanner();
+          toast('Connection issue — please retry in a moment.', 'error');
+          return false;
+        }
+        // Unknown server error — keep session, let user retry.
+        console.warn('[boot] loadMe failed:', err);
+        toast('Could not reach server. Please retry.', 'error');
         return false;
       }
     }
@@ -1115,6 +1161,7 @@ footer a:hover { color: var(--g); }
 
       } catch (err) {
         console.error(err);
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
       }
     }
 
@@ -1184,12 +1231,16 @@ footer a:hover { color: var(--g); }
         content.style.display = 'none';
         empty.style.display = 'block';
         
-        if (err.code === 'CONTRIB_KYC_REQUIRED') {
+        if (err && err.code === 'CONTRIB_KYC_REQUIRED') {
           empty.querySelector('h3').textContent = 'Identity Verification Required';
           empty.querySelector('p').textContent = 'Your Branch Admin must approve your KYC before you can contribute.';
+        } else if (err && err.code === 'NETWORK_ERROR') {
+          showNetworkBanner();
+          empty.querySelector('h3').textContent = 'Connection issue';
+          empty.querySelector('p').textContent = 'Please check your connection and try again.';
         } else {
           empty.querySelector('h3').textContent = 'Contributions are not yet open';
-          empty.querySelector('p').textContent = err.message || 'We will let you know when it is time to contribute.';
+          empty.querySelector('p').textContent = (err && err.message) || 'We will let you know when it is time to contribute.';
         }
       }
     }
@@ -1215,7 +1266,8 @@ footer a:hover { color: var(--g); }
         toast('Receipt uploaded! Awaiting admin approval.', 'success');
         loadContribution();
       } catch (err) {
-        toast('Upload failed: ' + err.message, 'error');
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        toast('Upload failed: ' + (err && err.message ? err.message : 'Unknown error'), 'error');
       } finally {
         if (!succeeded) { btn.disabled = false; btn.textContent = 'Upload Receipt'; }
       }
@@ -1243,7 +1295,8 @@ footer a:hover { color: var(--g); }
           '</tr>';
         }).join('');
       } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:40px;color:#e32626;">' + escapeHtml(err.message) + '</td></tr>';
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:40px;color:#e32626;">' + escapeHtml(err && err.message ? err.message : 'Error') + '</td></tr>';
       }
     }
 
@@ -1348,7 +1401,8 @@ footer a:hover { color: var(--g); }
 
         renderLedger();
       } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#e32626;">' + escapeHtml(err.message) + '</td></tr>';
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:#e32626;">' + escapeHtml(err && err.message ? err.message : 'Error') + '</td></tr>';
         gallery.innerHTML = '<p style="color:#e32626;font-size:13px;">Failed to load receipts.</p>';
       } finally {
         ledgerLoadedOnce = true;
@@ -1502,7 +1556,8 @@ footer a:hover { color: var(--g); }
           '</tr>';
         }).join('');
       } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#e32626;">' + escapeHtml(err.message) + '</td></tr>';
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#e32626;">' + escapeHtml(err && err.message ? err.message : 'Error') + '</td></tr>';
       }
     }
 
@@ -1533,7 +1588,11 @@ footer a:hover { color: var(--g); }
           text.textContent = 'Renewal state: ' + status.renewalState;
           actions.style.display = 'none';
         }
-      } catch (err) { content.style.display = 'none'; empty.style.display = 'block'; }
+      } catch (err) {
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        content.style.display = 'none';
+        empty.style.display = 'block';
+      }
     }
 
     document.querySelectorAll('#renewal-actions button').forEach(function (btn) {
@@ -1546,7 +1605,8 @@ footer a:hover { color: var(--g); }
           toast('Vote submitted', 'success');
           loadRenewal();
         } catch (err) {
-          toast('Vote failed: ' + err.message, 'error');
+          if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+          toast('Vote failed: ' + (err && err.message ? err.message : 'Unknown error'), 'error');
           btn.disabled = false;
         }
       });
@@ -1582,7 +1642,10 @@ footer a:hover { color: var(--g); }
             document.getElementById('kyc-account-name').value = kyc.legalName || state.user.fullName;
           }
         }
-      } catch (err) { form.style.display = 'block'; }
+      } catch (err) {
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        form.style.display = 'block';
+      }
     }
 
     document.getElementById('kyc-form').addEventListener('submit', async function (e) {
@@ -1612,7 +1675,8 @@ footer a:hover { color: var(--g); }
         toast('Verification submitted! Awaiting Branch Admin approval.', 'success');
         loadKyc();
       } catch (err) {
-        toast('Submission failed: ' + err.message, 'error');
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        toast('Submission failed: ' + (err && err.message ? err.message : 'Unknown error'), 'error');
       } finally {
         btn.disabled = false; btn.textContent = 'Submit for Verification';
       }
@@ -1637,7 +1701,8 @@ footer a:hover { color: var(--g); }
         state.user = await api('/api/users/me', { method: 'PATCH', body: body });
         toast('Profile saved', 'success');
       } catch (err) {
-        toast('Save failed: ' + err.message, 'error');
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        toast('Save failed: ' + (err && err.message ? err.message : 'Unknown error'), 'error');
       } finally {
         btn.disabled = false; btn.textContent = 'Save profile';
       }
@@ -1653,9 +1718,14 @@ footer a:hover { color: var(--g); }
           body: { currentPassword: document.getElementById('sf-cur-pw').value, newPassword: document.getElementById('sf-new-pw').value },
         });
         toast('Password updated. You will be logged out.', 'success');
-        setTimeout(function () { window.ROSCA_API.clearTokens(); window.location.href = '/?login=1'; }, 1500);
+        // Intentional logout: password change should invalidate the session.
+        setTimeout(function () {
+          window.ROSCA_API.clearTokens();
+          window.location.href = '/?login=1';
+        }, 1500);
       } catch (err) {
-        toast('Update failed: ' + err.message, 'error');
+        if (err && err.code === 'NETWORK_ERROR') showNetworkBanner();
+        toast('Update failed: ' + (err && err.message ? err.message : 'Unknown error'), 'error');
         btn.disabled = false; btn.textContent = 'Update password';
       }
     });
