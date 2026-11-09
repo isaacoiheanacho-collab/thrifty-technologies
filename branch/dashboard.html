@@ -1655,7 +1655,10 @@ footer a:hover { color: var(--g); }
 
     // ── Boot ─────────────────────────────────────────────────
     async function loadMe() {
-      if (!window.ROSCA_API.getAccessToken()) { window.location.href = '/?login=1'; return false; }
+      if (!window.ROSCA_API.getAccessToken()) {
+        window.location.href = '/?login=1';
+        return false;
+      }
       try {
         const user = await api('/api/users/me');
         state.user = user;
@@ -1683,9 +1686,27 @@ footer a:hover { color: var(--g); }
 
         return true;
       } catch (err) {
-        window.ROSCA_API.clearTokens();
-        window.location.href = '/?login=1';
-        return false;
+        // Only log out if the session is definitively dead on the server.
+        // Network wake-up races, cold starts, and 5xx errors must NOT
+        // destroy a valid mobile session.
+        if (
+          err.status === 401 ||
+          err.status === 403 ||
+          err.code === 'AUTH_TOKEN_INVALID' ||
+          err.code === 'AUTH_REFRESH_INVALID'
+        ) {
+          window.ROSCA_API.clearTokens();
+          window.location.href = '/?login=1';
+          return false;
+        }
+
+        // Transient network / server problem — preserve the session.
+        // Surface a soft notice and let the dashboard render with
+        // whatever cached state it has.
+        try {
+          toast('Network connection unstable. Using cached session.', 'info');
+        } catch (_) {}
+        return true;
       }
     }
 

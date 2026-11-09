@@ -8,14 +8,16 @@
  *   - Parse JSON and unwrap the { ok, data } envelope
  *   - On 401: attempt ONE refresh via /api/auth/refresh using the
  *     refreshToken from localStorage, retry the original request once.
- *     If refresh fails → clear tokens, redirect to the platform login page.
+ *     Only redirect to login if the server explicitly declares the
+ *     refresh token dead. Network errors and 5xx errors PRESERVE the
+ *     session so a mobile app wake-up race doesn't log the user out.
  *   - Automatically attach branchSlug to login requests if present in URL
  *   - Expose helpers for token storage, logout, and role-based redirect.
  *
- * NOTE ON PERSISTENCE:
- *   Both access and refresh tokens are stored in localStorage (NOT sessionStorage)
- *   so that mobile app switches, screen swipes, and browser restarts keep the
- *   session alive until the user explicitly logs out.
+ * PERSISTENCE:
+ *   Tokens live in localStorage (NOT sessionStorage) so that mobile app
+ *   switches, screen swipes, and browser restarts keep the session alive
+ *   until the user explicitly logs out.
  */
 
 (function () {
@@ -27,8 +29,6 @@
   }
 
   // ── Token storage ─────────────────────────────────────────────
-  // All token reads/writes go through localStorage so sessions survive
-  // app closes and backgrounded tabs on mobile.
   function getAccessToken() {
     return localStorage.getItem(cfg.ACCESS_KEY);
   }
@@ -48,14 +48,10 @@
   }
 
   function clearTokens() {
-    // Explicit removals for the primary keys
     try { localStorage.removeItem(cfg.ACCESS_KEY); } catch (_) {}
     try { localStorage.removeItem(cfg.REFRESH_KEY); } catch (_) {}
 
-    // Belt-and-braces cleanup for any ROSCA-prefixed state left behind
-    // (e.g. cached role strings, last-selected branch, etc.).
-    // We deliberately avoid localStorage.clear() so we don't wipe
-    // unrelated state from other tabs/apps on the same origin.
+    // Sweep any ROSCA-prefixed leftovers, without touching unrelated origins.
     try {
       const toRemove = [];
       for (let i = 0; i < localStorage.length; i++) {
@@ -81,15 +77,10 @@
     const next = encodeURIComponent(here);
     if (cfg.DEBUG) console.warn('[api] redirect to login:', reason || 'session expired');
 
-    // Instead of a hard redirect to /auth/login.html (which no longer exists),
-    // send them to the platform landing page with the login dropdown open.
-    // If they were on a branch page, we pass the branch slug so they land correctly.
     const params = new URLSearchParams(window.location.search);
     const branch = params.get('branch');
     let dest = '/?login=1';
-    if (branch) {
-      dest += '&branch=' + encodeURIComponent(branch);
-    }
+    if (branch) dest += '&branch=' + encodeURIComponent(branch);
     dest += '&next=' + next;
 
     window.location.href = dest;
@@ -113,14 +104,22 @@
     }
   }
 
-  // ── Refresh flow ──────────────────────────────────────────────
+  // ── Refresh flow (network-resilient) ──────────────────────────
+  //
+  // Return values:
+  //   true            → tokens refreshed successfully; retry the request
+  //   'EXPIRED'       → server said the refresh token is dead; log the user out
+  //   'NO_TOKEN'      → there's no refresh token in storage; log the user out
+  //   'NETWORK_ERROR' → fetch threw (offline / wake-up race); PRESERVE session
+  //   'SERVER_ERROR'  → 5xx or unexpected failure; PRESERVE session
+  //
   let refreshInFlight = null;
   async function attemptRefresh() {
     if (refreshInFlight) return refreshInFlight;
 
     refreshInFlight = (async () => {
       const refreshToken = getRefreshToken();
-      if (!refreshToken) return false;
+      if (!refreshToken) return 'NO_TOKEN';
 
       try {
         const res = await fetch(cfg.API_BASE + '/api/auth/refresh', {
@@ -131,12 +130,27 @@
 
         const json = await res.json().catch(() => ({}));
 
-        if (!res.ok || !json.ok) return false;
+        if (!res.ok || !json.ok) {
+          // Definitive server-side rejection of the refresh token.
+          if (
+            res.status === 401 ||
+            res.status === 403 ||
+            (json.error && json.error.code === 'AUTH_REFRESH_INVALID')
+          ) {
+            return 'EXPIRED';
+          }
+          // Any other 4xx / 5xx is a transient server problem — do NOT
+          // destroy the session over it.
+          return 'SERVER_ERROR';
+        }
+
         setTokens(json.data.tokens.accessToken, json.data.tokens.refreshToken);
         return true;
       } catch (err) {
-        if (cfg.DEBUG) console.error('[api] refresh threw', err);
-        return false;
+        // Network throw = offline, or the app was just woken from a
+        // swipe-close and the network stack isn't ready yet.
+        if (cfg.DEBUG) console.warn('[api] refresh network error (preserving session):', err);
+        return 'NETWORK_ERROR';
       } finally {
         refreshInFlight = null;
       }
@@ -150,63 +164,72 @@
     options = options || {};
     const token = getAccessToken();
 
-    // Build headers
     const headers = Object.assign({}, options.headers || {});
     if (token) headers['Authorization'] = 'Bearer ' + token;
 
-    // Serialise body: JSON unless FormData
     let body = options.body;
     if (body && !(body instanceof FormData)) {
       headers['Content-Type'] = 'application/json';
 
-      // If we're logging in from a branch page (URL has ?branch=...),
-      // automatically attach it to the login payload so the backend can
-      // enforce that the user belongs to that branch.
       if (path.includes('/api/auth/login') && typeof body === 'object' && !body.branchSlug) {
         const params = new URLSearchParams(window.location.search);
         const branchSlug = params.get('branch');
-        if (branchSlug) {
-          body = Object.assign({}, body, { branchSlug });
-        }
+        if (branchSlug) body = Object.assign({}, body, { branchSlug });
       }
 
       body = JSON.stringify(body);
     }
 
-    // Build full URL
     const url = path.startsWith('http') ? path : cfg.API_BASE + path;
 
-    // First attempt
-    let res = await fetch(url, {
-      method: options.method || 'GET',
-      headers,
-      body,
-    });
+    let res;
+    try {
+      res = await fetch(url, {
+        method: options.method || 'GET',
+        headers,
+        body,
+      });
+    } catch (netErr) {
+      // The initial request itself failed to reach the network.
+      // Treat it as transient: never wipe tokens over this.
+      if (cfg.DEBUG) console.warn('[api] request network error:', path, netErr);
+      throw new ApiError(
+        'Network connection issue. Please check your connection.',
+        'NETWORK_ERROR',
+        0,
+        netErr
+      );
+    }
 
     // Refresh once on 401
     if (res.status === 401 && !options._retried) {
-      const refreshed = await attemptRefresh();
-      if (refreshed) {
+      const refreshResult = await attemptRefresh();
+
+      if (refreshResult === true) {
         return request(path, Object.assign({}, options, { _retried: true }));
       }
-      redirectToLogin('refresh failed');
-      throw new ApiError('Session expired', 'AUTH_TOKEN_INVALID', 401);
+
+      if (refreshResult === 'EXPIRED' || refreshResult === 'NO_TOKEN') {
+        redirectToLogin('session expired');
+        throw new ApiError('Session expired', 'AUTH_TOKEN_INVALID', 401);
+      }
+
+      // NETWORK_ERROR / SERVER_ERROR — preserve session, surface a
+      // soft error the caller can decide to handle (retry, show toast).
+      throw new ApiError(
+        'Network connection issue. Please check your connection.',
+        'NETWORK_ERROR',
+        503
+      );
     }
 
-    // Parse response
     let json = {};
-    try {
-      json = await res.json();
-    } catch (_) {
-      json = {};
-    }
+    try { json = await res.json(); } catch (_) { json = {}; }
 
-    // Success
     if (res.ok && json.ok) {
       return json.data;
     }
 
-    // Error
     const errCode = (json.error && json.error.code) || 'HTTP_' + res.status;
     const errMsg = (json.error && json.error.message) || 'Request failed';
     const errDetails = json.error && json.error.details;
@@ -228,7 +251,6 @@
     request,
   };
 
-  // ── Public API ────────────────────────────────────────────────
   window.ROSCA_API = Object.freeze({
     api: request,
     request,
