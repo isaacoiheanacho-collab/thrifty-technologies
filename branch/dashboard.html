@@ -457,6 +457,26 @@ footer a:hover { color: var(--g); }
   font-size: 13px;
 }
 
+/* ── Full Photo Profile Styling ──────────────────────── */
+.profile-full-image-wrap {
+  width: 100%;
+  max-height: 340px;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.profile-full-image-wrap img {
+  width: 100%;
+  height: 100%;
+  max-height: 340px;
+  object-fit: contain; /* Ensures the entire full photo is seen without cropping */
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .sidebar { transform: translateX(-100%); transition: transform 250ms ease-out; }
@@ -1318,14 +1338,21 @@ footer a:hover { color: var(--g); }
 <!-- ═══ PROFILE MODAL ═══ -->
 <div class="modal" id="profile-modal">
   <div class="modal__content profile-modal-card">
-    <!-- Header Close Button -->
+    <!-- Header -->
     <div class="profile-modal__header">
       <h2 style="font-size: 20px; font-weight: 800; margin: 0; color: var(--ink);">Account Profile</h2>
       <button class="btn btn--ghost btn--sm profile-modal__close" onclick="document.getElementById('profile-modal').classList.remove('is-open')" type="button">✕</button>
     </div>
 
-    <!-- Full Banner / Hero Card with Photo -->
-    <div class="profile-card-hero">
+    <!-- Full Photo Preview Card -->
+    <div class="profile-photo-container" id="profile-photo-container" style="display: none;">
+      <div class="profile-full-image-wrap">
+        <img id="modal-full-photo" src="" alt="Full Profile Photo" />
+      </div>
+    </div>
+
+    <!-- Fallback Avatar Initials Card (if no photo exists) -->
+    <div class="profile-card-hero" id="profile-fallback-hero">
       <div class="profile-card-banner"></div>
       <div class="profile-card-body">
         <div class="profile-photo-wrapper">
@@ -1339,6 +1366,13 @@ footer a:hover { color: var(--g); }
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Name & Role text if full photo is shown -->
+    <div id="profile-text-info" style="margin-bottom: 16px; text-align: center; display: none;">
+      <h3 id="modal-profile-name-alt" style="font-size: 18px; font-weight: 800; margin: 0 0 4px; color: var(--ink);"></h3>
+      <div id="modal-profile-email-alt" style="font-size: 12px; color: var(--muted); margin-bottom: 6px;"></div>
+      <span class="badge badge--success" id="modal-profile-role-alt">BRANCH ADMIN</span>
     </div>
 
     <!-- Details Table -->
@@ -1518,18 +1552,39 @@ footer a:hover { color: var(--g); }
       const user = state.user || {};
       const branch = state.branch || {};
 
-      document.getElementById('modal-profile-name').textContent = user.fullName || 'Admin';
-      document.getElementById('modal-profile-email').textContent = user.email || '—';
-      document.getElementById('modal-profile-phone').textContent = user.phone || '—';
-      document.getElementById('modal-profile-branch').textContent = branch.name || 'Unassigned';
-      document.getElementById('modal-profile-role').textContent = user.role ? user.role.replace('_', ' ') : 'BRANCH ADMIN';
+      const phone = user.phone || '—';
+      const branchName = branch.name || 'Unassigned';
+      const roleText = user.role ? user.role.replace('_', ' ') : 'BRANCH ADMIN';
 
-      const avatarEl = document.getElementById('modal-profile-avatar');
+      document.getElementById('modal-profile-phone').textContent = phone;
+      document.getElementById('modal-profile-branch').textContent = branchName;
 
-      if (user.selfieUrl || user.avatarUrl) {
-        const photoUrl = user.selfieUrl || user.avatarUrl;
-        avatarEl.innerHTML = `<img src="${photoUrl}" alt="${escapeHtml(user.fullName || 'Profile')}" />`;
+      const photoUrl = user.selfieUrl || user.avatarUrl;
+      const photoContainer = document.getElementById('profile-photo-container');
+      const fallbackHero = document.getElementById('profile-fallback-hero');
+      const textInfo = document.getElementById('profile-text-info');
+
+      if (photoUrl) {
+        // Show full uncropped photo view
+        photoContainer.style.display = 'block';
+        fallbackHero.style.display = 'none';
+        textInfo.style.display = 'block';
+
+        document.getElementById('modal-full-photo').src = photoUrl;
+        document.getElementById('modal-profile-name-alt').textContent = user.fullName || 'Admin';
+        document.getElementById('modal-profile-email-alt').textContent = user.email || '';
+        document.getElementById('modal-profile-role-alt').textContent = roleText;
       } else {
+        // Fallback to initials circle card if no full photo is available
+        photoContainer.style.display = 'none';
+        fallbackHero.style.display = 'block';
+        textInfo.style.display = 'none';
+
+        document.getElementById('modal-profile-name').textContent = user.fullName || 'Admin';
+        document.getElementById('modal-profile-email').textContent = user.email || '—';
+        document.getElementById('modal-profile-role').textContent = roleText;
+
+        const avatarEl = document.getElementById('modal-profile-avatar');
         avatarEl.textContent = initials(user.fullName || 'A');
       }
 
