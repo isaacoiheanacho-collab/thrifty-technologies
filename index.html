@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#00daf3">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="manifest" href="/manifest.json">
   <title>ROSCA Thrift &amp; Savings — Digital Micro-Finance</title>
 
   <!-- Prevent the public page from flashing while a saved PWA session is restored. -->
@@ -643,6 +647,7 @@
         <div class="hero__actions">
           <a href="/branch/register.html" class="btn btn--primary">Become a Community Partner</a>
           <button type="button" class="btn btn--ghost" data-login-trigger>Log in</button>
+          <button type="button" class="btn btn--ghost" id="pwa-install-button" hidden>Install app</button>
         </div>
 
         <div class="hero__stats">
@@ -1320,5 +1325,56 @@
   })();
 </script>
 
+
+<!-- PWA install support: Android/Chromium prompt and iOS Home Screen guidance. -->
+<script>
+(function () {
+  const button = document.getElementById('pwa-install-button');
+  if (!button) return;
+
+  let installPrompt = null;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+
+  if (isStandalone) {
+    button.hidden = true;
+    return;
+  }
+
+  button.hidden = false;
+  button.textContent = isIOS ? 'Add to Home Screen' : 'Install app';
+
+  window.addEventListener('beforeinstallprompt', function (event) {
+    event.preventDefault();
+    installPrompt = event;
+    button.hidden = false;
+    button.textContent = 'Install app';
+  });
+
+  window.addEventListener('appinstalled', function () {
+    installPrompt = null;
+    button.hidden = true;
+  });
+
+  button.addEventListener('click', async function () {
+    if (isIOS) {
+      alert('To install ROSCA on your iPhone or iPad:\n\n1. Open this page in Safari.\n2. Tap the Share button.\n3. Choose “Add to Home Screen”.\n4. Tap “Add”.\n\nThen open ROSCA from the new Home Screen icon.');
+      return;
+    }
+
+    if (installPrompt) {
+      installPrompt.prompt();
+      const choice = await installPrompt.userChoice;
+      installPrompt = null;
+      if (choice && choice.outcome === 'accepted') button.hidden = true;
+      return;
+    }
+
+    alert('To install ROSCA, open your browser menu (⋮ in Chrome) and choose “Install app” or “Add to Home screen”.');
+  });
+})();
+</script>
 </body>
 </html>
