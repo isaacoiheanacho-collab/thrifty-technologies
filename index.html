@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#00daf3">
+  <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg">
+  <meta name="theme-color" content="#073F32">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
@@ -31,6 +32,7 @@
 
   <link rel="stylesheet" href="/assets/css/tokens.css">
   <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/brand.css">
 
   <style>
     /* ── PWA session launch screen ───────────────────────── */
@@ -529,10 +531,7 @@
 
   <!-- 1. HEADER -->
   <header class="header">
-    <div class="header__brand">
-      <span class="header__brand-top">Thrifty Technologies</span>
-      <span class="header__brand-bottom">ROSCA Thrift &amp; Savings</span>
-    </div>
+    <a href="/" class="header__brand" aria-label="ROSCA Thrift & Savings home"><img src="/assets/brand/rosca-logo.svg" alt="ROSCA Thrift & Savings"></a>
     
     <!-- Desktop Nav -->
     <div class="header__right-group">
@@ -968,7 +967,7 @@
   <footer class="footer">
     <div class="footer__inner">
       <div class="footer__brand-col">
-        <div class="footer__brand">ROSCA Thrift &amp; Savings</div>
+        <div class="footer__brand"><img src="/assets/brand/rosca-logo.svg" alt="ROSCA Thrift & Savings"></div>
         <p class="footer__tagline">
           The digital ledger for church community savings circles.
           Operated by Thrifty Technologies, United Kingdom.

@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#00daf3">
+  <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg">
+  <meta name="theme-color" content="#073F32">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
@@ -16,6 +17,7 @@
 
   <link rel="stylesheet" href="/assets/css/tokens.css">
   <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/brand.css">
 
   <style>
     html { scroll-behavior: smooth; }
@@ -580,10 +582,7 @@
   <div id="main-content" style="display: none;">
 
     <header class="header">
-      <a href="/" class="header__brand">
-        <span class="header__brand-top" id="brand-branch">Loading…</span>
-        <span class="header__brand-bottom">ROSCA Thrift &amp; Savings</span>
-      </a>
+      <a href="/" class="header__brand" aria-label="ROSCA Thrift & Savings home"><img src="/assets/brand/rosca-logo.svg" alt="ROSCA Thrift & Savings"><span class="header__branch-context" id="brand-branch">Loading…</span></a>
       
       <div class="header__right-group">
         <nav class="header__nav">
@@ -818,7 +817,7 @@
     <footer class="footer">
       <div class="footer__inner">
         <div class="footer__brand-col">
-          <div class="footer__brand">ROSCA Thrift &amp; Savings</div>
+          <div class="footer__brand"><img src="/assets/brand/rosca-logo.svg" alt="ROSCA Thrift & Savings"></div>
           <p class="footer__tagline">The digital ERP application for church community savings circles. Operated by Thrifty Technologies, United Kingdom.</p>
         </div>
         <div>
