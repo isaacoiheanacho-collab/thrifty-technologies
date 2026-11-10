@@ -470,6 +470,40 @@
         transform: translateX(-50%) translateY(0) !important;
       }
     }
+
+    /* Mobile login: keep the form inside the visible screen, including while the
+       iOS/Android keyboard is open. Desktop retains its anchored dropdown. */
+    @media (max-width: 820px) {
+      .login-dropdown {
+        position: fixed;
+        top: calc(var(--login-viewport-offset-top, 0px) + 12px) !important;
+        right: 12px !important;
+        bottom: auto !important;
+        left: 12px !important;
+        width: auto !important;
+        max-width: none;
+        max-height: calc(var(--login-viewport-height, 100dvh) - 24px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        padding: 22px 20px;
+        transform: none !important;
+        border-radius: 14px;
+        box-shadow: 0 24px 60px rgba(0,0,0,.75), 0 0 0 100vmax rgba(0,0,0,.58);
+        scroll-padding-block: 20px;
+      }
+      .login-dropdown.is-open {
+        transform: none !important;
+      }
+      .login-dropdown::before {
+        display: none;
+      }
+      .login-dropdown .form-input,
+      .login-dropdown button {
+        scroll-margin-block: 16px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -1044,12 +1078,18 @@
 
     function openDropdown(trigger) {
       currentTrigger = trigger;
-      positionDropdown(trigger);
+      const mobileLogin = window.matchMedia('(max-width: 820px)').matches;
+      if (!mobileLogin) positionDropdown(trigger);
       dropdown.classList.add('is-open');
       dropdown.setAttribute('aria-hidden', 'false');
-      setTimeout(function () {
-        phoneInput.focus();
-      }, 60);
+
+      // Do not summon the mobile keyboard just by opening the panel. On desktop,
+      // preserve the existing convenience of focusing the phone field.
+      if (!mobileLogin) {
+        setTimeout(function () {
+          phoneInput.focus();
+        }, 60);
+      }
     }
 
     function closeDropdown() {
@@ -1086,12 +1126,31 @@
     });
 
     function reposition() {
-      if (currentTrigger && dropdown.classList.contains('is-open')) {
+      if (currentTrigger && dropdown.classList.contains('is-open') &&
+          !window.matchMedia('(max-width: 820px)').matches) {
         positionDropdown(currentTrigger);
       }
     }
     window.addEventListener('scroll', reposition, { passive: true });
     window.addEventListener('resize', reposition);
+
+    // iOS Safari can keep the layout viewport larger than the visible area when
+    // its keyboard opens. Track the visual viewport so the login panel remains
+    // scrollable within the space the user can actually see.
+    function syncLoginVisualViewport() {
+      if (!window.matchMedia('(max-width: 820px)').matches) return;
+      const viewport = window.visualViewport;
+      const height = viewport ? viewport.height : window.innerHeight;
+      const offsetTop = viewport ? viewport.offsetTop : 0;
+      document.documentElement.style.setProperty('--login-viewport-height', height + 'px');
+      document.documentElement.style.setProperty('--login-viewport-offset-top', offsetTop + 'px');
+    }
+    syncLoginVisualViewport();
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', syncLoginVisualViewport);
+      window.visualViewport.addEventListener('scroll', syncLoginVisualViewport);
+    }
+    window.addEventListener('resize', syncLoginVisualViewport);
 
     // ── Login submit ────────────────────────────────────────────
     function setLoginStatus(message, kind) {
