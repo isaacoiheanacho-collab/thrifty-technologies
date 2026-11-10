@@ -1146,6 +1146,53 @@
         loginSubmit.textContent = 'Log in';
       }
     });
+
+    // ── Restore an existing session when the installed PWA opens ──
+    // The manifest starts the app at "/", so this page must resume an
+    // existing authenticated session before presenting the login screen.
+    // api.js will refresh an expired access token using the stored refresh
+    // token. Transient network failures never clear either token.
+    let sessionRestoreInFlight = false;
+    let sessionRestoreComplete = false;
+
+    async function restoreExistingSession() {
+      if (sessionRestoreInFlight || sessionRestoreComplete) return;
+
+      const hasAccess = !!window.ROSCA_API.getAccessToken();
+      const hasRefresh = !!window.ROSCA_API.getRefreshToken();
+      if (!hasAccess && !hasRefresh) return;
+
+      sessionRestoreInFlight = true;
+      try {
+        const user = await api('/api/users/me');
+        if (user && user.role) {
+          sessionRestoreComplete = true;
+          window.location.replace(homeForRole(user.role));
+          return;
+        }
+      } catch (err) {
+        // api.js redirects only when the server definitively rejects the
+        // refresh session. For network/cold-start failures, retain tokens
+        // and retry when the device comes back online or the page resumes.
+        if (err && (err.code === 'NETWORK_ERROR' || err.status >= 500 || !navigator.onLine)) {
+          showNetworkBanner();
+          setLoginStatus('Reconnecting… your saved session has been kept.', 'info');
+        } else if (err && err.message) {
+          console.warn('[auth] session restoration could not complete:', err);
+        }
+      } finally {
+        sessionRestoreInFlight = false;
+      }
+    }
+
+    // Run immediately on cold launch, then retry after mobile network
+    // recovery or when the PWA returns to the foreground.
+    restoreExistingSession();
+    window.addEventListener('online', restoreExistingSession);
+    window.addEventListener('pageshow', restoreExistingSession);
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') restoreExistingSession();
+    });
   })();
 </script>
 
