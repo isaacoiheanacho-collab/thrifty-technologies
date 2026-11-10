@@ -1,5 +1,8 @@
 {
   "rewrites": [
+    { "source": "/sw.js", "destination": "/sw.js" },
+    { "source": "/manifest.json", "destination": "/manifest.json" },
+
     { "source": "/about", "destination": "/about.html" },
     { "source": "/partner", "destination": "/partner.html" },
     { "source": "/contact", "destination": "/contact.html" },
