@@ -6,6 +6,17 @@
   <meta name="theme-color" content="#00daf3">
   <title>ROSCA Thrift &amp; Savings — Digital Micro-Finance</title>
 
+  <!-- Prevent the public page from flashing while a saved PWA session is restored. -->
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('rosca_access_token') || localStorage.getItem('rosca_refresh_token')) {
+          document.documentElement.classList.add('session-checking');
+        }
+      } catch (_) {}
+    })();
+  </script>
+
   <!-- PWA & App Links -->
   <link rel="manifest" href="/manifest.json">
   <link rel="apple-touch-icon" href="/assets/images/mobile%20first.jpg">
@@ -18,6 +29,20 @@
   <link rel="stylesheet" href="/assets/css/base.css">
 
   <style>
+    /* ── PWA session launch screen ───────────────────────── */
+    #session-launch-screen { display: none; position: fixed; inset: 0; z-index: 20000; align-items: center; justify-content: center; flex-direction: column; padding: 32px 24px; background: #0b0e11; color: #e1e3e5; text-align: center; font-family: 'Inter', sans-serif; }
+    html.session-checking #session-launch-screen { display: flex; }
+    html.session-checking body > :not(#session-launch-screen) { visibility: hidden !important; }
+    .session-launch__brand { color: #00daf3; font-size: 19px; font-weight: 800; letter-spacing: 0.01em; }
+    .session-launch__caption { margin-top: 8px; color: #8e9196; font-size: 13px; }
+    .session-launch__spinner { width: 30px; height: 30px; margin: 28px 0 18px; border: 3px solid rgba(0,218,243,.18); border-top-color: #00daf3; border-radius: 50%; animation: session-spin .8s linear infinite; }
+    @keyframes session-spin { to { transform: rotate(360deg); } }
+    .session-launch__status { max-width: 300px; min-height: 20px; color: #9ea3a8; font-size: 13px; line-height: 1.5; }
+    .session-launch__actions { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 280px; margin-top: 22px; }
+    .session-launch__button { padding: 12px 18px; border: 1px solid #00daf3; border-radius: 7px; background: #00daf3; color: #00363d; font: 700 14px 'Inter', sans-serif; cursor: pointer; }
+    .session-launch__button--secondary { border-color: #33383f; background: transparent; color: #c4c7c9; }
+    .session-launch__actions[hidden] { display: none; }
+
     /* ── Network banner ──────────────────────────────────── */
     #network-banner { position: fixed; top: 0; left: 0; right: 0; background: #d97706; color: white; padding: 8px 16px; text-align: center; font-size: 13px; font-weight: 600; z-index: 10000; transform: translateY(-100%); transition: transform 0.3s ease-out; }
     #network-banner.show { transform: translateY(0); }
@@ -448,6 +473,17 @@
   </style>
 </head>
 <body>
+
+<div id="session-launch-screen" role="status" aria-live="polite">
+  <div class="session-launch__brand">ROSCA Thrift &amp; Savings</div>
+  <div class="session-launch__caption">Your community savings, securely connected</div>
+  <div class="session-launch__spinner" aria-hidden="true"></div>
+  <div class="session-launch__status" id="session-launch-status">Restoring your secure session…</div>
+  <div class="session-launch__actions" id="session-launch-actions" hidden>
+    <button type="button" class="session-launch__button" id="session-launch-retry">Try again</button>
+    <button type="button" class="session-launch__button session-launch__button--secondary" id="session-launch-continue">Continue to public page</button>
+  </div>
+</div>
 
 <div id="network-banner">You are offline — we'll retry when you're back.</div>
 
@@ -1155,12 +1191,40 @@
     let sessionRestoreInFlight = false;
     let sessionRestoreComplete = false;
 
+    const launchScreen = document.getElementById('session-launch-screen');
+    const launchStatus = document.getElementById('session-launch-status');
+    const launchActions = document.getElementById('session-launch-actions');
+    const launchSpinner = launchScreen.querySelector('.session-launch__spinner');
+
+    function revealPublicPage() {
+      sessionRestoreComplete = true;
+      document.documentElement.classList.remove('session-checking');
+    }
+
+    function showLaunchRetry(message) {
+      launchStatus.textContent = message;
+      launchSpinner.style.display = 'none';
+      launchActions.hidden = false;
+    }
+
+    document.getElementById('session-launch-retry').addEventListener('click', function () {
+      launchActions.hidden = true;
+      launchSpinner.style.display = '';
+      launchStatus.textContent = 'Restoring your secure session…';
+      restoreExistingSession();
+    });
+
+    document.getElementById('session-launch-continue').addEventListener('click', revealPublicPage);
+
     async function restoreExistingSession() {
       if (sessionRestoreInFlight || sessionRestoreComplete) return;
 
       const hasAccess = !!window.ROSCA_API.getAccessToken();
       const hasRefresh = !!window.ROSCA_API.getRefreshToken();
-      if (!hasAccess && !hasRefresh) return;
+      if (!hasAccess && !hasRefresh) {
+        revealPublicPage();
+        return;
+      }
 
       sessionRestoreInFlight = true;
       try {
@@ -1170,15 +1234,16 @@
           window.location.replace(homeForRole(user.role));
           return;
         }
+        revealPublicPage();
       } catch (err) {
-        // api.js redirects only when the server definitively rejects the
-        // refresh session. For network/cold-start failures, retain tokens
-        // and retry when the device comes back online or the page resumes.
+        // Preserve saved tokens on network and server failures. Keep the
+        // launch screen visible so the public page does not flash underneath.
         if (err && (err.code === 'NETWORK_ERROR' || err.status >= 500 || !navigator.onLine)) {
           showNetworkBanner();
-          setLoginStatus('Reconnecting… your saved session has been kept.', 'info');
-        } else if (err && err.message) {
+          showLaunchRetry('We could not reach the service. Your saved session is still here. Check your connection and try again.');
+        } else {
           console.warn('[auth] session restoration could not complete:', err);
+          revealPublicPage();
         }
       } finally {
         sessionRestoreInFlight = false;
