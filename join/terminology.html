@@ -14,6 +14,343 @@
   <link rel="stylesheet" href="/assets/css/base.css">
 
   <style>
+
+    html { scroll-behavior: smooth; }
+    body { overflow-x: hidden; background-color: #0b0e11; color: #e1e3e5; font-family: 'Inter', sans-serif; }
+    .page { min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── Header & Mobile Menu ─────────────────────────────────── */
+    .header { padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: rgba(17, 20, 20, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); z-index: 300; border-bottom: 1px solid #1f242b; }
+    
+    .header__brand { display: flex; flex-direction: column; line-height: 1.15; flex-shrink: 0; text-decoration: none; }
+    .header__brand-top { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #8e9196; }
+    .header__brand-bottom { font-size: 16px; font-weight: 800; letter-spacing: 0.02em; color: #00daf3; }
+    
+    .header__right-group { display: flex; align-items: center; gap: 40px; }
+    .header__nav { display: flex; gap: 32px; font-size: 14px; font-weight: 500; align-items: center; }
+    .header__nav a { color: #c4c7c9; text-decoration: none; transition: color 0.2s ease; }
+    .header__nav a:hover { color: #00daf3; }
+    
+    .header__actions { display: flex; gap: 16px; align-items: center; }
+    .header__login { color: #ffffff; font-weight: 600; text-decoration: none; font-size: 14px; padding: 10px 16px; background: transparent; border: 1px solid #33383f; border-radius: 6px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+    .header__login:hover { color: #00daf3; border-color: #00daf3; }
+    .header__cta { background: #00daf3; color: #00363d; font-weight: 700; border-radius: 6px; padding: 10px 20px; font-size: 14px; text-decoration: none; white-space: nowrap; }
+
+    /* Hamburger Button (Hidden on Desktop) */
+    .mobile-menu-btn {
+      display: none;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 28px;
+      cursor: pointer;
+      padding: 0;
+      z-index: 400;
+    }
+
+    /* Mobile Slide-out Menu (Drawer) */
+    .mobile-nav-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 399;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease;
+    }
+    .mobile-nav-overlay.is-open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .mobile-nav-drawer {
+      position: fixed;
+      top: 0;
+      right: -300px;
+      width: 280px;
+      height: 100vh;
+      background: #11151a;
+      border-left: 1px solid #1f242b;
+      z-index: 400;
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+    }
+    .mobile-nav-drawer.is-open {
+      transform: translateX(-300px);
+    }
+    .mobile-nav-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .mobile-nav-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #8e9196;
+    }
+    .mobile-nav-close {
+      background: transparent;
+      border: none;
+      color: #8e9196;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+    }
+    .mobile-nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .mobile-nav-links a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 12px 0;
+      border-bottom: 1px solid #1f242b;
+      transition: color 0.2s;
+    }
+    .mobile-nav-links a:hover {
+      color: #00daf3;
+    }
+    .mobile-nav-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: auto;
+    }
+    .mobile-nav-actions .header__login {
+      width: 100%;
+      text-align: center;
+    }
+    .mobile-nav-actions .header__cta {
+      width: 100%;
+      text-align: center;
+    }
+
+    /* Login dropdown (anchored, floating) */
+    .login-dropdown {
+      position: fixed;
+      z-index: 500;
+      width: 360px;
+      max-width: calc(100vw - 32px);
+      background: var(--surface-container-low, #11151a);
+      border: 1px solid var(--outline-variant, #252b33);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 218, 243, 0.06);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: opacity 160ms ease-out, transform 160ms ease-out, visibility 0s linear 160ms;
+    }
+    .login-dropdown.is-open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      transition: opacity 160ms ease-out, transform 160ms ease-out, visibility 0s;
+    }
+    .login-dropdown::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 24px;
+      width: 10px;
+      height: 10px;
+      background: var(--surface-container-low, #11151a);
+      border-top: 1px solid var(--outline-variant, #252b33);
+      border-left: 1px solid var(--outline-variant, #252b33);
+      transform: rotate(45deg);
+    }
+    .login-dropdown__tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #00daf3;
+      background: rgba(0, 218, 243, 0.1);
+      border: 1px solid rgba(0, 218, 243, 0.3);
+      padding: 3px 9px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+    }
+    .login-dropdown__title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0 0 4px;
+      color: #ffffff;
+    }
+    .login-dropdown__subtitle {
+      font-size: 13px;
+      color: #8e9196;
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+    .login-dropdown .form-row { margin-bottom: 12px; }
+    .login-dropdown .form-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8e9196;
+      margin-bottom: 5px;
+    }
+    .login-dropdown .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      background: #080a0c;
+      border: 1px solid #20252c;
+      border-radius: 6px;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .login-dropdown .form-input:focus {
+      outline: none;
+      border-color: #00daf3;
+      box-shadow: 0 0 0 3px rgba(0, 218, 243, 0.15);
+    }
+    .login-dropdown .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 12px;
+    }
+    .login-dropdown .form-actions a {
+      font-size: 12px;
+      color: #00daf3;
+      text-decoration: none;
+    }
+    .login-dropdown .form-actions a:hover { text-decoration: underline; }
+    .login-dropdown .btn-dropdown-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 20px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      white-space: nowrap;
+      width: 100%;
+    }
+    .login-dropdown .btn-dropdown-action:hover:not(:disabled) { filter: brightness(1.1); }
+    .login-dropdown .btn-dropdown-action:disabled { opacity: 0.5; cursor: not-allowed; }
+    .login-dropdown .form-status {
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-top: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      display: none;
+      white-space: pre-line;
+    }
+    .login-dropdown .form-status.is-visible { display: block; }
+    .login-dropdown .form-status--success { background: rgba(78, 222, 163, 0.1); border: 1px solid #4edea3; color: #4edea3; }
+    .login-dropdown .form-status--error { background: rgba(255, 180, 171, 0.1); border: 1px solid #ffb4ab; color: #ffb4ab; }
+    .login-dropdown .form-status--info { background: rgba(0, 218, 243, 0.08); border: 1px solid #00daf3; color: #00daf3; }
+    .login-dropdown__foot {
+      text-align: center;
+      font-size: 12px;
+      color: #8e9196;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #20252c;
+    }
+    .login-dropdown__foot a { color: #00daf3; font-weight: 600; text-decoration: none; }
+    .login-dropdown__foot a:hover { text-decoration: underline; }
+
+    /* Page Header Hero */
+    .page-hero { padding: 80px 24px 40px; text-align: center; background: #11151a; border-bottom: 1px solid #1f242b; }
+    .page-hero__eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #00daf3; margin-bottom: 12px; }
+    .page-hero h1 { font-size: 42px; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 12px; color: #fff; }
+    .page-hero p { font-size: 16px; color: #8e9196; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+
+    /* Content Section */
+    .section { padding: 64px 24px; }
+    .section__inner { max-width: 900px; margin: 0 auto; }
+    
+    .term-columns { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 768px) { .term-columns { grid-template-columns: 1fr 1fr; gap: 16px; } }
+
+    .accordion__item {
+      border: 1px solid #1f242b;
+      border-radius: 8px;
+      background: #11151a;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .accordion__item:hover { border-color: rgba(0, 218, 243, 0.4); }
+    .accordion__item[open] { background: #161b22; border-color: rgba(0, 218, 243, 0.5); }
+    .accordion__summary {
+      padding: 18px 20px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #e1e3e5;
+      gap: 12px;
+    }
+    .accordion__summary::-webkit-details-marker { display: none; }
+    .accordion__summary::after { content: '+'; font-size: 20px; font-weight: 300; color: #00daf3; line-height: 1; flex-shrink: 0; }
+    .accordion__item[open] .accordion__summary::after { content: '−'; }
+    .accordion__content { padding: 0 20px 20px; color: #8e9196; font-size: 14px; line-height: 1.7; }
+    .accordion__content p { margin: 0; }
+    .accordion__content code { background: rgba(255, 255, 255, 0.06); padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #00daf3; }
+
+    /* Standardized Footer matching homepage */
+    .footer { padding: 56px 24px 32px; border-top: 1px solid #1f242b; background: #060709; margin-top: auto; }
+    .footer__inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; }
+    @media (min-width: 720px) { .footer__inner { grid-template-columns: 2fr 1fr 1fr; gap: 64px; align-items: start; } }
+    .footer__brand-col { display: flex; flex-direction: column; gap: 8px; }
+    .footer__brand { font-size: 20px; font-weight: 800; color: #00daf3; letter-spacing: -0.01em; }
+    .footer__tagline { font-size: 13px; color: #8e9196; max-width: 320px; line-height: 1.6; }
+    .footer__col-title { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8e9196; margin-bottom: 16px; }
+    .footer__col-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer__col-links a { color: #e1e3e5; font-size: 14px; text-decoration: none; transition: color 0.2s; }
+    .footer__col-links a:hover { color: #00daf3; }
+    .footer__bottom { max-width: 1100px; margin: 40px auto 0; padding-top: 24px; border-top: 1px solid #1f242b; display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: #8e9196; }
+    @media (min-width: 720px) { .footer__bottom { flex-direction: row; justify-content: space-between; align-items: center; } }
+
+    /* Mobile Responsive Fixes */
+    @media (max-width: 1024px) {
+      .page-hero { padding: 60px 24px 40px; }
+      .page-hero h1 { font-size: 38px; }
+      .section { padding: 60px 24px; }
+    }
+
+    @media (max-width: 820px) {
+      /* Show Hamburger, Hide Desktop Nav */
+      .mobile-menu-btn { display: block; }
+      .header__right-group { display: none; }
+      
+      /* Keep header padding tight */
+      .header { padding: 16px 20px; }
+    }
+  
+
+/* Preserve the Join-page navigation and return-bar presentation. */
+
     html { scroll-behavior: smooth; }
     body { overflow-x: hidden; background-color: #0b0e11; color: #e1e3e5; font-family: 'Inter', sans-serif; }
     .page { min-height: 100vh; display: flex; flex-direction: column; }
@@ -93,7 +430,8 @@
     .footer__col-links a:hover { color: #00daf3; }
     .footer__bottom { max-width: 1100px; margin: 40px auto 0; padding-top: 24px; border-top: 1px solid #1f242b; display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: #8e9196; }
     @media (min-width: 720px) { .footer__bottom { flex-direction: row; justify-content: space-between; align-items: center; } }
-  </style>
+  
+</style>
 </head>
 <body>
 
@@ -122,40 +460,40 @@
 
   <!-- Hero Section -->
   <section class="page-hero">
-    <div class="page-hero__eyebrow">Platform Glossary</div>
+    <div class="page-hero__eyebrow">Glossary</div>
     <h1>Platform Terminology</h1>
-    <p>Standardized concepts and official nomenclature used across the ROSCA Thrift &amp; Savings ERP application.</p>
+    <p>Clear explanations of the terms used by communities, Community Partners, Community Admins and Co-Savers when managing savings Circles on the platform.</p>
   </section>
 
-  <!-- Content -->
-  <main class="term-grid">
-    <div class="term-card">
-      <h3>Community Partner</h3>
-      <p>The local church group, association, or organization managing the circle's co-savers on the platform.</p>
+  <section class="section">
+    <div class="section__inner">
+      <div class="term-columns">
+        <details class="accordion__item"><summary class="accordion__summary">ROSCA</summary><div class="accordion__content"><p>Rotating Savings and Credit Association. A savings arrangement in which a group of people make contributions at agreed intervals and, according to an agreed sequence, participants receive the pooled contributions.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Community Partner</summary><div class="accordion__content"><p>The community, group or organisation that adopts the Platform to administer its own savings Circles. A Community Partner may appoint one or more Community Admins and may operate multiple Circles. The Partner is responsible for its own community arrangements and the funds administered through its designated account or agreed payment arrangement.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Co-Saver</summary><div class="accordion__content"><p>An individual who joins a Circle and agrees to make contributions in accordance with that Circle’s Rules. A Co-Saver participates in the Circle’s contribution and payout arrangements and is responsible for meeting their agreed obligations.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Circle Rules</summary><div class="accordion__content"><p>The terms and arrangements agreed for an individual Circle. They may cover membership, contribution amounts and due dates, cycle frequency, collection positions, payout arrangements, missed contributions, administration, disputes and renewal. Co-Savers should have access to the applicable Rules before participating.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Community</summary><div class="accordion__content"><p>A group of people connected by a shared purpose, membership or relationship that uses the Platform to administer one or more savings Circles. A community may be a church, association, social or professional group, cultural organisation, online community or another group.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Circle</summary><div class="accordion__content"><p>A savings arrangement established and administered by a Community Partner or its authorised Community Admin. A Partner may operate multiple Circles. Each Circle has its own Co-Savers, contribution arrangements, collection positions, schedule and Circle Rules. "Tenant" may be used internally; "Circle" is the user-facing term.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Slot / Collection Position</summary><div class="accordion__content"><p>A Co-Saver’s agreed position in the Circle’s payout sequence. The available positions depend on the number of Co-Savers and the Circle Rules. The position determines the cycle in which that Co-Saver is scheduled to receive the payout. The method for assigning positions is determined by the Circle’s agreed rules.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Cycle</summary><div class="accordion__content"><p>A scheduled contribution and payout period within a Circle. A cycle may be monthly or follow another interval agreed by the Community Partner and Co-Savers. The Circle Rules set the cycle dates and scheduled recipient.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Tenure</summary><div class="accordion__content"><p>The complete agreed duration of a Circle, made up of its scheduled cycles. The length of a tenure and whether and how the Circle may be renewed are determined by the Circle Rules and the decisions of participating Co-Savers.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Contribution</summary><div class="accordion__content"><p>The amount each Co-Saver agrees to contribute for each cycle. The amount, currency, due date and payment arrangements are set out in the Circle Rules. Thrifty does not receive or hold these contributions.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Pool (Pot)</summary><div class="accordion__content"><p>The total contributions due from or collected from Co-Savers for a particular cycle, calculated according to the Circle Rules. The pool depends on the number of participating Co-Savers and their agreed contribution amounts. The funds are administered through the Circle’s designated account or agreed payment arrangement, not held by Thrifty.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Payout</summary><div class="accordion__content"><p>The amount due to the Co-Saver scheduled to receive the pool for a cycle, calculated in accordance with the Circle Rules. Where applicable, the calculation reflects the TVC adjustment and the 1.5% Platform Maintenance Fee. The Community Partner or authorised Admin arranges the actual transfer. Thrifty does not make or distribute the payout.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">TVC (Time-Value Contribution)</summary><div class="accordion__content"><p>Time-Value Contribution. An adjustment to the Circle payout according to the Co-Saver’s collection position. Under the current calculation model, the annual rate is 2%, applied as a monthly rate of 2% divided by 12. Earlier and later positions are adjusted in relation to the Circle’s midpoint; the midpoint position has no TVC adjustment. This is an administrative calculation; Thrifty does not receive or hold funds.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Platform Maintenance Fee</summary><div class="accordion__content"><p>A fee of 1.5% of the payout amount after the TVC adjustment. The Community Admin deducts the fee from the relevant pool/payout calculation and transfers it to Thrifty for providing and maintaining the Platform. Thrifty does not collect or hold Co-Savers’ contributions or payout funds.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Reference</summary><div class="accordion__content"><p>A code or description used to identify a contribution or payout in Circle records or bank transfer information. Any reference format displayed by the Platform helps the Community Admin and Co-Savers reconcile records. A reference is not proof by itself that a transfer has cleared.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Payment Evidence / Receipt</summary><div class="accordion__content"><p>A transfer confirmation, receipt, reference or other evidence that a Co-Saver or Community Admin may provide where the Circle’s procedures or Platform features request it. Evidence supports reconciliation; the relevant Admin remains responsible for checking the Circle’s bank or payment records before confirming receipt or payment.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">KYC</summary><div class="accordion__content"><p>A process used by some regulated organisations to verify a customer’s identity. KYC is not described here as a standard Thrifty requirement. Any identity information requested for a particular Circle or feature must be explained by the party requesting it, together with the reason and applicable privacy arrangements.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Platform / ERP Application</summary><div class="accordion__content"><p>The digital software provided by Thrifty to support community and Circle administration. It may store and display account, membership, contribution, payout and administrative records. It is a record-keeping and administration tool; it does not receive, hold, safeguard or distribute Circle funds. Record correction and retention follow the Platform’s functionality and applicable policies.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Renewal</summary><div class="accordion__content"><p>The continuation of a Circle after its current tenure ends. Whether a vote or other approval is required, who may participate and what level of agreement is needed are determined by the Circle Rules.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Community Admin</summary><div class="accordion__content"><p>An individual appointed or authorised by a Community Partner to administer the Partner’s Platform account and/or one or more Circles. Depending on the authority given, the Admin may manage membership, maintain records, monitor reported contributions, reconcile payments, arrange payouts and assist with Circle administration.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Platform Operator</summary><div class="accordion__content"><p>Thrifty Technologies, the provider of the software, hosting arrangements, Platform features and technical support. Thrifty provides digital tools for communities to administer their own savings arrangements. It does not organise each community’s Circle or receive, hold, safeguard, pool, invest or distribute Co-Savers’ contributions or payouts.</p></div></details>
+      </div>
     </div>
-    <div class="term-card">
-      <h3>Community Partner Admin</h3>
-      <p>The verified coordinator managing circle allocations, validating member receipts, and supervising monthly payouts.</p>
-    </div>
-    <div class="term-card">
-      <h3>ERP Application</h3>
-      <p>The core digital accounting system that logs every contribution, verifies receipt uploads, and maintains member records.</p>
-    </div>
-    <div class="term-card">
-      <h3>Time-Value Contribution (TVC)</h3>
-      <p>A 2% annual adjustment rate that balances early payout convenience with late slot patience across the 12-month tenure.</p>
-    </div>
-    <div class="term-card">
-      <h3>Platform Maintenance Fee</h3>
-      <p>A standard 1.5% fee applies to each payout to cover the server, database, hosting, and third-party service costs that keep the platform running.</p>
-    </div>
-    <div class="term-card">
-      <h3>Co-Saver / Member</h3>
-      <p>A verified participant belonging to a 12-member savings circle called tenant.</p>
-    </div>
-  </main>
+  </section>
 
-  <!-- Footer -->
+  <!-- FOOTER (Standardized matching homepage footer) -->
   <footer class="footer">
     <div class="footer__inner">
       <div class="footer__brand-col">
