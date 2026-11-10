@@ -14,6 +14,332 @@
   <link rel="stylesheet" href="/assets/css/base.css">
 
   <style>
+
+    html { scroll-behavior: smooth; }
+    body { overflow-x: hidden; background-color: #0b0e11; color: #e1e3e5; font-family: 'Inter', sans-serif; }
+    .page { min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── Header & Mobile Menu ─────────────────────────────────── */
+    .header { padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: rgba(17, 20, 20, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); z-index: 300; border-bottom: 1px solid #1f242b; }
+    
+    .header__brand { display: flex; flex-direction: column; line-height: 1.15; flex-shrink: 0; text-decoration: none; }
+    .header__brand-top { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #8e9196; }
+    .header__brand-bottom { font-size: 16px; font-weight: 800; letter-spacing: 0.02em; color: #00daf3; }
+    
+    .header__right-group { display: flex; align-items: center; gap: 40px; }
+    .header__nav { display: flex; gap: 32px; font-size: 14px; font-weight: 500; align-items: center; }
+    .header__nav a { color: #c4c7c9; text-decoration: none; transition: color 0.2s ease; }
+    .header__nav a:hover { color: #00daf3; }
+    
+    .header__actions { display: flex; gap: 16px; align-items: center; }
+    .header__login { color: #ffffff; font-weight: 600; text-decoration: none; font-size: 14px; padding: 10px 16px; background: transparent; border: 1px solid #33383f; border-radius: 6px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+    .header__login:hover { color: #00daf3; border-color: #00daf3; }
+    .header__cta { background: #00daf3; color: #00363d; font-weight: 700; border-radius: 6px; padding: 10px 20px; font-size: 14px; text-decoration: none; white-space: nowrap; }
+
+    /* Hamburger Button (Hidden on Desktop) */
+    .mobile-menu-btn {
+      display: none;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 28px;
+      cursor: pointer;
+      padding: 0;
+      z-index: 400;
+    }
+
+    /* Mobile Slide-out Menu (Drawer) */
+    .mobile-nav-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 399;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease;
+    }
+    .mobile-nav-overlay.is-open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .mobile-nav-drawer {
+      position: fixed;
+      top: 0;
+      right: -300px;
+      width: 280px;
+      height: 100vh;
+      background: #11151a;
+      border-left: 1px solid #1f242b;
+      z-index: 400;
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+    }
+    .mobile-nav-drawer.is-open {
+      transform: translateX(-300px);
+    }
+    .mobile-nav-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .mobile-nav-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #8e9196;
+    }
+    .mobile-nav-close {
+      background: transparent;
+      border: none;
+      color: #8e9196;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+    }
+    .mobile-nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .mobile-nav-links a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 12px 0;
+      border-bottom: 1px solid #1f242b;
+      transition: color 0.2s;
+    }
+    .mobile-nav-links a:hover {
+      color: #00daf3;
+    }
+    .mobile-nav-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: auto;
+    }
+    .mobile-nav-actions .header__login {
+      width: 100%;
+      text-align: center;
+    }
+    .mobile-nav-actions .header__cta {
+      width: 100%;
+      text-align: center;
+    }
+
+    /* Login dropdown (anchored, floating) */
+    .login-dropdown {
+      position: fixed;
+      z-index: 500;
+      width: 360px;
+      max-width: calc(100vw - 32px);
+      background: var(--surface-container-low, #11151a);
+      border: 1px solid var(--outline-variant, #252b33);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(0, 218, 243, 0.06);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: opacity 160ms ease-out, transform 160ms ease-out, visibility 0s linear 160ms;
+    }
+    .login-dropdown.is-open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      transition: opacity 160ms ease-out, transform 160ms ease-out, visibility 0s;
+    }
+    .login-dropdown::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 24px;
+      width: 10px;
+      height: 10px;
+      background: var(--surface-container-low, #11151a);
+      border-top: 1px solid var(--outline-variant, #252b33);
+      border-left: 1px solid var(--outline-variant, #252b33);
+      transform: rotate(45deg);
+    }
+    .login-dropdown__tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #00daf3;
+      background: rgba(0, 218, 243, 0.1);
+      border: 1px solid rgba(0, 218, 243, 0.3);
+      padding: 3px 9px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+    }
+    .login-dropdown__title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin: 0 0 4px;
+      color: #ffffff;
+    }
+    .login-dropdown__subtitle {
+      font-size: 13px;
+      color: #8e9196;
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+    .login-dropdown .form-row { margin-bottom: 12px; }
+    .login-dropdown .form-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8e9196;
+      margin-bottom: 5px;
+    }
+    .login-dropdown .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      background: #080a0c;
+      border: 1px solid #20252c;
+      border-radius: 6px;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .login-dropdown .form-input:focus {
+      outline: none;
+      border-color: #00daf3;
+      box-shadow: 0 0 0 3px rgba(0, 218, 243, 0.15);
+    }
+    .login-dropdown .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 12px;
+    }
+    .login-dropdown .form-actions a {
+      font-size: 12px;
+      color: #00daf3;
+      text-decoration: none;
+    }
+    .login-dropdown .form-actions a:hover { text-decoration: underline; }
+    .login-dropdown .btn-dropdown-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 20px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      white-space: nowrap;
+      width: 100%;
+    }
+    .login-dropdown .btn-dropdown-action:hover:not(:disabled) { filter: brightness(1.1); }
+    .login-dropdown .btn-dropdown-action:disabled { opacity: 0.5; cursor: not-allowed; }
+    .login-dropdown .form-status {
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-top: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      display: none;
+      white-space: pre-line;
+    }
+    .login-dropdown .form-status.is-visible { display: block; }
+    .login-dropdown .form-status--success { background: rgba(78, 222, 163, 0.1); border: 1px solid #4edea3; color: #4edea3; }
+    .login-dropdown .form-status--error { background: rgba(255, 180, 171, 0.1); border: 1px solid #ffb4ab; color: #ffb4ab; }
+    .login-dropdown .form-status--info { background: rgba(0, 218, 243, 0.08); border: 1px solid #00daf3; color: #00daf3; }
+    .login-dropdown__foot {
+      text-align: center;
+      font-size: 12px;
+      color: #8e9196;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid #20252c;
+    }
+    .login-dropdown__foot a { color: #00daf3; font-weight: 600; text-decoration: none; }
+    .login-dropdown__foot a:hover { text-decoration: underline; }
+
+    /* Page Header Hero */
+    .page-hero { padding: 80px 24px 40px; text-align: center; background: #11151a; border-bottom: 1px solid #1f242b; }
+    .page-hero__eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #00daf3; margin-bottom: 12px; }
+    .page-hero h1 { font-size: 42px; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 12px; color: #fff; }
+    .page-hero p { font-size: 16px; color: #8e9196; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+
+    /* Content Section */
+    .section { padding: 64px 24px; }
+    .section__inner { max-width: 900px; margin: 0 auto; }
+    
+    .terms-card {
+      background: #11151a;
+      border: 1px solid #1f242b;
+      border-radius: 12px;
+      padding: 40px;
+    }
+    .terms-card h4 { color: #fff; font-size: 18px; margin: 32px 0 12px; font-weight: 700; }
+    .terms-card h4:first-child { margin-top: 0; }
+    .terms-card h5 { color: #e1e3e5; font-size: 15px; margin: 24px 0 8px; font-weight: 600; }
+    .terms-card p { color: #8e9196; font-size: 15px; line-height: 1.75; margin-bottom: 16px; }
+    .terms-card ul, .terms-card ol { padding-left: 20px; color: #8e9196; font-size: 15px; line-height: 1.75; margin-bottom: 16px; }
+    .terms-card li { margin-bottom: 8px; }
+    .terms-card a { color: #00daf3; text-decoration: none; }
+    .terms-card a:hover { text-decoration: underline; }
+    .terms-card .formula { background: #080a0c; border: 1px solid #20252c; border-radius: 6px; padding: 12px 16px; font-family: 'Courier New', monospace; font-size: 14px; color: #00daf3; margin: 12px 0; overflow-x: auto; }
+    .terms-card .acknowledgement { background: rgba(0, 218, 243, 0.05); border: 1px solid rgba(0, 218, 243, 0.2); border-radius: 8px; padding: 24px; margin-top: 32px; }
+    .terms-card .acknowledgement h4 { color: #00daf3; margin-top: 0; }
+    .terms-card .acknowledgement ol { margin-bottom: 0; }
+
+    /* Standardized Footer matching homepage */
+    .footer { padding: 56px 24px 32px; border-top: 1px solid #1f242b; background: #060709; margin-top: auto; }
+    .footer__inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; }
+    @media (min-width: 720px) { .footer__inner { grid-template-columns: 2fr 1fr 1fr; gap: 64px; align-items: start; } }
+    .footer__brand-col { display: flex; flex-direction: column; gap: 8px; }
+    .footer__brand { font-size: 20px; font-weight: 800; color: #00daf3; letter-spacing: -0.01em; }
+    .footer__tagline { font-size: 13px; color: #8e9196; max-width: 320px; line-height: 1.6; }
+    .footer__col-title { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8e9196; margin-bottom: 16px; }
+    .footer__col-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer__col-links a { color: #e1e3e5; font-size: 14px; text-decoration: none; transition: color 0.2s; }
+    .footer__col-links a:hover { color: #00daf3; }
+    .footer__bottom { max-width: 1100px; margin: 40px auto 0; padding-top: 24px; border-top: 1px solid #1f242b; display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: #8e9196; }
+    @media (min-width: 720px) { .footer__bottom { flex-direction: row; justify-content: space-between; align-items: center; } }
+
+    /* Mobile Responsive Fixes */
+    @media (max-width: 1024px) {
+      .page-hero { padding: 60px 24px 40px; }
+      .page-hero h1 { font-size: 38px; }
+      .section { padding: 60px 24px; }
+      .terms-card { padding: 24px; }
+    }
+
+    @media (max-width: 820px) {
+      /* Show Hamburger, Hide Desktop Nav */
+      .mobile-menu-btn { display: block; }
+      .header__right-group { display: none; }
+      
+      /* Keep header padding tight */
+      .header { padding: 16px 20px; }
+    }
+  
+
+/* Preserve the Join-page navigation and return-bar presentation. */
+
     html { scroll-behavior: smooth; }
     body { overflow-x: hidden; background-color: #0b0e11; color: #e1e3e5; font-family: 'Inter', sans-serif; }
     .page { min-height: 100vh; display: flex; flex-direction: column; }
@@ -93,7 +419,8 @@
     .footer__col-links a:hover { color: #00daf3; }
     .footer__bottom { max-width: 1100px; margin: 40px auto 0; padding-top: 24px; border-top: 1px solid #1f242b; display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: #8e9196; }
     @media (min-width: 720px) { .footer__bottom { flex-direction: row; justify-content: space-between; align-items: center; } }
-  </style>
+  
+</style>
 </head>
 <body>
 
@@ -122,27 +449,443 @@
 
   <!-- Hero Section -->
   <section class="page-hero">
-    <div class="page-hero__eyebrow">Legal Framework</div>
-    <h1>Platform Terms of Service</h1>
-    <p>Effective Date: January 1, 2026. Governing the operation of the ROSCA Thrift &amp; Savings digital ERP application.</p>
+    <div class="page-hero__eyebrow">Legal</div>
+    <h1>Terms of Service</h1>
+    <p>The terms and conditions governing the use of the ROSCA Thrift &amp; Savings platform as a community partner admin.</p>
   </section>
 
-  <!-- Content -->
-  <main class="legal-content">
-    <h2>1. Platform Role &amp; ERP Infrastructure</h2>
-    <p>Thrifty Technologies Ltd ("Operator", "we", "us") provides software infrastructure for Rotating Savings and Credit Associations (ROSCAs). We provide an electronic ERP application that records contributions, verifies receipts, and tracks payout distributions managed by Community Partner Admins.</p>
+  <section class="section">
+    <div class="section__inner">
+      <div class="terms-card">
+        <p><strong>Effective date:</strong> [Insert date] &nbsp;|&nbsp; <strong>Last updated:</strong> [Insert date]</p>
 
-    <h2>2. Financial Terms &amp; Maintenance</h2>
-    <ul>
-      <li><strong>Platform Fee:</strong> A 1.5% platform maintenance fee is assessed on payouts to maintain system accounting and operational security.</li>
-      <li><strong>Time-Value Contribution (TVC):</strong> A 2% annual TVC rate is applied across the 12-month tenure to reward later receivers and adjust early collection values fairly.</li>
-    </ul>
+        <h4>1. Introduction</h4>
+        <p>1.1. Welcome to Thrifty ROSCA &amp; Savings ("Thrifty", "we", "us" or "the Platform").</p>
+        <p>1.2. Thrifty is a digital application made available to communities that wish to organise, administer and manage their own informal rotating savings arrangements, commonly known as ROSCA, Esusu, Ajo or similar community savings schemes.</p>
+        <p>1.3. The Platform provides digital tools to help communities organise their savings activities, maintain records, monitor Contributions, calculate collection adjustments and administer their savings cycles.</p>
+        <p>1.4. The Platform is intended for use by communities and groups that voluntarily choose to adopt it. These may include churches, religious communities, town and cultural associations, social groups, professional associations, online communities and other close-knit groups.</p>
+        <p>1.5. These Terms of Service ("Terms") govern access to and use of the Platform by all users, including Community Partners, Community Admins and Co-Savers.</p>
+        <p>1.6. By registering, accessing or using the Platform, or participating in a Savings Circle administered through it, you confirm that you have read, understood and agreed to these Terms and any applicable Circle Rules.</p>
+        <p>1.7. If you do not agree to these Terms, you must not register, access or use the Platform.</p>
+        <p>1.8. These Terms should be read together with the Privacy Policy, applicable Circle Rules, TVC Schedule and any other applicable agreement published or made available through the Platform.</p>
 
-    <h2>3. Community Partner Administration</h2>
-    <p>Each savings circle operates under a designated Community Partner Admin who handles local member verification and circle onboarding. All platform-level legal conditions apply universally to all co-savers participating through `/join/index.html`.</p>
-  </main>
+        <h4>2. Definitions</h4>
+        <p>For the purpose of these Terms, the following definitions apply:</p>
+        <p><strong>2.1. Thrifty:</strong> The person or organisation legally operating and providing the Thrifty ROSCA &amp; Savings Platform, as identified in the Platform's legal information.</p>
+        <p><strong>2.2. Platform:</strong> The Thrifty ROSCA &amp; Savings web application, including its website, dashboards, software, administrative tools, records, calculations and associated services.</p>
+        <p><strong>2.3. Community Partner:</strong> A community, group, association, church, organisation, social network or online community that voluntarily adopts the Platform to administer its own Savings Circles.</p>
+        <p><strong>2.4. Community Admin:</strong> An individual appointed or authorised by a Community Partner to establish, manage or administer one or more Savings Circles on behalf of that community.</p>
+        <p><strong>2.5. Co-Saver:</strong> An individual who voluntarily participates in a Savings Circle and agrees to make Contributions in accordance with its Circle Rules.</p>
+        <p><strong>2.6. Savings Circle or Circle:</strong> A group of Co-Savers participating in a community-based rotating savings arrangement administered through the Platform.</p>
+        <p><strong>2.7. Circle Rules:</strong> The agreed rules governing a particular Savings Circle, including its membership, Contribution amount, payment schedule, number of members, collection positions, cycle duration, TVC calculation, Payout arrangements and procedures for missed Contributions or other circumstances.</p>
+        <p><strong>2.8. Circle Account:</strong> The dedicated bank account provided or designated by the Community Partner or Community Admin for receiving and administering the Contributions and Payout funds of a particular Savings Circle.</p>
+        <p><strong>2.9. Contribution:</strong> The amount each Co-Saver agrees to pay into a Savings Circle at the agreed intervals.</p>
+        <p><strong>2.10. Collection Position or Slot:</strong> The position assigned to a Co-Saver in the agreed order of receiving the Circle's adjusted Payout.</p>
+        <p><strong>2.11. Payout:</strong> The amount allocated to a Co-Saver for their collection position after the applicable TVC adjustment and before deduction of the Platform Maintenance Fee.</p>
+        <p><strong>2.12. TVC:</strong> Time Value Collection, the adjustment calculated using the agreed annual rate and the difference between a Co-Saver's Collection Position and the Circle's pivot position.</p>
+        <p><strong>2.13. Platform Maintenance Fee:</strong> The fee charged for the provision, maintenance and operation of the Platform, calculated at 1.5% of the Payout after the TVC adjustment.</p>
+        <p><strong>2.14. User:</strong> Any person accessing or using the Platform, including a Community Partner, Community Admin or Co-Saver.</p>
 
-  <!-- Footer -->
+        <h4>3. Nature and purpose of the platform</h4>
+        <p>3.1. Thrifty provides a software application for the digital administration of community-based Savings Circles.</p>
+        <p>3.2. The Platform is designed to support communities by providing tools that may include:</p>
+        <ul>
+          <li>Community Partner and Community Admin registration;</li>
+          <li>creation and management of multiple Savings Circles;</li>
+          <li>Co-Saver registration and membership management;</li>
+          <li>assignment and management of Collection Positions;</li>
+          <li>recording and monitoring of Contributions;</li>
+          <li>calculation and display of TVC adjustments;</li>
+          <li>calculation and display of Payouts and Platform Maintenance Fees;</li>
+          <li>administrative dashboards and reports;</li>
+          <li>Circle activity records and transaction histories; and</li>
+          <li>other related administrative and management functions.</li>
+        </ul>
+        <p>3.3. Thrifty provides the technology through which a Community Partner and its Community Admin can administer their own Savings Circles.</p>
+        <p>3.4. The Platform does not itself establish, own, sponsor, manage or operate the independent savings arrangements of a Community Partner.</p>
+        <p>3.5. Each Community Partner independently decides whether to adopt the Platform, establish a Savings Circle, determine its membership and agree its Circle Rules.</p>
+        <p>3.6. Thrifty does not become a member of a Savings Circle merely because the Circle uses the Platform.</p>
+        <p>3.7. The Platform is an administrative technology service. It is not a bank account, deposit-taking institution, investment scheme, insurance service or guarantee of repayment.</p>
+        <p>3.8. Thrifty does not promise that every Community Partner, Community Admin or Co-Saver will fulfil their obligations or that every Savings Circle will complete successfully.</p>
+
+        <h4>4. Community partners and informal communities</h4>
+        <p>4.1. The Platform is made available to communities that wish to use digital tools to organise and administer their own savings arrangements.</p>
+        <p>4.2. A Community Partner may be a formally established organisation or an informal community or group.</p>
+        <p>4.3. Examples include:</p>
+        <ul>
+          <li>churches and religious organisations;</li>
+          <li>church branches and affiliated congregations;</li>
+          <li>town, village and cultural associations;</li>
+          <li>social and friendship groups;</li>
+          <li>professional and occupational associations;</li>
+          <li>online communities and digital groups; and</li>
+          <li>other communities whose members voluntarily participate in shared savings arrangements.</li>
+        </ul>
+        <p>4.4. A Community Partner does not have to be a registered company merely to access the Platform. However, it must have the authority and capacity required under applicable law to enter into and administer its arrangements.</p>
+        <p>4.5. The Platform does not itself create a company, charity, trust, partnership or other legal entity for a Community Partner.</p>
+        <p>4.6. The legal status and responsibilities of an informal community depend on its actual constitution, activities, arrangements and the laws applicable to it.</p>
+        <p>4.7. Where a Community Partner is an informal group, the individual establishing or administering a Savings Circle must have appropriate authority from that group or clearly accept the responsibilities they undertake in their own capacity.</p>
+        <p>4.8. A Community Partner may have members, branches or participants in different countries. Use of the Platform by an international community remains subject to applicable local laws and any jurisdictional restrictions imposed by Thrifty.</p>
+
+        <h4>5. Community partner responsibilities</h4>
+        <p>5.1. A Community Partner adopting the Platform is responsible for the proper organisation and administration of its own Savings Circles.</p>
+        <p>5.2. The Community Partner must appoint or authorise a suitable individual to act as its Community Admin.</p>
+        <p>5.3. The Community Partner must ensure that its Community Admin understands the responsibilities associated with managing the Circle, including the handling of Contributions, administration of Payouts, maintenance of records and communication with Co-Savers.</p>
+        <p>5.4. A Community Partner may establish and operate multiple Savings Circles through the Platform, subject to the available functionality and applicable usage limits.</p>
+        <p>5.5. Each Circle must have clearly identifiable membership, Circle Rules, Contribution arrangements and collection positions.</p>
+        <p>5.6. The Community Partner must ensure that Co-Savers are given reasonable access to the Circle Rules and relevant fee and TVC information before participating.</p>
+        <p>5.7. The Community Partner remains responsible for the conduct and administration of its own Savings Circles. Access to the Platform does not transfer those responsibilities to Thrifty.</p>
+
+        <h4>6. Community admin responsibilities</h4>
+        <p>6.1. The Community Admin is the individual authorised by the Community Partner to administer one or more Savings Circles.</p>
+        <p>6.2. The Community Admin must:</p>
+        <ul>
+          <li>a. Establish each Circle in accordance with the Community Partner's authority and the agreed Circle Rules.</li>
+          <li>b. Ensure that the Circle's membership, Contribution amount, collection positions and payment schedule are accurately recorded.</li>
+          <li>c. Ensure that Co-Savers understand the Circle Rules before joining.</li>
+          <li>d. Provide or designate a dedicated Circle Account for the relevant Circle.</li>
+          <li>e. Ensure that Contributions are paid directly into the designated Circle Account.</li>
+          <li>f. Verify actual receipt of Contributions before confirming them as received.</li>
+          <li>g. Maintain accurate records of Contributions, Payouts, TVC adjustments and Maintenance Fee deductions.</li>
+          <li>h. Reconcile the Platform's administrative records against the Circle Account.</li>
+          <li>i. Administer Payouts according to the agreed collection order and Circle Rules.</li>
+          <li>j. Deduct and transfer the applicable Platform Maintenance Fee to Thrifty.</li>
+          <li>k. Communicate payment requirements, missed Contributions, Payout information and material changes to Co-Savers.</li>
+          <li>l. Take reasonable measures to protect the Circle Account, financial records and access credentials.</li>
+          <li>m. Ensure that Circle funds are not used for personal expenditure or purposes unrelated to the relevant Circle.</li>
+        </ul>
+        <p>6.3. A Community Admin must not misrepresent Contributions, manipulate collection positions, falsify payment records, divert Circle funds or otherwise misuse their administrative authority.</p>
+        <p>6.4. A Community Admin must not represent themselves as an employee, director, partner or legal representative of Thrifty unless expressly authorised in writing.</p>
+        <p>6.5. The Community Partner is responsible for replacing an Admin who resigns, becomes unavailable or loses their authority.</p>
+        <p>6.6. Where administrative control is transferred to a replacement Admin, the Community Partner must take reasonable steps to ensure that access credentials, records and Circle administration are transferred securely.</p>
+
+        <h4>7. Co-saver responsibilities</h4>
+        <p>7.1. Participation in a Savings Circle is voluntary.</p>
+        <p>7.2. Before joining a Circle, each Co-Saver must understand:</p>
+        <ul>
+          <li>a. The amount and frequency of Contributions.</li>
+          <li>b. The total number of participants in the Circle.</li>
+          <li>c. Their assigned Collection Position.</li>
+          <li>d. The expected cycle duration.</li>
+          <li>e. The TVC calculation and how it affects their Payout.</li>
+          <li>f. The 1.5% Platform Maintenance Fee.</li>
+          <li>g. The payment deadlines and consequences of missed Contributions.</li>
+          <li>h. The Circle's procedures for withdrawal, default, disputes and other relevant circumstances.</li>
+        </ul>
+        <p>7.3. Each Co-Saver must:</p>
+        <ul>
+          <li>provide accurate registration information;</li>
+          <li>make Contributions according to the agreed schedule;</li>
+          <li>use the correct Circle Account details;</li>
+          <li>retain evidence of bank transfers;</li>
+          <li>report payment errors or discrepancies promptly;</li>
+          <li>protect their account credentials; and</li>
+          <li>comply with these Terms and the relevant Circle Rules.</li>
+        </ul>
+        <p>7.4. A Co-Saver must not submit false payment confirmations or knowingly provide misleading information concerning Contributions.</p>
+        <p>7.5. A Co-Saver must not access another user's account or information without authorisation.</p>
+        <p>7.6. A Co-Saver is responsible for deciding whether they are comfortable participating in a particular Circle and accepting its agreed financial arrangements.</p>
+
+        <h4>8. Age and eligibility</h4>
+        <p>8.1. The Platform is strictly for adults aged 18 years and above.</p>
+        <p>8.2. A person under the age of 18 must not register as a Community Admin or Co-Saver, or participate in a Savings Circle through the Platform.</p>
+        <p>8.3. Users must provide accurate information during registration and must not impersonate another person.</p>
+        <p>8.4. Thrifty may restrict or suspend access where there are reasonable grounds to believe that an account has been created using false information or in breach of these eligibility requirements.</p>
+
+        <h4>9. Contributions and the circle account</h4>
+        <p>9.1. Contributions are paid directly by Co-Savers into the dedicated Circle Account provided or designated by the Community Partner or Community Admin.</p>
+        <p>9.2. The Circle Account is provided and controlled by the relevant Community Partner or Community Admin, subject to the authority and arrangements governing that community.</p>
+        <p>9.3. The Community Partner or Community Admin is responsible for the administration and control of the funds in the Circle Account.</p>
+        <p>9.4. Thrifty does not receive, collect, hold, safeguard, pool, invest, lend or distribute Contributions or Payout funds.</p>
+        <p>9.5. Thrifty does not operate the Circle Account and does not have ownership or control of the funds held in it merely because the Circle uses the Platform.</p>
+        <p>9.6. The Platform records and displays administrative information relating to Contributions and Payouts. A record displayed in the Platform is not, by itself, confirmation that a bank transfer has cleared or that funds are available in the Circle Account.</p>
+        <p>9.7. The Community Admin must verify bank receipts and reconcile the Circle Account against the Platform's records.</p>
+        <p>9.8. Co-Savers must confirm the relevant account details with their Community Admin before transferring Contributions.</p>
+        <p>9.9. The Community Admin must not use Circle funds for personal expenditure or unrelated activities.</p>
+        <p>9.10. Where a Community Partner operates multiple Circles, it must maintain sufficiently clear and separate records to identify the funds and obligations associated with each Circle. Separate dedicated accounts should be used where appropriate to prevent the mixing of funds.</p>
+        <p>9.11. Thrifty is not responsible for a bank's processing times, transfer failures, reversals or decisions, except where a responsibility arises directly from Thrifty's own legally actionable conduct.</p>
+
+        <h4>10. Payouts and collection positions</h4>
+        <p>10.1. Each Savings Circle must have an agreed collection order identifying the position in which each Co-Saver is scheduled to receive a Payout.</p>
+        <p>10.2. The Community Admin is responsible for administering Payouts from the relevant Circle Account.</p>
+        <p>10.3. Payouts must be made according to the agreed Circle Rules and the applicable calculation described in these Terms.</p>
+        <p>10.4. The Platform may calculate and display the expected Payout for each Collection Position.</p>
+        <p>10.5. The Community Admin must verify that sufficient funds are available and that the Payout is consistent with the Circle's actual financial position before making payment.</p>
+        <p>10.6. Thrifty does not guarantee the availability, timing or successful delivery of a Payout.</p>
+        <p>10.7. A Co-Saver's failure to make a Contribution may affect the Circle's ability to make scheduled Payouts.</p>
+        <p>10.8. The Community Admin must communicate missed Contributions and take appropriate action under the agreed Circle Rules.</p>
+        <p>10.9. The Circle Rules must explain how the Circle will deal with missed or late Contributions, withdrawal requests, defaults and a Co-Saver who receives a Payout but subsequently fails to fulfil their remaining Contribution obligations.</p>
+        <p>10.10. Thrifty is not responsible for a shortfall arising from a Co-Saver's default, a Community Admin's failure to administer the Circle properly or the misappropriation of funds by a person controlling the Circle Account, except to the extent that the loss is caused by Thrifty's own breach of its legal obligations.</p>
+
+        <h4>11. Time value collection (TVC)</h4>
+        <p>11.1. The Platform incorporates a Time Value Collection adjustment ("TVC") into the calculation of Savings Circle Payouts.</p>
+        <p>11.2. TVC is intended to recognise the difference in collection timing between Co-Savers occupying different Collection Positions in a Circle.</p>
+        <p>11.3. The annual TVC rate is 2% per year.</p>
+        <p>11.4. The monthly rate used in the calculation is:</p>
+        <div class="formula">r = 0.02 / 12</div>
+        <p>11.5. The TVC calculation uses the number of Co-Savers in the Circle, the monthly Contribution amount, the Co-Saver's Collection Position and the Circle's pivot position.</p>
+        <p>11.6. The formula is as follows:</p>
+        <p><strong>A. Base Pool</strong></p>
+        <div class="formula">P = N × M</div>
+        <p><strong>B. Pivot Position</strong></p>
+        <div class="formula">Pivot = (N + 1) / 2</div>
+        <p><strong>C. TVC Adjustment</strong></p>
+        <div class="formula">Adjustment = (Pivot − T) × M × r × N</div>
+        <p><strong>D. Adjusted Payout</strong></p>
+        <div class="formula">P_net = P + Adjustment</div>
+        <p><strong>E. Equivalent Factored Formula</strong></p>
+        <div class="formula">P_net = P × [1 + r × (Pivot − T)]</div>
+        <p>11.7. For this calculation:</p>
+        <ul>
+          <li><strong>N</strong> = total number of Co-Savers in the Circle;</li>
+          <li><strong>M</strong> = monthly Contribution per Co-Saver;</li>
+          <li><strong>T</strong> = the Co-Saver's Collection Position, numbered from 1 to N;</li>
+          <li><strong>r</strong> = monthly TVC rate, calculated as the annual rate divided by 12;</li>
+          <li><strong>P</strong> = base pool, calculated as N × M;</li>
+          <li><strong>P_net</strong> = adjusted Payout after applying the TVC adjustment.</li>
+        </ul>
+        <p>11.8. Where the Collection Position is earlier than the pivot position, the formula produces a positive adjustment. Where the Collection Position is later than the pivot position, the formula produces a negative adjustment.</p>
+        <p>11.9. A Collection Position equal to the pivot position produces no TVC adjustment.</p>
+        <p>11.10. The TVC is an adjustment in the distribution of the Circle's Payouts. It is not a separate fee charged by Thrifty.</p>
+        <p>11.11. Neither Thrifty nor the Community Admin separately receives, holds, collects or distributes TVC as a standalone payment. It is reflected through the Payout calculation and the corresponding allocation of the Circle pool.</p>
+        <p>11.12. Thrifty provides the software calculation and display of TVC. The Community Admin remains responsible for administering the Circle and ensuring that the calculation is applied in accordance with the agreed Circle Rules.</p>
+        <p>11.13. The TVC calculation must be disclosed to Co-Savers before they join a Circle.</p>
+        <p>11.14. Any change to the annual TVC rate or calculation method must be communicated to affected Co-Savers and agreed where required before being applied to an existing Circle.</p>
+
+        <h4>12. Platform maintenance fee</h4>
+        <p>12.1. The Platform Maintenance Fee is charged for the provision, maintenance and operation of the Thrifty software application.</p>
+        <p>12.2. The Maintenance Fee is calculated at <strong>1.5% of the adjusted Payout after TVC</strong>.</p>
+        <p>12.3. The calculation is:</p>
+        <div class="formula">Maintenance Fee = P_net × 0.015</div>
+        <p>12.4. The amount payable to the Co-Saver after deduction of the Maintenance Fee is:</p>
+        <div class="formula">Final Payout = P_net × 0.985</div>
+        <p>12.5. The Community Admin deducts the Maintenance Fee from the relevant Circle pool and transfers the deducted amount to Thrifty.</p>
+        <p>12.6. The Maintenance Fee is a cost borne by the Co-Savers through the Circle's Payout calculation. It is not an additional personal charge imposed on a person merely for introducing, sponsoring or providing access to a community.</p>
+        <p>12.7. The Community Admin must ensure that the Maintenance Fee is calculated correctly, deducted only once for the relevant Payout and transferred to Thrifty.</p>
+        <p>12.8. The Community Admin must maintain an appropriate record of each Maintenance Fee deduction and transfer.</p>
+        <p>12.9. The Maintenance Fee must be disclosed to Co-Savers before they join the Circle.</p>
+        <p>12.10. Thrifty may change the Maintenance Fee by giving reasonable notice to affected users. A revised fee will not retrospectively alter a completed Payout or be applied to an existing Circle without any consent required by law or the applicable Circle Rules.</p>
+        <p>12.11. Thrifty does not authorise a Community Admin to impose additional undisclosed Thrifty platform charges.</p>
+
+        <h4>13. No guarantee of savings or payouts</h4>
+        <p>13.1. Thrifty provides an administrative software service. It does not guarantee the repayment, security or availability of Contributions or Payout funds.</p>
+        <p>13.2. Thrifty does not guarantee:</p>
+        <ul>
+          <li>that every Co-Saver will make their Contributions;</li>
+          <li>that every Community Admin will administer a Circle correctly;</li>
+          <li>that a Circle will have sufficient funds to make every scheduled Payout;</li>
+          <li>that a Payout will be made on a particular date;</li>
+          <li>that a Co-Saver will recover money lost through another participant's default or misconduct; or</li>
+          <li>that a Community Partner or Community Admin will remain available throughout the life of a Circle.</li>
+        </ul>
+        <p>13.3. Co-Savers should assess the suitability of a Circle and the trustworthiness of the people administering it before participating.</p>
+        <p>13.4. Nothing in these Terms removes any responsibility or legal obligation that applies to Thrifty.</p>
+
+        <h4>14. Account access and security</h4>
+        <p>14.1. Users are responsible for keeping their login details and account credentials confidential.</p>
+        <p>14.2. Users must take reasonable steps to prevent unauthorised access to their accounts and devices.</p>
+        <p>14.3. Users must notify Thrifty promptly if they suspect that their account has been compromised.</p>
+        <p>14.4. Community Admins must not share administrator credentials with unauthorised persons.</p>
+        <p>14.5. Thrifty may introduce authentication, verification and other security measures to protect the Platform and its users.</p>
+        <p>14.6. Thrifty may temporarily restrict access where reasonably necessary to investigate suspected unauthorised access, fraud, security incidents or misuse.</p>
+        <p>14.7. Thrifty is not responsible for unauthorised activity resulting solely from a user's failure to protect their credentials, except where Thrifty's own breach of duty contributed to the loss.</p>
+
+        <h4>15. Acceptable use</h4>
+        <p>15.1. Users must use the Platform lawfully and only for its intended purpose.</p>
+        <p>15.2. Users must not:</p>
+        <ul>
+          <li>a. Use the Platform for fraud, money laundering, terrorist financing or other unlawful activity.</li>
+          <li>b. Create fictitious Co-Savers or false Savings Circles.</li>
+          <li>c. Falsify Contribution or Payout records.</li>
+          <li>d. Manipulate Collection Positions or TVC calculations dishonestly.</li>
+          <li>e. Impersonate another person or use another person's identity without authority.</li>
+          <li>f. Access another user's account or information without permission.</li>
+          <li>g. Attempt to interfere with the security, integrity or operation of the Platform.</li>
+          <li>h. Upload malicious software, harmful code or unauthorised material.</li>
+          <li>i. Use the Platform to harass, threaten, defraud or mislead another user.</li>
+          <li>j. Attempt to copy, reverse engineer, exploit or commercially distribute the Platform without authorisation, except where applicable law permits.</li>
+          <li>k. Use the Platform in a way that exposes Thrifty or other users to unlawful activity.</li>
+        </ul>
+        <p>15.3. Thrifty may investigate suspected misuse and take proportionate action, including account restriction, suspension or termination where appropriate.</p>
+
+        <h4>16. Records and reconciliation</h4>
+        <p>16.1. The Platform provides administrative records based on information entered by users and calculations performed by its software.</p>
+        <p>16.2. The Community Admin is responsible for ensuring that information entered into the Platform is accurate and reconciled against the Circle Account.</p>
+        <p>16.3. Platform records do not replace bank statements, transfer confirmations or other independent financial evidence.</p>
+        <p>16.4. Community Admins must promptly investigate apparent discrepancies between Platform records and the Circle Account.</p>
+        <p>16.5. Users must report errors or discrepancies as soon as reasonably practicable.</p>
+        <p>16.6. Thrifty may correct software defects, calculation errors or inaccurate records where appropriate.</p>
+        <p>16.7. Material corrections may be recorded through an audit trail or other appropriate administrative record.</p>
+        <p>16.8. Community Admins must not delete, alter or conceal records to hide a default, dispute, unauthorised transaction or misuse of Circle funds.</p>
+
+        <h4>17. Data protection and privacy</h4>
+        <p>17.1. Thrifty recognises that users' personal information must be handled in accordance with applicable data-protection and privacy laws.</p>
+        <p>17.2. The collection and use of personal information through the Platform will be explained in the Thrifty Privacy Policy.</p>
+        <p>17.3. Personal information may be processed for purposes including:</p>
+        <ul>
+          <li>account registration and authentication;</li>
+          <li>Community Partner and Community Admin administration;</li>
+          <li>Co-Saver registration and membership management;</li>
+          <li>Savings Circle administration;</li>
+          <li>Contribution and Payout records;</li>
+          <li>TVC and Maintenance Fee calculations;</li>
+          <li>service security and fraud prevention;</li>
+          <li>technical support and service improvement; and</li>
+          <li>compliance with applicable legal obligations.</li>
+        </ul>
+        <p>17.4. Community Partners and Community Admins are responsible for ensuring that personal information they collect directly from Co-Savers is handled lawfully and appropriately.</p>
+        <p>17.5. The respective data-protection roles of Thrifty and each Community Partner or Community Admin depend on who determines the purposes and means of processing. Where necessary, those roles will be documented in a separate data-processing or data-sharing agreement.</p>
+        <p>17.6. Users must not enter unnecessary sensitive personal information into the Platform.</p>
+        <p>17.7. Users must not access, disclose or use another person's personal information except where authorised and necessary for the administration of the Circle.</p>
+        <p>17.8. Thrifty may use third-party service providers for hosting, security, maintenance, communications and other technical functions, subject to applicable legal requirements.</p>
+        <p>17.9. Users may exercise applicable data-protection rights using the contact details set out in the Privacy Policy.</p>
+        <p>17.10. The Privacy Policy will provide further information on data retention, recipients, international transfers, lawful bases and user rights.</p>
+
+        <h4>18. Confidentiality</h4>
+        <p>18.1. Users must respect the confidentiality of non-public information relating to other Co-Savers and their participation in a Savings Circle.</p>
+        <p>18.2. Community Admins must use Circle information only for legitimate Circle administration and must not disclose it to unrelated persons.</p>
+        <p>18.3. Thrifty will take reasonable steps to protect non-public information in its possession, subject to applicable law and its Privacy Policy.</p>
+        <p>18.4. Confidentiality obligations do not prevent disclosures required by law, a court order or a competent regulatory authority.</p>
+
+        <h4>19. Intellectual property</h4>
+        <p>19.1. The Platform, including its software, design, branding, logos, text, layout, features and associated intellectual property, belongs to Thrifty or its relevant licensors.</p>
+        <p>19.2. Users are granted a limited, non-exclusive, non-transferable and revocable permission to access and use the Platform for its intended purposes.</p>
+        <p>19.3. Users must not copy, sell, sublicense, commercially exploit, distribute or reproduce the Platform or its underlying software without written authorisation, except where applicable law permits.</p>
+        <p>19.4. Users retain responsibility for information and content they submit to the Platform and must have the rights and authority necessary to submit it.</p>
+        <p>19.5. Nothing in these Terms transfers ownership of a user's own lawful content to Thrifty, except for any limited rights necessary to operate the service.</p>
+
+        <h4>20. Platform availability and third-party services</h4>
+        <p>20.1. Thrifty will take reasonable steps to maintain the availability, functionality and security of the Platform.</p>
+        <p>20.2. The Platform may occasionally be unavailable due to maintenance, upgrades, technical faults, internet interruptions, cyber incidents or failures affecting third-party services.</p>
+        <p>20.3. Thrifty may modify, update or discontinue features where reasonably necessary for security, maintenance, legal compliance or service development.</p>
+        <p>20.4. The Platform may rely on third-party hosting, infrastructure, communications or other technology providers.</p>
+        <p>20.5. Thrifty does not control banks, payment networks, telecommunications providers or the independent conduct of Community Partners and Co-Savers.</p>
+        <p>20.6. Thrifty will not rely on this Clause to exclude responsibility for a failure for which it remains legally liable.</p>
+
+        <h4>21. Data export and account closure</h4>
+        <p>21.1. Community Partners and Community Admins should maintain appropriate independent records of their Savings Circles and must not rely exclusively on continued access to the Platform.</p>
+        <p>21.2. Where the Platform provides data export facilities, authorised users may use those facilities to obtain relevant Circle records.</p>
+        <p>21.3. Users should obtain and securely retain records required for the administration or completion of their Circles before closing their accounts.</p>
+        <p>21.4. Thrifty may retain information for legitimate operational, security, legal, regulatory and dispute-resolution purposes in accordance with its Privacy Policy and applicable law.</p>
+        <p>21.5. Closing a Platform account does not cancel outstanding Contribution obligations or resolve disputes between participants.</p>
+        <p>21.6. The Community Partner and Community Admin remain responsible for completing or properly winding down their Circles, reconciling funds and communicating with Co-Savers.</p>
+
+        <h4>22. Limitation of liability</h4>
+        <p>22.1. Nothing in these Terms excludes or limits liability where such exclusion or limitation is prohibited by applicable law.</p>
+        <p>22.2. Nothing in these Terms excludes or limits liability for:</p>
+        <ul>
+          <li>a. Death or personal injury caused by negligence.</li>
+          <li>b. Fraud or fraudulent misrepresentation.</li>
+          <li>c. Any other liability that cannot lawfully be excluded or limited.</li>
+        </ul>
+        <p>22.3. Thrifty is not responsible for losses caused by a Community Admin's or Co-Saver's fraud, dishonesty, breach of Circle Rules, failure to contribute, misappropriation of Circle funds or failure to distribute a Payout, except to the extent that the loss is caused by Thrifty's own breach of contract, negligence or other legally actionable conduct.</p>
+        <p>22.4. Thrifty is not responsible for a Circle's financial shortfall merely because the Platform records or displays the Circle's information.</p>
+        <p>22.5. Subject to applicable law, Thrifty will not be liable for indirect or consequential losses that it may lawfully exclude.</p>
+        <p>22.6. Any financial cap on Thrifty's liability must be fair, transparent, proportionate and enforceable under the law applicable to the relevant user and service.</p>
+        <p>22.7. Nothing in these Terms removes a user's statutory rights or remedies.</p>
+
+        <h4>23. Community partner and admin responsibility</h4>
+        <p>23.1. Each Community Partner and Community Admin is responsible for their own actions and for the proper administration of the Savings Circles under their control.</p>
+        <p>23.2. To the extent permitted by law, a Community Partner or Community Admin may be responsible for reasonable losses, claims and costs suffered by Thrifty that arise directly from their fraud, deliberate misconduct, unlawful use of the Platform or material breach of these Terms.</p>
+        <p>23.3. No user is required under these Terms to indemnify Thrifty for losses caused by Thrifty's own negligence, fraud, breach of contract or other liability that cannot lawfully be transferred.</p>
+        <p>23.4. Any indemnity or recovery of costs under this Clause must be proportionate and interpreted in accordance with applicable law.</p>
+
+        <h4>24. Complaints and dispute resolution</h4>
+        <p>24.1. Disputes relating to Contributions, Collection Positions, TVC, Payouts or the conduct of a Community Admin should initially be raised with the relevant Community Admin and Community Partner.</p>
+        <p>24.2. Complaints relating to the software, account access, technical functionality, data handling or services provided directly by Thrifty should be submitted using the Platform's published contact details.</p>
+        <p>24.3. Thrifty may investigate complaints concerning its own services and review relevant Platform records where lawful and appropriate.</p>
+        <p>24.4. Thrifty does not act as a bank, debt collector, guarantor or automatic arbitrator of private financial arrangements between Co-Savers.</p>
+        <p>24.5. Nothing in this Clause prevents a user from exercising a legal right or seeking assistance from a competent regulator, court or dispute-resolution body.</p>
+        <p>24.6. Users are encouraged to keep written records of complaints, payment confirmations and communications relating to their Circles.</p>
+
+        <h4>25. Suspension and termination</h4>
+        <p>25.1. Thrifty may suspend, restrict or terminate access to the Platform where reasonably necessary because of:</p>
+        <ul>
+          <li>suspected fraud or unlawful activity;</li>
+          <li>serious misuse of the Platform;</li>
+          <li>unauthorised access or security risks;</li>
+          <li>materially false registration information;</li>
+          <li>a material breach of these Terms;</li>
+          <li>a legal or regulatory requirement; or</li>
+          <li>circumstances that present a significant risk to the Platform or its users.</li>
+        </ul>
+        <p>25.2. Where reasonably practicable, Thrifty will provide notice and an opportunity to address the issue before suspension or termination.</p>
+        <p>25.3. Immediate action may be taken where necessary to protect users, Circle records, the Platform, security or legal compliance.</p>
+        <p>25.4. A Community Partner may discontinue use of the Platform, subject to outstanding obligations and the need to preserve relevant records.</p>
+        <p>25.5. Suspension or termination of Platform access does not transfer responsibility for Circle funds to Thrifty.</p>
+        <p>25.6. The Community Partner and Community Admin remain responsible for communicating with Co-Savers and properly administering any outstanding Circle obligations.</p>
+        <p>25.7. Provisions that by their nature should continue after termination, including confidentiality, intellectual property, data retention, accrued payment obligations, liability and dispute provisions, will continue to apply to the extent necessary.</p>
+
+        <h4>26. Changes to these terms</h4>
+        <p>26.1. Thrifty may update these Terms to reflect changes in the Platform, its services, applicable law, security requirements or operational arrangements.</p>
+        <p>26.2. Material changes will be communicated through the Platform, by email or by another reasonable method.</p>
+        <p>26.3. Where required by law, users will be asked to provide renewed acceptance before material changes apply.</p>
+        <p>26.4. Changes will not retrospectively remove accrued rights or impose undisclosed charges on an existing Circle.</p>
+        <p>26.5. Where a change materially affects an existing Circle's financial arrangements, the applicable Circle Rules and any required participant agreement must be followed.</p>
+
+        <h4>27. Electronic acceptance</h4>
+        <p>27.1. Acceptance of these Terms may be recorded electronically through registration, a tick-box, an electronic confirmation or another reliable acceptance method.</p>
+        <p>27.2. Thrifty may retain records of the version of the Terms accepted, the relevant account, date and time of acceptance and other appropriate audit information.</p>
+        <p>27.3. Community Admins must ensure that Co-Savers are provided with the applicable Circle Rules and fee disclosures before joining a Circle.</p>
+        <p>27.4. Each user is responsible for ensuring that acceptance is given by them or by a person authorised to act on their behalf.</p>
+        <p>27.5. Electronic acceptance and records may be used as evidence of agreement, subject to applicable law.</p>
+
+        <h4>28. International access and jurisdiction</h4>
+        <p>28.1. The Platform may be accessed by communities whose members are located in different countries, subject to the availability of the service and applicable legal requirements.</p>
+        <p>28.2. A Community Partner and its Community Admin are responsible for considering the laws applicable to the organisation and administration of their Savings Circles.</p>
+        <p>28.3. Users must not use the Platform in a jurisdiction where their participation or the relevant Circle arrangement is unlawful.</p>
+        <p>28.4. Thrifty may restrict or discontinue access from particular countries or jurisdictions where reasonably necessary because of legal, regulatory, security or operational requirements.</p>
+        <p>28.5. These Terms do not purport to remove mandatory consumer, privacy, financial-services or other legal protections that apply in a user's country.</p>
+        <p>28.6. The governing law and jurisdiction applicable to these Terms will be stated in the Platform's legal information once the legal identity and establishment of the operator have been confirmed.</p>
+
+        <h4>29. Third-party rights</h4>
+        <p>29.1. Unless expressly stated otherwise, these Terms do not give a person who is not a party to them a right to enforce their provisions.</p>
+        <p>29.2. Nothing in this Clause removes any right a person may have independently under applicable law.</p>
+
+        <h4>30. Force majeure</h4>
+        <p>30.1. Thrifty will not be responsible for a delay or failure to perform its obligations to the extent caused by circumstances beyond its reasonable control.</p>
+        <p>30.2. Such circumstances may include major internet or telecommunications failures, natural disasters, war, civil unrest, government restrictions, widespread cyber incidents or failures of third-party infrastructure.</p>
+        <p>30.3. Thrifty will take reasonable steps to reduce the effects of such circumstances and restore affected services where practicable.</p>
+        <p>30.4. This Clause does not exclude obligations that cannot lawfully be excluded.</p>
+
+        <h4>31. General provisions</h4>
+        <p>31.1. If any provision of these Terms is found to be unlawful or unenforceable, the remaining provisions will continue to apply to the extent legally possible.</p>
+        <p>31.2. A failure or delay in enforcing a provision does not automatically amount to a waiver of that provision.</p>
+        <p>31.3. Users must not transfer their Platform accounts or contractual rights without appropriate authorisation.</p>
+        <p>31.4. Thrifty may appoint service providers to support the operation, maintenance and security of the Platform, subject to applicable legal obligations.</p>
+        <p>31.5. These Terms, together with the applicable Privacy Policy, Circle Rules, TVC Schedule and any expressly incorporated agreement, govern the relevant Platform relationship.</p>
+        <p>31.6. Headings are included for convenience and do not affect the interpretation of these Terms.</p>
+
+        <h4>32. Legal notices and contact</h4>
+        <p>Questions, complaints and formal notices concerning these Terms or the Platform should be directed to:</p>
+        <p><strong>Platform:</strong> Thrifty ROSCA &amp; Savings<br>
+        <strong>Operator's legal identity:</strong> [Insert full legal identity]<br>
+        <strong>Legal/service address:</strong> [Insert address]<br>
+        <strong>Authorised legal contact:</strong> [Insert name or role]<br>
+        <strong>Email:</strong> <a href="mailto:privacy_thriftytechnologies@proton.me">privacy_thriftytechnologies@proton.me</a><br>
+        <strong>Website:</strong> https://thrifty-technologies.vercel.app</p>
+        <p>Thrifty will publish updated contact information where these details change.</p>
+
+        <div class="acknowledgement">
+          <h4>Important user acknowledgement</h4>
+          <p>By accepting these Terms, you acknowledge that:</p>
+          <ol>
+            <li>Thrifty provides a digital application for administering community-based Savings Circles.</li>
+            <li>The Community Partner and Community Admin independently organise and administer their own Savings Circles.</li>
+            <li>Contributions are paid directly into the dedicated Circle Account provided or designated by the Community Partner/Admin.</li>
+            <li>Thrifty does not receive, hold or distribute Contributions or Payout funds.</li>
+            <li>The TVC adjustment is calculated using the formula disclosed in Clause 11.</li>
+            <li>The Platform Maintenance Fee is 1.5% of the adjusted Payout after TVC and is deducted by the Community Admin from the Circle pool before being transferred to Thrifty.</li>
+            <li>Participation in a Savings Circle is voluntary and subject to its agreed Circle Rules.</li>
+            <li>The Platform does not guarantee Contributions, Payouts or the conduct of any Community Partner, Community Admin or Co-Saver.</li>
+            <li>You have had the opportunity to review these Terms and the applicable Circle Rules before participating.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
   <footer class="footer">
     <div class="footer__inner">
       <div class="footer__brand-col">
