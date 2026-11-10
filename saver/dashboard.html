@@ -226,6 +226,42 @@ footer a:hover { color: var(--g); }
   .card { padding: 16px; }
   .dash-grid-main, .dash-grid-bottom { grid-template-columns: 1fr; }
 }
+
+/* Saver mobile app layout */
+.topbar-action-btn{width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+.topbar__avatar-btn{width:40px;height:40px;padding:2px;border:0;border-radius:50%;background:transparent;cursor:pointer}
+.back-btn{display:none;width:38px;height:38px;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font-size:20px}
+.mobile-bottom-nav{display:none;position:fixed;left:0;right:0;bottom:0;min-height:calc(64px + env(safe-area-inset-bottom));padding:7px 8px calc(7px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid var(--line);z-index:150;justify-content:space-around;gap:4px;backdrop-filter:blur(12px)}
+.mobile-nav-item{min-width:0;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:5px 3px;border:0;border-radius:10px;background:transparent;color:var(--muted);font-size:10px;font-weight:700}
+.mobile-nav-item svg{width:21px;height:21px}.mobile-nav-item.is-active{color:var(--g);background:rgba(0,139,97,.08)}
+.mobile-drawer-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:230}.mobile-drawer-overlay.is-open{display:block}
+.mobile-drawer{position:fixed;left:0;right:0;bottom:0;z-index:240;background:#fff;border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .25s ease;max-height:75vh;overflow-y:auto}
+.mobile-drawer.is-open{transform:translateY(0)}.mobile-drawer-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.mobile-drawer-title{font-size:18px;font-weight:800}.mobile-drawer-close{border:0;background:transparent;font-size:26px;color:var(--muted)}
+.mobile-drawer-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mobile-drawer-item{display:flex;align-items:center;gap:10px;padding:13px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font-size:12px;font-weight:700;text-align:left}
+.mobile-drawer-item svg{width:20px;height:20px;flex:0 0 auto;color:var(--g)}
+.profile-summary{display:flex;align-items:center;gap:14px;margin-bottom:18px}.profile-summary__avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--g);color:#fff;font-size:18px;font-weight:800;overflow:hidden}
+.profile-summary__avatar img{width:100%;height:100%;object-fit:cover}
+@media(max-width:900px){
+ .sidebar{z-index:220}.overlay{z-index:210}.main{margin-left:0!important;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+ .topbar{height:calc(64px + env(safe-area-inset-top));min-height:calc(64px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 14px 0;gap:10px}
+ .topbar__title{font-size:15px}.topbar__subtitle{font-size:10px}.menu-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:38px;padding:0}
+ .content{padding:16px}.mobile-bottom-nav{display:flex}.stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+ .stat-card{min-width:0;padding:13px!important;gap:8px}.stat-label{font-size:10px;line-height:1.35}.stat-value{font-size:clamp(18px,5vw,23px);overflow-wrap:anywhere}
+ .hero{padding:20px;min-height:unset;margin-bottom:16px}.hero h1{font-size:21px}.hero p{font-size:12px;line-height:1.5}
+ .dash-grid-main,.dash-grid-bottom{grid-template-columns:1fr!important;gap:14px}.page-header{flex-direction:column;align-items:flex-start;gap:10px}.page-header h1{font-size:23px}
+ .filter-bar{align-items:stretch!important}.filter-bar .form-input,.filter-bar select{width:100%!important}.card,.panel{margin-bottom:15px}
+ .table-wrap{background:transparent;border:0;box-shadow:none;overflow:visible}.table{display:block;width:100%;min-width:0;white-space:normal}
+ .table thead{display:none}.table tbody{display:block;width:100%}
+ .table tbody tr{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,.025)}
+ .table td{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0!important;border-bottom:1px solid #f1f5f9;text-align:right;white-space:normal;overflow-wrap:anywhere;font-size:12px}
+ .table td:before{content:attr(data-label);font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);text-align:left;flex:0 0 38%;margin-right:auto}
+ .table td:last-child{border-bottom:0;padding-bottom:0!important}.table td[colspan]:before{display:none}
+ .modal{padding:10px;align-items:flex-end}.modal__content{max-height:90vh;border-radius:16px 16px 0 0;padding:18px}
+ #toast-container{left:12px;right:12px;bottom:calc(78px + env(safe-area-inset-bottom))}
+}
+@media(max-width:480px){.topbar__subtitle{display:none}.stat-card{padding:11px!important}.mobile-drawer-grid{gap:8px}.mobile-drawer-item{padding:12px 10px;font-size:11px}}
 </style>
 </head>
 <body>
@@ -299,13 +335,12 @@ footer a:hover { color: var(--g); }
   <!-- ── MAIN CONTENT ───────────────────────────────────── -->
   <div class="main">
     <header class="topbar">
-      <button class="menu-btn" id="menu-btn">☰</button>
-      <div>
-        <div class="topbar__title" id="topbar-title">Dashboard</div>
-        <div class="topbar__subtitle" id="topbar-subtitle">My Dashboard</div>
-      </div>
+      <button class="back-btn" id="back-btn" type="button" aria-label="Go back">←</button>
+      <button class="menu-btn" id="menu-btn" type="button" aria-label="Open navigation menu">☰</button>
+      <div><div class="topbar__title" id="topbar-title">Dashboard</div><div class="topbar__subtitle" id="topbar-subtitle">My Dashboard</div></div>
       <div class="spacer"></div>
-      <div class="topbar__avatar" id="topbar-avatar">S</div>
+      <button class="topbar-action-btn" id="manual-refresh-btn" type="button" aria-label="Refresh data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.73-5.73"/></svg></button>
+      <button class="topbar__avatar-btn" id="topbar-avatar-btn" type="button" aria-label="Open profile"><span class="topbar__avatar" id="topbar-avatar">S</span></button>
     </header>
 
     <div class="content">
@@ -802,6 +837,33 @@ footer a:hover { color: var(--g); }
   </div>
 </div>
 
+<div class="mobile-drawer-overlay" id="mobile-drawer-overlay"></div>
+<div class="mobile-drawer" id="mobile-drawer">
+ <div class="mobile-drawer-header"><strong class="mobile-drawer-title">More</strong><button class="mobile-drawer-close" id="mobile-drawer-close" type="button" aria-label="Close menu">&times;</button></div>
+ <div class="mobile-drawer-grid">
+  <button class="mobile-drawer-item" type="button" data-nav="ledger">Ledger &amp; Receipts</button>
+  <button class="mobile-drawer-item" type="button" data-nav="renewal" id="mobile-nav-renewal" style="display:none;">Renewal Vote</button>
+  <button class="mobile-drawer-item" type="button" data-nav="kyc">Identity Verification</button>
+  <button class="mobile-drawer-item" type="button" data-nav="settings">Settings</button>
+  <button class="mobile-drawer-item" type="button" id="mobile-logout-btn" style="color:#e32626;">Log out</button>
+ </div>
+</div>
+<nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Primary mobile navigation">
+ <button class="mobile-nav-item is-active" type="button" data-section="dashboard"><span>▦</span><span>Home</span></button>
+ <button class="mobile-nav-item" type="button" data-section="contribution"><span>£</span><span>Contribute</span></button>
+ <button class="mobile-nav-item" type="button" data-section="tenant"><span>◎</span><span>Circle</span></button>
+ <button class="mobile-nav-item" type="button" data-section="payouts"><span>▣</span><span>Collections</span></button>
+ <button class="mobile-nav-item" type="button" id="mobile-more-btn"><span>•••</span><span>More</span></button>
+</nav>
+<div class="modal" id="saver-profile-modal" role="dialog" aria-modal="true" aria-labelledby="saver-profile-title">
+ <div class="modal__content" style="max-width:420px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;"><h2 id="saver-profile-title" style="margin:0;font-size:19px;">My profile</h2><button class="btn btn--ghost btn--sm" type="button" id="close-saver-profile">Close</button></div>
+  <div class="profile-summary"><div class="profile-summary__avatar" id="profile-modal-avatar">S</div><div><strong id="profile-modal-name">Saver</strong><div class="profile-summary__role">Saver account</div></div></div>
+  <div class="form-row"><label class="form-label">Email address</label><div id="profile-modal-email">—</div></div>
+  <div class="form-row"><label class="form-label">Savings circle</label><div id="profile-modal-circle">—</div></div>
+  <button class="btn btn--primary" type="button" id="profile-settings-btn" style="width:100%;">Account settings</button>
+ </div>
+</div>
 <div id="toast-container"></div>
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -875,24 +937,22 @@ footer a:hover { color: var(--g); }
       'settings': 'Settings',
     };
 
-    function showSection(key) {
-      document.querySelectorAll('.section').forEach(function (el) { el.classList.remove('is-active'); });
-      document.querySelectorAll('.nav-item').forEach(function (el) { el.classList.remove('is-active'); });
-      const section = document.getElementById('section-' + key);
-      if (section) section.classList.add('is-active');
-      const navItem = document.querySelector('.nav-item[data-section="' + key + '"]');
-      if (navItem) navItem.classList.add('is-active');
-      document.getElementById('topbar-title').textContent = sectionTitles[key] || 'Dashboard';
-
-      if (key === 'dashboard') loadDashboard();
-      else if (key === 'contribution') loadContribution();
-      else if (key === 'tenant') loadTenantStatus();
-      else if (key === 'ledger') loadLedger();
-      else if (key === 'payouts') loadPayouts();
-      else if (key === 'renewal') loadRenewal();
-      else if (key === 'kyc') loadKyc();
-      else if (key === 'settings') loadSettings();
-      closeSidebar();
+    const sectionHistory=[];let currentSectionKey='dashboard';
+    function updateBackButton(){const b=document.getElementById('back-btn');if(b)b.style.display=currentSectionKey!=='dashboard'?'inline-flex':'none';}
+    function goToPreviousSection(){showSection(sectionHistory.pop()||'dashboard',true);}
+    function showSection(key,fromBack){
+      if(!key||!document.getElementById('section-'+key))return;
+      if(!fromBack&&currentSectionKey!==key)sectionHistory.push(currentSectionKey);
+      currentSectionKey=key;
+      document.querySelectorAll('.section').forEach(function(e){e.classList.remove('is-active');});
+      document.querySelectorAll('.nav-item').forEach(function(e){e.classList.remove('is-active');});
+      document.getElementById('section-'+key).classList.add('is-active');
+      const item=document.querySelector('.nav-item[data-section="'+key+'"]');if(item)item.classList.add('is-active');
+      document.getElementById('topbar-title').textContent=sectionTitles[key]||'Dashboard';
+      document.querySelectorAll('.mobile-nav-item[data-section]').forEach(function(e){e.classList.toggle('is-active',e.dataset.section===key);});
+      updateBackButton();
+      if(key==='dashboard')loadDashboard();else if(key==='contribution')loadContribution();else if(key==='tenant')loadTenantStatus();else if(key==='ledger')loadLedger();else if(key==='payouts')loadPayouts();else if(key==='renewal')loadRenewal();else if(key==='kyc')loadKyc();else if(key==='settings')loadSettings();
+      closeSidebar();closeMobileDrawer();
     }
 
     document.querySelectorAll('.nav-item').forEach(function (el) {
@@ -909,6 +969,15 @@ footer a:hover { color: var(--g); }
     function closeSidebar() { sidebar.classList.remove('is-open'); overlay.classList.remove('is-open'); }
     document.getElementById('menu-btn').addEventListener('click', openSidebar);
     overlay.addEventListener('click', closeSidebar);
+    const mobileDrawer=document.getElementById('mobile-drawer'),mobileDrawerOverlay=document.getElementById('mobile-drawer-overlay');
+    function openMobileDrawer(){mobileDrawer.classList.add('is-open');mobileDrawerOverlay.classList.add('is-open');}
+    function closeMobileDrawer(){mobileDrawer.classList.remove('is-open');mobileDrawerOverlay.classList.remove('is-open');}
+    document.getElementById('mobile-more-btn').addEventListener('click',openMobileDrawer);
+    document.getElementById('mobile-drawer-close').addEventListener('click',closeMobileDrawer);
+    mobileDrawerOverlay.addEventListener('click',closeMobileDrawer);
+    document.getElementById('back-btn').addEventListener('click',goToPreviousSection);
+    document.querySelectorAll('.mobile-nav-item[data-section]').forEach(function(e){e.addEventListener('click',function(){showSection(e.dataset.section);});});
+    document.querySelectorAll('.mobile-drawer-item[data-nav]').forEach(function(e){e.addEventListener('click',function(){showSection(e.dataset.nav);});});
 
     // ── Logout (intentional — wipes tokens, that's correct) ──
     document.getElementById('logout-btn').addEventListener('click', async function () {
@@ -922,6 +991,34 @@ footer a:hover { color: var(--g); }
       window.ROSCA_API.clearTokens();
       window.location.href = redirectUrl;
     });
+    document.getElementById('mobile-logout-btn').addEventListener('click',function(){document.getElementById('logout-btn').click();});
+    document.getElementById('manual-refresh-btn').addEventListener('click',async function(){
+      const b=this,svg=b.querySelector('svg');b.disabled=true;svg.style.transition='transform .6s ease';svg.style.transform='rotate(360deg)';
+      try{if(currentSectionKey==='dashboard')await loadDashboard();else if(currentSectionKey==='contribution')await loadContribution();else if(currentSectionKey==='tenant')await loadTenantStatus();else if(currentSectionKey==='ledger')await loadLedger();else if(currentSectionKey==='payouts')await loadPayouts();else if(currentSectionKey==='renewal')await loadRenewal();else if(currentSectionKey==='kyc')await loadKyc();else if(currentSectionKey==='settings')loadSettings();toast('Data updated successfully','success');}
+      catch(err){toast('Refresh failed: '+(err.message||'Please try again'),'error');}
+      finally{setTimeout(function(){svg.style.transform='rotate(0deg)';},600);b.disabled=false;}
+    });
+    function openSaverProfile(){
+      const u=state.user||{},name=u.fullName||'Saver';
+      document.getElementById('profile-modal-name').textContent=name;document.getElementById('profile-modal-email').textContent=u.email||'Not available';
+      document.getElementById('profile-modal-circle').textContent=state.tenant?(state.tenant.name||'Assigned circle'):'Not yet assigned';
+      const a=document.getElementById('profile-modal-avatar'),p=document.getElementById('sidebar-avatar-img');
+      if(p&&p.src&&p.style.display!=='none')a.innerHTML='<img src="'+p.src+'" alt="Profile photo">';else a.textContent=initials(name);
+      document.getElementById('saver-profile-modal').classList.add('is-open');
+    }
+    document.getElementById('topbar-avatar-btn').addEventListener('click',openSaverProfile);
+    document.getElementById('close-saver-profile').addEventListener('click',function(){document.getElementById('saver-profile-modal').classList.remove('is-open');});
+    document.getElementById('profile-settings-btn').addEventListener('click',function(){document.getElementById('saver-profile-modal').classList.remove('is-open');showSection('settings');});
+    document.getElementById('saver-profile-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('is-open');});
+    function applyMobileTableLabels(root){
+      (root||document).querySelectorAll('table.table').forEach(function(t){
+        const hs=Array.from(t.querySelectorAll('thead th')).map(function(th){return th.textContent.trim();});if(!hs.length)return;
+        t.querySelectorAll('tbody tr').forEach(function(row){Array.from(row.cells).forEach(function(cell,i){if(!cell.hasAttribute('data-label')&&cell.colSpan<2&&hs[i])cell.setAttribute('data-label',hs[i]);});});
+      });
+    }
+    applyMobileTableLabels();
+    const mobileTableObserver=new MutationObserver(function(){applyMobileTableLabels();});
+    mobileTableObserver.observe(document.querySelector('.content'),{childList:true,subtree:true});
 
     function initials(name) {
       if (!name) return 'S';
@@ -969,6 +1066,7 @@ footer a:hover { color: var(--g); }
             
             if (state.tenant.renewalState && state.tenant.renewalState !== 'NONE') {
               document.getElementById('nav-renewal').style.display = 'flex';
+              document.getElementById('mobile-nav-renewal').style.display = 'flex';
             }
           }
         } catch (err) { /* ignore — user may not be in a circle yet */ }
@@ -990,7 +1088,7 @@ footer a:hover { color: var(--g); }
             
             const topImg = document.getElementById('topbar-avatar');
             if (topImg) {
-              topImg.innerHTML = '<a href="' + kyc.selfieUrl + '" target="_blank"><img src="' + kyc.selfieUrl + '" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;" /></a>';
+              topImg.innerHTML = '<img src="' + kyc.selfieUrl + '" alt="Profile photo" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />';
             }
           }
         } catch (_) {
@@ -1734,6 +1832,7 @@ footer a:hover { color: var(--g); }
     (async function boot() {
       const ok = await loadMe();
       if (!ok) return;
+      applyMobileTableLabels();
       showSection('dashboard');
     })();
 
