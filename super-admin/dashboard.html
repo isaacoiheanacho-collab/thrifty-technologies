@@ -344,6 +344,57 @@
       .card, .panel { padding: 16px; }
       .dash-grid-main, .dash-grid-bottom { grid-template-columns: 1fr; }
     }
+
+    /* ═══ SUPER ADMIN MOBILE APP EXPERIENCE ═══ */
+    .topbar-action-btn{width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);flex:0 0 auto}
+    .topbar-action-btn:active{background:var(--bg)}
+    .topbar__avatar-btn{width:40px;height:40px;padding:2px;border:0;border-radius:50%;background:transparent;cursor:pointer;flex:0 0 auto}
+    .topbar__avatar-btn:focus-visible,.topbar-action-btn:focus-visible,.back-btn:focus-visible,.mobile-nav-item:focus-visible{outline:3px solid rgba(0,139,97,.25);outline-offset:2px}
+    .back-btn{display:none;width:38px;height:38px;flex:0 0 38px;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font-size:20px}
+    .mobile-bottom-nav{display:none;position:fixed;left:0;right:0;bottom:0;min-height:calc(64px + env(safe-area-inset-bottom));padding:7px 8px calc(7px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid var(--line);box-shadow:0 -4px 18px rgba(16,24,40,.07);z-index:150;justify-content:space-around;gap:4px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+    .mobile-nav-item{min-width:0;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:5px 3px;border:0;border-radius:10px;background:transparent;color:var(--muted);font-size:10px;font-weight:700}
+    .mobile-nav-item svg{width:21px;height:21px}
+    .mobile-nav-item.is-active{color:var(--g);background:rgba(0,139,97,.08)}
+    .profile-summary{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+    .profile-summary__avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--g);color:#fff;font-size:18px;font-weight:800;flex:0 0 auto}
+    .profile-summary__name{font-size:16px;font-weight:800}
+    .profile-summary__role{color:var(--muted);font-size:12px;margin-top:3px}
+    @media(max-width:900px){
+      .sidebar{z-index:220}.drawer-overlay{z-index:210}
+      .main{margin-left:0!important;padding-bottom:calc(82px + env(safe-area-inset-bottom))}
+      .topbar{height:calc(64px + env(safe-area-inset-top));min-height:calc(64px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 14px 0;gap:10px}
+      .topbar__title{font-size:15px}.topbar__subtitle{font-size:10px}
+      .menu-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:38px;padding:0}
+      .content{padding:16px}.mobile-bottom-nav{display:flex}
+      .stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+      .stat-card{min-width:0;padding:13px!important;gap:8px}
+      .stat-label{font-size:10px;line-height:1.35}.stat-value{font-size:clamp(18px,5vw,23px);overflow-wrap:anywhere}
+      .hero{padding:20px;gap:16px;margin-bottom:16px}.hero-content h2{font-size:20px}.hero-content p{font-size:12px}
+      .hero-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:8px}
+      .hero-btn{min-width:0;padding:11px 9px}.hero-btn__value{font-size:20px}.hero-btn__label{font-size:9px;line-height:1.3}
+      .page-header h1{font-size:23px}.dash-grid-main,.dash-grid-bottom{grid-template-columns:1fr!important;gap:14px}
+      .chart-shell{height:300px}.panel-head{padding:15px;gap:8px;flex-wrap:wrap}.chart-area{padding:12px}
+      .card,.panel{margin-bottom:16px}
+      /* Tables become readable, labelled mobile cards */
+      .table-wrap{background:transparent;border:0;box-shadow:none;overflow:visible}
+      .table{display:block;width:100%;min-width:0;white-space:normal}
+      .table thead{display:none}.table tbody{display:block;width:100%}
+      .table tbody tr{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,.025)}
+      .table td{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0!important;border-bottom:1px solid #f1f5f9;text-align:right;white-space:normal;overflow-wrap:anywhere;font-size:12px}
+      .table td::before{content:attr(data-label);font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);text-align:left;flex:0 0 38%;margin-right:auto}
+      .table td:last-child{border-bottom:0;padding-bottom:0!important}
+      .table td[colspan]::before{display:none}
+      .table__actions{flex-wrap:wrap;justify-content:flex-end}
+      .modal{padding:10px;align-items:flex-end}.modal__content{max-height:88vh;border-radius:16px 16px 0 0;padding:18px}
+      #toast-container{left:12px;right:12px;bottom:calc(78px + env(safe-area-inset-bottom))}
+    }
+    @media(max-width:480px){
+      .hero-actions{grid-template-columns:1fr}.hero-btn{flex-direction:row;align-items:center;justify-content:space-between}
+      .hero-btn__value{margin:0 10px 0 0}.hero-btn__label{text-align:right}
+      .topbar__subtitle{display:none}.chart-shell{height:260px}.chart-yaxis{width:46px;font-size:9px}
+      .stat-card{padding:11px!important}
+    }
+
   </style>
 </head>
 <body>
@@ -418,13 +469,14 @@
   <!-- ── MAIN CONTENT ───────────────────────────────────── -->
   <div class="main">
     <header class="topbar">
-      <button class="menu-btn" id="menu-btn">☰</button>
-      <div>
-        <div class="topbar__title" id="topbar-title">Dashboard</div>
-        <div class="topbar__subtitle">Platform administration</div>
-      </div>
+      <button class="back-btn" id="back-btn" type="button" aria-label="Go back" title="Go back">←</button>
+      <button class="menu-btn" id="menu-btn" type="button" aria-label="Open navigation menu">☰</button>
+      <div class="topbar-heading"><div class="topbar__title" id="topbar-title">Dashboard</div><div class="topbar__subtitle">Platform administration</div></div>
       <div class="spacer"></div>
-      <div class="topbar__avatar" id="topbar-avatar">S</div>
+      <button class="topbar-action-btn" id="manual-refresh-btn" type="button" aria-label="Refresh dashboard data" title="Refresh data">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.73-5.73"/></svg>
+      </button>
+      <button class="topbar__avatar-btn" id="topbar-avatar-btn" type="button" aria-label="Open administrator profile" title="Profile"><span class="topbar__avatar" id="topbar-avatar">S</span></button>
     </header>
 
     <div class="content">
@@ -889,6 +941,22 @@
   </div>
 </div>
 
+<nav class="mobile-bottom-nav" id="mobile-bottom-nav" aria-label="Primary mobile navigation">
+  <button class="mobile-nav-item is-active" type="button" data-section="overview" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg><span>Home</span></button>
+  <button class="mobile-nav-item" type="button" data-section="branches"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg><span>Branches</span></button>
+  <button class="mobile-nav-item" type="button" data-section="payout-approvals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span>Fees</span></button>
+  <button class="mobile-nav-item" type="button" data-section="tenants"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg><span>Tenants</span></button>
+</nav>
+
+<div class="modal" id="super-admin-profile-modal" role="dialog" aria-modal="true" aria-labelledby="super-admin-profile-title">
+  <div class="modal__content" style="max-width:420px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;"><h2 id="super-admin-profile-title" style="margin:0;font-size:19px;">Administrator profile</h2><button class="btn btn--ghost btn--sm" type="button" id="close-super-admin-profile">Close</button></div>
+    <div class="profile-summary"><div class="profile-summary__avatar" id="profile-modal-avatar">S</div><div><div class="profile-summary__name" id="profile-modal-name">Super Admin</div><div class="profile-summary__role">Super Administrator</div></div></div>
+    <div class="form-row"><label class="form-label">Email address</label><div id="profile-modal-email" style="font-weight:600;overflow-wrap:anywhere;">—</div></div>
+    <button class="btn btn--primary" type="button" id="profile-settings-btn" style="width:100%;">Platform settings</button>
+  </div>
+</div>
+
 <!-- ═══ TENANT DETAILS MODAL ═══ -->
 <div class="modal" id="tenant-modal">
   <div class="modal__content">
@@ -996,15 +1064,25 @@
       'analytics': 'Analytics',
     };
 
-    function showSection(key) {
+    const sectionHistory = [];
+    let currentSectionKey = 'overview';
+    function updateBackButton() {
+      const button = document.getElementById('back-btn');
+      if (button) button.style.display = currentSectionKey !== 'overview' ? 'inline-flex' : 'none';
+    }
+    function goToPreviousSection() { showSection(sectionHistory.pop() || 'overview', true); }
+    function showSection(key, fromBack) {
+      if (!key || !document.getElementById('section-' + key)) return;
+      if (!fromBack && currentSectionKey !== key) sectionHistory.push(currentSectionKey);
+      currentSectionKey = key;
       document.querySelectorAll('.section').forEach(function (el) { el.classList.remove('is-active'); });
       document.querySelectorAll('.nav-item').forEach(function (el) { el.classList.remove('is-active'); });
-      const section = document.getElementById('section-' + key);
-      if (section) section.classList.add('is-active');
+      document.getElementById('section-' + key).classList.add('is-active');
       const navItem = document.querySelector('.nav-item[data-section="' + key + '"]');
       if (navItem) navItem.classList.add('is-active');
       document.getElementById('topbar-title').textContent = sectionTitles[key] || 'Dashboard';
-
+      document.querySelectorAll('.mobile-nav-item').forEach(function (item) { item.classList.toggle('is-active', item.dataset.section === key); });
+      updateBackButton();
       if (key === 'overview') loadOverview();
       else if (key === 'branches') loadBranches();
       else if (key === 'branch-accounts') loadBranchAccounts();
@@ -1013,7 +1091,6 @@
       else if (key === 'savers') loadSavers();
       else if (key === 'platform-settings') loadPlatformSettings();
       else if (key === 'analytics') loadAnalytics();
-      
       closeDrawer();
     }
 
@@ -1039,6 +1116,56 @@
       window.ROSCA_API.clearTokens();
       window.location.href = '/?login=1';
     });
+
+    document.getElementById('back-btn').addEventListener('click', goToPreviousSection);
+    document.querySelectorAll('.mobile-nav-item').forEach(function (item) {
+      item.addEventListener('click', function () { showSection(item.dataset.section); });
+    });
+    document.getElementById('manual-refresh-btn').addEventListener('click', async function () {
+      const button = this, svg = button.querySelector('svg');
+      button.disabled = true; svg.style.transition = 'transform .6s ease'; svg.style.transform = 'rotate(360deg)';
+      try {
+        if (currentSectionKey === 'overview') await loadOverview();
+        else if (currentSectionKey === 'branches') await loadBranches();
+        else if (currentSectionKey === 'branch-accounts') await loadBranchAccounts();
+        else if (currentSectionKey === 'payout-approvals') await loadPayoutApprovals();
+        else if (currentSectionKey === 'tenants') await loadTenants();
+        else if (currentSectionKey === 'savers') await loadSavers();
+        else if (currentSectionKey === 'platform-settings') await loadPlatformSettings();
+        else if (currentSectionKey === 'analytics') await loadAnalytics();
+        toast('Dashboard data refreshed', 'success');
+      } catch (err) { toast('Refresh failed: ' + (err.message || 'Please try again'), 'error'); }
+      finally { setTimeout(function () { svg.style.transform = 'rotate(0deg)'; }, 600); button.disabled = false; }
+    });
+    function openSuperAdminProfile() {
+      const user = state.user || {}, name = user.fullName || 'Super Admin';
+      document.getElementById('profile-modal-name').textContent = name;
+      document.getElementById('profile-modal-email').textContent = user.email || 'Not available';
+      document.getElementById('profile-modal-avatar').textContent = initials(name);
+      document.getElementById('super-admin-profile-modal').classList.add('is-open');
+    }
+    document.getElementById('topbar-avatar-btn').addEventListener('click', openSuperAdminProfile);
+    document.getElementById('close-super-admin-profile').addEventListener('click', function () { document.getElementById('super-admin-profile-modal').classList.remove('is-open'); });
+    document.getElementById('profile-settings-btn').addEventListener('click', function () {
+      document.getElementById('super-admin-profile-modal').classList.remove('is-open'); showSection('platform-settings');
+    });
+    document.getElementById('super-admin-profile-modal').addEventListener('click', function (event) { if (event.target === this) this.classList.remove('is-open'); });
+
+    // Derive mobile table labels from each table's existing column headings.
+    function applyMobileTableLabels(root) {
+      (root || document).querySelectorAll('table.table').forEach(function (table) {
+        const headers = Array.from(table.querySelectorAll('thead th')).map(function (th) { return th.textContent.trim(); });
+        if (!headers.length) return;
+        table.querySelectorAll('tbody tr').forEach(function (row) {
+          Array.from(row.cells).forEach(function (cell, index) {
+            if (!cell.hasAttribute('data-label') && cell.colSpan < 2 && headers[index]) cell.setAttribute('data-label', headers[index]);
+          });
+        });
+      });
+    }
+    applyMobileTableLabels();
+    const mobileTableObserver = new MutationObserver(function () { applyMobileTableLabels(); });
+    mobileTableObserver.observe(document.querySelector('.content'), { childList: true, subtree: true });
 
     function initials(name) {
       if (!name) return 'S';
@@ -2181,6 +2308,7 @@
       try {
         const ok = await loadMe();
         if (!ok) return;
+        applyMobileTableLabels();
         showSection('overview');
       } catch (err) {
         // Never wipe tokens here — this is a mobile wake-up catch.
