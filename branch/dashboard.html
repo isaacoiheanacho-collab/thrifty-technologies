@@ -1656,7 +1656,13 @@ footer a:hover { color: var(--g); }
 
     // ── Boot ─────────────────────────────────────────────────
     async function loadMe() {
-      if (!window.ROSCA_API.getAccessToken()) {
+      // An access token may have expired while the PWA was closed.
+      // Keep the user on this dashboard if a refresh token is available;
+      // api.js will refresh it when /api/users/me returns 401.
+      if (
+        !window.ROSCA_API.getAccessToken() &&
+        !window.ROSCA_API.getRefreshToken()
+      ) {
         window.location.href = '/?login=1';
         return false;
       }
