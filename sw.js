@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rosca-v6';
+const CACHE_NAME = 'rosca-v7';
 const PRECACHE = ['/assets/css/base.css', '/assets/css/tokens.css'];
 
 self.addEventListener('install', () => { self.skipWaiting(); });
