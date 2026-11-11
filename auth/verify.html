@@ -265,6 +265,29 @@
     const params = new URLSearchParams(window.location.search);
     const phoneParam = params.get('phone');
     const nextParam = params.get('next');
+    const branchSlug = params.get('branch');
+
+    if (branchSlug) {
+      const backLink = document.querySelector('.footer-note a');
+      if (backLink) {
+        backLink.href = '/join/index.html?branch=' + encodeURIComponent(branchSlug);
+        backLink.textContent = '← Back to your community';
+      }
+
+      api('/api/branches/' + encodeURIComponent(branchSlug) + '/public')
+        .then(function (branch) {
+          const branchName = (branch.branding && branch.branding.displayName) || branch.name;
+          if (!branchName) return;
+          const brandTop = document.querySelector('.brand__top');
+          const brandName = document.querySelector('.brand__name');
+          if (brandTop) brandTop.textContent = 'Your community';
+          if (brandName) brandName.textContent = branchName;
+          document.title = 'Verify your phone — ' + branchName + ' — ROSCA Thrift & Savings';
+        })
+        .catch(function () {
+          // Verification remains available if the community profile is temporarily offline.
+        });
+    }
 
     const form = document.getElementById('verify-form');
     const phoneInput = document.getElementById('phone');
@@ -407,7 +430,9 @@
         const destination =
           nextParam && nextParam.startsWith('/')
             ? nextParam
-            : homeForRole(data.user.role);
+            : (branchSlug && data.user.role === 'SAVER'
+                ? '/saver/dashboard.html?branch=' + encodeURIComponent(branchSlug)
+                : homeForRole(data.user.role));
 
         setTimeout(function () {
           window.location.href = destination;

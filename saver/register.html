@@ -305,6 +305,12 @@
       <div class="footer-note">
         Already have an account? <a href="/join/index.html" id="login-link">Log in</a>
       </div>
+      <div class="footer-note" id="community-doc-links" style="display: none;">
+        Community documents:
+        <a id="community-terms-link" href="#">Terms</a> ·
+        <a id="community-privacy-link" href="#">Privacy</a> ·
+        <a id="community-terminology-link" href="#">Terminology</a>
+      </div>
     </div>
 
   </div>
@@ -362,6 +368,10 @@
         branchLine.textContent = 'Joining ' + displayName;
 
         loginLink.href = '/join/index.html?branch=' + encodeURIComponent(branchSlug);
+        document.getElementById('community-terms-link').href = '/join/terms.html?branch=' + encodeURIComponent(branchSlug);
+        document.getElementById('community-privacy-link').href = '/join/privacy.html?branch=' + encodeURIComponent(branchSlug);
+        document.getElementById('community-terminology-link').href = '/join/terminology.html?branch=' + encodeURIComponent(branchSlug);
+        document.getElementById('community-doc-links').style.display = 'block';
 
         // Show the form
         loadingRow.style.display = 'none';
@@ -467,8 +477,10 @@
         const verifyUrl =
           '/auth/verify.html?phone=' +
           encodeURIComponent(phone) +
+          '&branch=' +
+          encodeURIComponent(branchSlug) +
           '&next=' +
-          encodeURIComponent('/saver/dashboard.html');
+          encodeURIComponent('/saver/dashboard.html?branch=' + encodeURIComponent(branchSlug));
 
         setTimeout(function () {
           window.location.href = verifyUrl;

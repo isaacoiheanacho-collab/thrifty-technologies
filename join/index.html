@@ -8,7 +8,17 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
-  <link rel="manifest" href="/manifest.json">
+  <!-- Co-saver installations use a unique manifest and launch URL for this community. -->
+  <script>
+    (function () {
+      var branch = new URLSearchParams(window.location.search).get('branch');
+      if (!branch) return;
+      var manifest = document.createElement('link');
+      manifest.rel = 'manifest';
+      manifest.href = '/api/pwa-manifest?branch=' + encodeURIComponent(branch);
+      document.head.appendChild(manifest);
+    })();
+  </script>
   <title>Join a savings circle — ROSCA Thrift &amp; Savings</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1068,6 +1078,20 @@
 
       document.getElementById('brand-branch').textContent = branchName;
       document.title = 'Join ' + branchName + ' — ROSCA Thrift & Savings';
+      var appTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+      if (!appTitle) {
+        appTitle = document.createElement('meta');
+        appTitle.name = 'apple-mobile-web-app-title';
+        document.head.appendChild(appTitle);
+      }
+      appTitle.content = branchName;
+      var applicationName = document.querySelector('meta[name="application-name"]');
+      if (!applicationName) {
+        applicationName = document.createElement('meta');
+        applicationName.name = 'application-name';
+        document.head.appendChild(applicationName);
+      }
+      applicationName.content = branchName;
       document.getElementById('hero-branch-name').textContent = branchName;
       document.getElementById('about-branch-name').textContent = branchName;
       document.getElementById('rules-branch-name').textContent = branchName;
@@ -1292,7 +1316,7 @@
           } else if (code === 'AUTH_PHONE_NOT_VERIFIED') {
             setLoginStatus('Your phone is not verified yet. Redirecting…', 'info');
             setTimeout(function () {
-              window.location.href = '/auth/verify.html?phone=' + encodeURIComponent(phone) + '&next=' + encodeURIComponent('/saver/dashboard.html');
+              window.location.href = '/auth/verify.html?phone=' + encodeURIComponent(phone) + '&branch=' + encodeURIComponent(slug) + '&next=' + encodeURIComponent('/saver/dashboard.html?branch=' + encodeURIComponent(slug));
             }, 1500);
           } else if (code === 'RATE_LIMIT_EXCEEDED') {
             setLoginStatus('Too many attempts. Please wait a minute and try again.', 'error');
