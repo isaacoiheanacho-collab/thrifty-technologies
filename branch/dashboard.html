@@ -1182,10 +1182,8 @@ footer a:hover { color: var(--g); }
               <option value="PENDING">Pending Receipts</option>
               <option value="CONFIRMED">Confirmed History</option>
             </select>
-            <select class="form-input" id="contrib-tenant-filter" style="width: 150px; padding: 8px 12px;">
-              <option value="">All Tenants</option>
-              <!-- Populated via JS -->
-            </select>
+            <input class="form-input" type="search" id="contrib-circle-search" list="branch-circle-options" placeholder="Search circle…" aria-label="Search contributions by circle" style="width: 190px; padding: 8px 12px;">
+            <datalist id="branch-circle-options"></datalist>
           </div>
         </div>
         <div class="table-wrap">
@@ -1206,10 +1204,7 @@ footer a:hover { color: var(--g); }
               <option value="CONFIRMED">Completed History</option>
               <option value="ALL">All Payouts</option>
             </select>
-            <select class="form-input" id="payout-tenant-filter" style="width: 150px; padding: 8px 12px;">
-              <option value="">All Tenants</option>
-              <!-- Populated via JS -->
-            </select>
+            <input class="form-input" type="search" id="payout-circle-search" list="branch-circle-options" placeholder="Search circle…" aria-label="Search payouts by circle" style="width: 190px; padding: 8px 12px;">
           </div>
         </div>
         <div class="table-wrap">
@@ -2274,13 +2269,15 @@ footer a:hover { color: var(--g); }
       const tbody = document.querySelector('#contrib-table tbody');
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted);">Loading…</td></tr>';
       const statusFilter = document.getElementById('contrib-status-filter').value;
-      const tenantFilter = document.getElementById('contrib-tenant-filter').value;
+      const circleQuery = (document.getElementById('contrib-circle-search').value || '').trim().toLowerCase();
+      const exactCircle = branchTenantOptions.find(t => (t.name || '').trim().toLowerCase() === circleQuery);
       try {
         let url = '/api/branch-admin/contributions?status=' + statusFilter + '&limit=50';
-        if (tenantFilter) url += '&tenantId=' + encodeURIComponent(tenantFilter);
+        if (exactCircle) url += '&tenantId=' + encodeURIComponent(exactCircle.id);
         const result = await api(url);
         if (statusFilter === 'CONFIRMED') {
           let list = result.contributions || [];
+          if (circleQuery && !exactCircle) list = list.filter(c => (c.tenantName || '').toLowerCase().includes(circleQuery));
           if (!list.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No confirmed contributions</h3></div></td></tr>'; return; }
           tbody.innerHTML = list.map(c => `
             <tr>
@@ -2294,6 +2291,7 @@ footer a:hover { color: var(--g); }
           `).join('');
         } else {
           let intents = result.intents || [];
+          if (circleQuery && !exactCircle) intents = intents.filter(i => (i.tenantName || '').toLowerCase().includes(circleQuery));
           if (!intents.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No pending contributions</h3></div></td></tr>'; return; }
           tbody.innerHTML = intents.map(i => {
             const amt = i.receipt && i.receipt.claimedAmountPence ? penceToGbp(i.receipt.claimedAmountPence) : '—';
@@ -2320,7 +2318,7 @@ footer a:hover { color: var(--g); }
       }
     }
     document.getElementById('contrib-status-filter').addEventListener('change', loadContributions);
-    document.getElementById('contrib-tenant-filter').addEventListener('change', loadContributions);
+    document.getElementById('contrib-circle-search').addEventListener('input', loadContributions);
 
     async function confirmContribution(intentId) {
       const amtStr = window.prompt('Confirm the amount received (in pence, e.g. 100000 = £1,000):', '100000');
@@ -2347,7 +2345,8 @@ footer a:hover { color: var(--g); }
     async function loadPayouts() {
       const tbody = document.querySelector('#payouts-table tbody');
       const filter = document.getElementById('payout-status-filter').value;
-      const tenantFilter = document.getElementById('payout-tenant-filter').value;
+      const circleQuery = (document.getElementById('payout-circle-search').value || '').trim().toLowerCase();
+      const exactCircle = branchTenantOptions.find(t => (t.name || '').trim().toLowerCase() === circleQuery);
 
       tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--muted);">Loading…</td></tr>';
       try {
@@ -2357,9 +2356,8 @@ footer a:hover { color: var(--g); }
         if (filter === 'CONFIRMED') intents = intents.filter(p => p.state === 'CONFIRMED');
         else if (filter === 'PENDING') intents = intents.filter(p => p.state !== 'CONFIRMED');
         
-        if (tenantFilter) {
-          intents = intents.filter(p => p.tenantName === tenantFilter);
-        }
+        if (exactCircle) intents = intents.filter(p => p.tenantId === exactCircle.id);
+        else if (circleQuery) intents = intents.filter(p => (p.tenantName || '').toLowerCase().includes(circleQuery));
 
         if (!intents.length) { tbody.innerHTML = '<tr><td colspan="9"><div class="empty"><h3>No payouts found</h3></div></td></tr>'; return; }
 
@@ -2410,7 +2408,7 @@ footer a:hover { color: var(--g); }
       }
     }
     document.getElementById('payout-status-filter').addEventListener('change', loadPayouts);
-    document.getElementById('payout-tenant-filter').addEventListener('change', loadPayouts);
+    document.getElementById('payout-circle-search').addEventListener('input', loadPayouts);
 
     async function loadTenants() {
       const tbody = document.querySelector('#tenants-table tbody');
@@ -2418,6 +2416,7 @@ footer a:hover { color: var(--g); }
       try {
         const summary = await api('/api/branch-admin/tenants/summary');
         const tenants = summary.tenants || [];
+        branchTenantOptions = tenants;
         if (!tenants.length) {
           tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No circles yet</h3><p>Circles form automatically once 12 verified members join your branch.</p></div></td></tr>';
           return;
@@ -2539,7 +2538,8 @@ footer a:hover { color: var(--g); }
       }
     });
 
-    // ── Populate Tenant filters ──────────────────────────────
+    // ── Populate circle search options for branch records ─────
+    let branchTenantOptions = [];
     async function populateTenantFilters() {
       try {
         const summary = await api('/api/branch-admin/tenants/summary');
@@ -2556,26 +2556,12 @@ footer a:hover { color: var(--g); }
           });
         }
 
-        // Contributions filter
-        const contribFilter = document.getElementById('contrib-tenant-filter');
-        if (contribFilter && tenants.length > 0) {
-          tenants.forEach(t => {
-            const opt = document.createElement('option');
-            opt.value = t.id;
-            opt.textContent = t.name || 'Unnamed Tenant';
-            contribFilter.appendChild(opt);
-          });
-        }
-
-        // Payouts filter
-        const payoutFilter = document.getElementById('payout-tenant-filter');
-        if (payoutFilter && tenants.length > 0) {
-          tenants.forEach(t => {
-            const opt = document.createElement('option');
-            opt.value = t.name || 'Unnamed Tenant';
-            opt.textContent = t.name || 'Unnamed Tenant';
-            payoutFilter.appendChild(opt);
-          });
+        // Contributions and payouts share a searchable circle-name list.
+        const circleOptions = document.getElementById('branch-circle-options');
+        if (circleOptions) {
+          circleOptions.innerHTML = tenants.map(t =>
+            '<option value="' + escapeHtml(t.name || 'Unnamed Circle') + '"></option>'
+          ).join('');
         }
       } catch (err) {
         console.error('Failed to load tenants for filter', err);
