@@ -264,7 +264,7 @@
       await pollForNewNotifications();
       await connectSocket();
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js?v=9').catch(err => console.warn('[notifications] service worker registration failed', err));
+        navigator.serviceWorker.register('/sw.js?v=11').catch(err => console.warn('[notifications] service worker registration failed', err));
       }
       if (!pollHandle) pollHandle = window.setInterval(pollForNewNotifications, 20000);
       document.addEventListener('visibilitychange', () => {
