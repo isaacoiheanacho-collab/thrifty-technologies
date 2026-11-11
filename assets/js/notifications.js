@@ -212,15 +212,51 @@
     socket.on('notification:new', showLiveNotification);
     socket.on('connect_error', err => console.warn('[notifications] socket connection failed', err.message));
   }
+  // Poll the database-backed feed as a low-cost fallback if a realtime
+  // Socket.IO connection is blocked or temporarily disconnected.
+  let newestNotificationAt = 0;
+  let pollHandle = null;
+  async function pollForNewNotifications() {
+    try {
+      const data = await api('/api/notifications?limit=20&offset=0');
+      const items = data.notifications || [];
+      const newest = items.reduce((max, n) => Math.max(max, new Date(n.createdAt).getTime() || 0), 0);
+      const fresh = newestNotificationAt
+        ? items.filter(n => (new Date(n.createdAt).getTime() || 0) > newestNotificationAt)
+        : [];
+      render(items);
+      setUnread(data.unread || 0);
+      if (fresh.length) {
+        fresh.reverse().forEach(n => {
+          toastLive(n.title || 'New notification', n.body || '');
+          playAlert();
+          if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
+            navigator.serviceWorker.ready.then(reg => reg.showNotification(n.title || 'ROSCA Thrift', {
+              body: n.body || '', icon: '/icons/icon-192.png', tag: n.id
+            })).catch(() => {});
+          }
+        });
+      }
+      newestNotificationAt = Math.max(newestNotificationAt, newest);
+    } catch (err) {
+      console.warn('[notifications] background feed refresh failed', err);
+    }
+  }
+
   // Called only after dashboard auth has succeeded; refresh may rotate the token.
   window.ROSCANotifications = {
     start: async function () {
       await refreshCount();
       await loadFeed();
+      await pollForNewNotifications();
       await connectSocket();
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js?v=7').catch(err => console.warn('[notifications] service worker registration failed', err));
+        navigator.serviceWorker.register('/sw.js?v=9').catch(err => console.warn('[notifications] service worker registration failed', err));
       }
+      if (!pollHandle) pollHandle = window.setInterval(pollForNewNotifications, 20000);
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) pollForNewNotifications();
+      });
     },
     refresh: refreshCount
   };
