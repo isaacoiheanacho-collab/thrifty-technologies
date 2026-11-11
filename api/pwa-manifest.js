@@ -5,6 +5,7 @@
  */
 module.exports = function handler(req, res) {
   const branch = typeof req.query.branch === 'string' ? req.query.branch : '';
+  const requestedName = typeof req.query.name === 'string' ? req.query.name.trim() : '';
 
   // Slugs are URL identifiers, never HTML or executable content.
   if (!/^[a-z0-9][a-z0-9-]{0,62}$/i.test(branch)) {
@@ -13,13 +14,16 @@ module.exports = function handler(req, res) {
 
   const encodedBranch = encodeURIComponent(branch);
   const launchUrl = '/join/index.html?branch=' + encodedBranch;
-  const readableBranch = branch
+  const slugLabel = branch
     .split('-')
     .filter(Boolean)
     .map(function (part) {
       return part.charAt(0).toUpperCase() + part.slice(1);
     })
     .join(' ') || 'Community';
+  const readableBranch = requestedName && requestedName.length <= 80
+    ? requestedName
+    : slugLabel;
   const shortName = readableBranch.length > 16
     ? readableBranch.slice(0, 16)
     : readableBranch;

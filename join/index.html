@@ -1078,6 +1078,11 @@
 
       document.getElementById('brand-branch').textContent = branchName;
       document.title = 'Join ' + branchName + ' — ROSCA Thrift & Savings';
+      var branchManifest = document.querySelector('link[rel="manifest"]');
+      if (branchManifest && branchSlug) {
+        branchManifest.href = '/api/pwa-manifest?branch=' +
+          encodeURIComponent(branchSlug) + '&name=' + encodeURIComponent(branchName);
+      }
       var appTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
       if (!appTitle) {
         appTitle = document.createElement('meta');
