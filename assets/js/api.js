@@ -79,9 +79,17 @@
 
     const params = new URLSearchParams(window.location.search);
     const branch = params.get('branch');
-    let dest = '/?login=1';
-    if (branch) dest += '&branch=' + encodeURIComponent(branch);
-    dest += '&next=' + next;
+    const path = window.location.pathname;
+    const isCoSaverContext = !!branch &&
+      (path.indexOf('/join/') === 0 || path.indexOf('/saver/') === 0);
+
+    // Keep an expired co-saver session inside its own community instead of
+    // sending the user to the platform/admin landing page.
+    let dest = isCoSaverContext
+      ? '/join/index.html?branch=' + encodeURIComponent(branch)
+      : '/?login=1';
+    if (!isCoSaverContext && branch) dest += '&branch=' + encodeURIComponent(branch);
+    if (!isCoSaverContext) dest += '&next=' + next;
 
     window.location.href = dest;
   }

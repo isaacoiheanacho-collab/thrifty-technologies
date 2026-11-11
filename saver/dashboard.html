@@ -1092,7 +1092,7 @@ footer a:hover { color: var(--g); }
     document.getElementById('topbar-avatar-btn').addEventListener('click',openSaverProfile);
     document.getElementById('close-saver-profile').addEventListener('click',function(){document.getElementById('saver-profile-modal').classList.remove('is-open');});
     document.getElementById('profile-settings-btn').addEventListener('click',function(){document.getElementById('saver-profile-modal').classList.remove('is-open');showSection('settings');});
-    document.getElementById('profile-logout-btn').addEventListener('click',function(){window.ROSCA_API.clearTokens();window.location.href='/?login=1';});
+    document.getElementById('profile-logout-btn').addEventListener('click',function(){document.getElementById('logout-btn').click();});
     document.getElementById('saver-profile-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('is-open');});
     document.addEventListener('keydown',function(e){if(e.key==='Escape')document.getElementById('saver-profile-modal').classList.remove('is-open');});
     function applyMobileTableLabels(root){
@@ -1115,7 +1115,10 @@ footer a:hover { color: var(--g); }
       // No access token at all → the refresh flow needs at least a refresh token.
       // If neither exists, then genuinely bounce to login.
       if (!window.ROSCA_API.getAccessToken() && !window.ROSCA_API.getRefreshToken()) {
-        window.location.href = '/?login=1';
+        const branchSlug = new URLSearchParams(window.location.search).get('branch');
+        window.location.href = branchSlug
+          ? '/join/index.html?branch=' + encodeURIComponent(branchSlug)
+          : '/?login=1';
         return false;
       }
       try {

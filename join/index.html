@@ -1021,6 +1021,32 @@
       try {
         const b = await api('/api/branches/' + encodeURIComponent(branchSlug) + '/public');
         retryAttempts = 0;
+
+        // A PWA always opens its manifest start_url. Restore an existing
+        // co-saver session here so a returning member goes straight to the
+        // dashboard instead of seeing the public sign-in screen.
+        const hasSavedSession =
+          window.ROSCA_API.getAccessToken() || window.ROSCA_API.getRefreshToken();
+
+        if (hasSavedSession) {
+          try {
+            const currentUser = await api('/api/users/me');
+            if (currentUser.role === 'SAVER' && currentUser.branchId === b.id) {
+              window.location.replace(
+                '/saver/dashboard.html?branch=' + encodeURIComponent(branchSlug)
+              );
+              return;
+            }
+          } catch (sessionError) {
+            // Keep the stored session on transient network/server errors.
+            // The public community page remains usable and the next launch
+            // will retry session restoration.
+            if (sessionError && sessionError.code === 'NETWORK_ERROR') {
+              showNetworkBanner();
+            }
+          }
+        }
+
         render(b);
       } catch (err) {
         const code = err && err.code;
@@ -1300,7 +1326,9 @@
           setLoginStatus('✓ Logged in. Redirecting…', 'success');
 
           setTimeout(function () {
-            window.location.href = homeForRole(role);
+            window.location.href = role === 'SAVER'
+              ? '/saver/dashboard.html?branch=' + encodeURIComponent(slug)
+              : homeForRole(role);
           }, 700);
         } catch (err) {
           const code = err && err.code;
