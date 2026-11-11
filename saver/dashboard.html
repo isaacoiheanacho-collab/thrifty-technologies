@@ -939,6 +939,7 @@ footer a:hover { color: var(--g); }
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script src="/assets/js/config.js"></script>
 <script src="/assets/js/api.js"></script>
+<script src="/assets/js/notifications.js"></script>
 <script>
   (function () {
     'use strict';
@@ -1947,7 +1948,7 @@ footer a:hover { color: var(--g); }
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
-    navigator.serviceWorker.register('/sw.js?v=6')
+    navigator.serviceWorker.register('/sw.js?v=7')
       .catch(function (error) { console.warn('Service worker registration failed:', error); });
   });
 }
