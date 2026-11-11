@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rosca-v9';
+const CACHE_NAME = 'rosca-v10';
 const PRECACHE = ['/assets/css/base.css', '/assets/css/tokens.css'];
 
 self.addEventListener('install', () => { self.skipWaiting(); });
@@ -19,7 +19,7 @@ self.addEventListener('push', (event) => {
     body: payload.body || 'You have a new update.',
     icon: '/icons/icon-192.png',
     badge: '/icons/icon-192.png',
-    tag: payload.metadata && payload.metadata.id ? String(payload.metadata.id) : 'rosca-notification',
+    tag: payload.id ? String(payload.id) : ('rosca-' + Date.now() + '-' + Math.random().toString(36).slice(2)),
     data: { url: payload.url || '/notifications' },
     renotify: true
   };
