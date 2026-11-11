@@ -196,7 +196,7 @@
     const token = auth.getAccessToken();
     if (!token || !window.io) return;
     if (socket) socket.disconnect();
-    socket = window.io(window.ROSCA_CONFIG.API_BASE_URL || window.ROSCA_CONFIG.API_BASE || '', {
+    socket = window.io(window.ROSCA_CONFIG.API_BASE, {
       auth: {token}, transports:['websocket','polling'], reconnection:true
     });
     socket.on('notification:new', showLiveNotification);
