@@ -2544,6 +2544,7 @@ footer a:hover { color: var(--g); }
       try {
         const summary = await api('/api/branch-admin/tenants/summary');
         const tenants = summary.tenants || [];
+        branchTenantOptions = tenants;
         
         // KYC filter
         const kycFilter = document.getElementById('kyc-tenant-filter');
