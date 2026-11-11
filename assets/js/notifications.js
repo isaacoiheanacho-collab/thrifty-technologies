@@ -11,6 +11,8 @@
   let unread = 0;
   let audioReady = false;
   let audioContext = null;
+  let soundQueue = Promise.resolve();
+  const seenNotificationIds = new Set();
   let socket = null;
   let panelOpen = false;
 
@@ -20,7 +22,7 @@
     .rosca-notify-bell{width:40px;height:40px;border:1px solid var(--line,#e5e7eb);border-radius:12px;background:#fff;color:var(--ink,#17212b);display:grid;place-items:center;position:relative;cursor:pointer}
     .rosca-notify-bell svg{width:19px;height:19px}
     .rosca-notify-count{position:absolute;right:-5px;top:-5px;min-width:18px;height:18px;padding:0 4px;border-radius:10px;background:#dc2626;color:#fff;font:700 10px/18px system-ui;text-align:center;border:2px solid #fff}
-    .rosca-notify-panel{position:absolute;right:0;top:48px;width:min(360px,calc(100vw - 28px));max-height: min(480px,70vh);overflow:auto;background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 18px 48px rgba(15,23,42,.18);z-index:1001;display:none;color:#17212b}
+    .rosca-notify-panel{position:fixed;right:14px;top:76px;width:min(360px,calc(100vw - 28px));max-height: min(480px,70vh);overflow:auto;background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 18px 48px rgba(15,23,42,.18);z-index:1001;display:none;color:#17212b}
     .rosca-notify-panel.is-open{display:block}
     .rosca-notify-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eef0f2;font-weight:700}
     .rosca-notify-head button,.rosca-notify-enable{border:0;background:none;color:#087f5b;font:600 12px system-ui;cursor:pointer}
@@ -77,22 +79,25 @@
       if (audioContext.state === 'suspended') await audioContext.resume();
     } catch (_) {}
   }
-  async function playAlert() {
+  function playAlert() {
     if (!audioReady) return;
-    try {
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      if (!Ctx) return;
-      audioContext = audioContext || new Ctx();
-      if (audioContext.state === 'suspended') await audioContext.resume();
-      const osc = audioContext.createOscillator();
-      const gain = audioContext.createGain();
-      osc.type = 'sine'; osc.frequency.value = 880;
-      gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.08, audioContext.currentTime + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.28);
-      osc.connect(gain); gain.connect(audioContext.destination);
-      osc.start(); osc.stop(audioContext.currentTime + 0.3);
-    } catch (err) { console.warn('[notifications] audible alert unavailable', err); }
+    soundQueue = soundQueue.then(async () => {
+      try {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        audioContext = audioContext || new Ctx();
+        if (audioContext.state === 'suspended') await audioContext.resume();
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = 'sine'; osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.08, audioContext.currentTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.28);
+        osc.connect(gain); gain.connect(audioContext.destination);
+        osc.start(); osc.stop(audioContext.currentTime + 0.3);
+        await new Promise(resolve => window.setTimeout(resolve, 420));
+      } catch (err) { console.warn('[notifications] audible alert unavailable', err); }
+    }).catch(() => {});
   }
   document.addEventListener('pointerdown', unlockAudio, { once: true });
   document.addEventListener('keydown', unlockAudio, { once: true });
@@ -131,6 +136,8 @@
     } catch (err) { console.warn('[notifications] mark read failed', err); }
   }
   function showLiveNotification(n) {
+    if (n.id && seenNotificationIds.has(n.id)) return;
+    if (n.id) { seenNotificationIds.add(n.id); if (seenNotificationIds.size > 300) seenNotificationIds.delete(seenNotificationIds.values().next().value); }
     setUnread(unread + 1);
     toastLive(n.title || 'New notification', n.body || '');
     playAlert();
@@ -150,6 +157,10 @@
 
   bell.addEventListener('click', async () => {
     panelOpen = !panelOpen;
+    if (panelOpen) {
+      const rect = bell.getBoundingClientRect();
+      panel.style.top = Math.min(rect.bottom + 8, window.innerHeight - 120) + 'px';
+    }
     panel.classList.toggle('is-open', panelOpen);
     bell.setAttribute('aria-expanded', String(panelOpen));
     if (panelOpen) await loadFeed();
@@ -228,6 +239,8 @@
       setUnread(data.unread || 0);
       if (fresh.length) {
         fresh.reverse().forEach(n => {
+          if (n.id && seenNotificationIds.has(n.id)) return;
+          if (n.id) { seenNotificationIds.add(n.id); if (seenNotificationIds.size > 300) seenNotificationIds.delete(seenNotificationIds.values().next().value); }
           toastLive(n.title || 'New notification', n.body || '');
           playAlert();
           if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
