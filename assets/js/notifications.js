@@ -68,13 +68,22 @@
     if (unread > 0 && 'setAppBadge' in navigator) navigator.setAppBadge(unread).catch(() => {});
     if (unread === 0 && 'clearAppBadge' in navigator) navigator.clearAppBadge().catch(() => {});
   }
-  function playAlert() {
+  async function unlockAudio() {
+    audioReady = true;
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      audioContext = audioContext || new Ctx();
+      if (audioContext.state === 'suspended') await audioContext.resume();
+    } catch (_) {}
+  }
+  async function playAlert() {
     if (!audioReady) return;
     try {
       const Ctx = window.AudioContext || window.webkitAudioContext;
       if (!Ctx) return;
       audioContext = audioContext || new Ctx();
-      if (audioContext.state === 'suspended') audioContext.resume();
+      if (audioContext.state === 'suspended') await audioContext.resume();
       const osc = audioContext.createOscillator();
       const gain = audioContext.createGain();
       osc.type = 'sine'; osc.frequency.value = 880;
@@ -83,9 +92,10 @@
       gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.28);
       osc.connect(gain); gain.connect(audioContext.destination);
       osc.start(); osc.stop(audioContext.currentTime + 0.3);
-    } catch (_) {}
+    } catch (err) { console.warn('[notifications] audible alert unavailable', err); }
   }
-  document.addEventListener('pointerdown', () => { audioReady = true; }, { once: true });
+  document.addEventListener('pointerdown', unlockAudio, { once: true });
+  document.addEventListener('keydown', unlockAudio, { once: true });
 
   function render(items) {
     if (!items.length) {
