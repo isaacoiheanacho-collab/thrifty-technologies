@@ -397,7 +397,25 @@
       .stat-card{padding:11px!important}
     }
 
-  </style>
+  /* Branch Admin-style Super Admin mobile navigation drawer */
+@media(max-width:900px){
+ .menu-btn{display:inline-flex!important;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font-size:23px;line-height:1}
+ .sidebar{transform:translateX(-105%);transition:transform .3s cubic-bezier(.4,0,.2,1);width:min(280px,86vw);height:100dvh;background:#fff;color:var(--ink);padding:24px 20px;box-shadow:10px 0 30px rgba(0,0,0,.12);z-index:240}
+ .sidebar.is-open{transform:translateX(0)}
+ .sidebar__brand{border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:16px}
+ .sidebar__brand-top{color:var(--g)}.sidebar__brand-bottom{color:var(--ink)}
+ .sidebar__nav{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start}
+ .sidebar .nav-item{min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:14px 8px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font-size:11px;text-align:center}
+ .sidebar .nav-item svg{width:24px;height:24px;color:var(--g)}
+ .sidebar .nav-item.is-active{background:rgba(0,139,97,.08);border-color:var(--g);color:var(--g)}
+ .sidebar__footer{border-top:1px solid var(--line);margin-top:18px;padding-top:14px}
+ .sidebar__user{background:var(--bg);color:var(--ink)}
+ .sidebar__user-name{color:var(--ink)}.sidebar__user-role{color:var(--g)}
+ .sidebar .logout-btn{border:1px solid #feeceb;border-radius:12px;background:#fffcfc;color:#e32626;min-height:48px}
+ .drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:230;opacity:0;visibility:hidden;transition:opacity .3s}
+ .drawer-overlay.is-open{display:block;opacity:1;visibility:visible}
+}
+</style>
 </head>
 <body>
 
@@ -1107,10 +1125,11 @@
 
     const sidebar = document.getElementById('sidebar');
     const drawerOverlay = document.getElementById('drawer-overlay');
-    function openDrawer() { sidebar.classList.add('is-open'); drawerOverlay.classList.add('is-open'); }
-    function closeDrawer() { sidebar.classList.remove('is-open'); drawerOverlay.classList.remove('is-open'); }
+    function openDrawer() { sidebar.classList.add('is-open'); drawerOverlay.classList.add('is-open'); document.body.style.overflow='hidden'; }
+    function closeDrawer() { sidebar.classList.remove('is-open'); drawerOverlay.classList.remove('is-open'); document.body.style.overflow=''; }
     document.getElementById('menu-btn').addEventListener('click', openDrawer);
     drawerOverlay.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', function(e){if(e.key==='Escape')closeDrawer();});
 
     // ═════════════════════════════════════════════════════════
     // INTENTIONAL LOGOUT — user clicked "Log out" in the sidebar.

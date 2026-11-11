@@ -298,6 +298,21 @@ footer a:hover { color: var(--g); }
  #toast-container{left:12px;right:12px;bottom:calc(78px + env(safe-area-inset-bottom))}
 }
 @media(max-width:480px){.topbar__subtitle{display:none}.stat-card{padding:11px!important}.mobile-drawer-grid{gap:8px}.mobile-drawer-item{padding:12px 10px;font-size:11px}}
+/* Branch Admin-style mobile hamburger drawer */
+@media(max-width:900px){
+ .menu-btn{display:inline-flex!important;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font-size:23px;line-height:1}
+ .mobile-drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:230;opacity:0;visibility:hidden;transition:opacity .3s}
+ .mobile-drawer-overlay.is-open{display:block;opacity:1;visibility:visible}
+ .mobile-drawer{position:fixed;top:0;bottom:0;left:0;right:auto;width:min(280px,86vw);height:100dvh;max-height:none;overflow-y:auto;z-index:240;background:#fff;border-radius:0;padding:24px 20px calc(24px + env(safe-area-inset-bottom));transform:translateX(-105%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:10px 0 30px rgba(0,0,0,.12)}
+ .mobile-drawer.is-open{transform:translateX(0)}
+ .mobile-drawer-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+ .mobile-drawer-title{font-size:18px;font-weight:800;color:var(--ink)}
+ .mobile-drawer-close{width:34px;height:34px;border:0;border-radius:8px;background:var(--bg);font-size:24px;color:var(--muted)}
+ .mobile-drawer-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start;overflow-y:auto}
+ .mobile-drawer-item{min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:14px 8px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font-size:11px;font-weight:700;text-align:center}
+ .mobile-drawer-item svg{width:24px;height:24px;color:var(--g);flex:0 0 auto}
+ .mobile-drawer-item:active{background:rgba(0,139,97,.08);border-color:var(--g)}
+}
 </style>
 </head>
 <body>
@@ -1022,14 +1037,16 @@ footer a:hover { color: var(--g); }
     const overlay = document.getElementById('overlay');
     function openSidebar() { sidebar.classList.add('is-open'); overlay.classList.add('is-open'); }
     function closeSidebar() { sidebar.classList.remove('is-open'); overlay.classList.remove('is-open'); }
-    document.getElementById('menu-btn').addEventListener('click', openSidebar);
+    /* Hamburger and More open the same mobile navigation drawer. */
     overlay.addEventListener('click', closeSidebar);
     const mobileDrawer=document.getElementById('mobile-drawer'),mobileDrawerOverlay=document.getElementById('mobile-drawer-overlay');
-    function openMobileDrawer(){mobileDrawer.classList.add('is-open');mobileDrawerOverlay.classList.add('is-open');}
-    function closeMobileDrawer(){mobileDrawer.classList.remove('is-open');mobileDrawerOverlay.classList.remove('is-open');}
+    function openMobileDrawer(){mobileDrawer.classList.add('is-open');mobileDrawerOverlay.classList.add('is-open');document.body.style.overflow='hidden';}
+    function closeMobileDrawer(){mobileDrawer.classList.remove('is-open');mobileDrawerOverlay.classList.remove('is-open');document.body.style.overflow='';}
+    document.getElementById('menu-btn').addEventListener('click',openMobileDrawer);
     document.getElementById('mobile-more-btn').addEventListener('click',openMobileDrawer);
     document.getElementById('mobile-drawer-close').addEventListener('click',closeMobileDrawer);
     mobileDrawerOverlay.addEventListener('click',closeMobileDrawer);
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')closeMobileDrawer();});
     document.getElementById('back-btn').addEventListener('click',goToPreviousSection);
     document.querySelectorAll('.mobile-nav-item[data-section]').forEach(function(e){e.addEventListener('click',function(){showSection(e.dataset.section);});});
     document.querySelectorAll('.mobile-drawer-item[data-nav]').forEach(function(e){e.addEventListener('click',function(){showSection(e.dataset.nav);});});
