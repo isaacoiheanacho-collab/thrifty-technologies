@@ -1022,28 +1022,67 @@
         const b = await api('/api/branches/' + encodeURIComponent(branchSlug) + '/public');
         retryAttempts = 0;
 
-        // A PWA always opens its manifest start_url. Restore an existing
-        // co-saver session here so a returning member goes straight to the
-        // dashboard instead of seeing the public sign-in screen.
+        // A PWA always opens its manifest start_url. Restore a saved
+        // co-saver session before exposing the public sign-in page.
         const hasSavedSession =
           window.ROSCA_API.getAccessToken() || window.ROSCA_API.getRefreshToken();
 
         if (hasSavedSession) {
-          try {
-            const currentUser = await api('/api/users/me');
-            if (currentUser.role === 'SAVER' && currentUser.branchId === b.id) {
-              window.location.replace(
-                '/saver/dashboard.html?branch=' + encodeURIComponent(branchSlug)
+          let restoredUser = null;
+          let restoreError = null;
+
+          // Mobile browsers can need a few seconds to restore network access
+          // after the app has been swiped away. Retry transient failures rather
+          // than immediately falling back to the public sign-in screen.
+          for (let attempt = 0; attempt < 5; attempt++) {
+            try {
+              const currentUser = await api('/api/users/me');
+
+              if (currentUser && currentUser.role === 'SAVER' && currentUser.branchId) {
+                // Resolve the user's actual branch by ID and compare its slug.
+                // This avoids relying on a potentially differently typed ID
+                // from the public branch response.
+                const memberBranch = await api(
+                  '/api/branches/id/' + encodeURIComponent(currentUser.branchId)
+                );
+
+                if (memberBranch && String(memberBranch.slug) === String(branchSlug)) {
+                  restoredUser = currentUser;
+                }
+              }
+              restoreError = null;
+              break;
+            } catch (sessionError) {
+              restoreError = sessionError;
+              const transient = sessionError &&
+                (sessionError.code === 'NETWORK_ERROR' ||
+                 sessionError.status >= 500 ||
+                 sessionError.status === 429);
+
+              if (!transient || attempt === 4) break;
+
+              showRetryingState(
+                'Restoring your saved session (' + (attempt + 1) + '/5)…'
               );
-              return;
+              await new Promise(function(resolve) {
+                setTimeout(resolve, 1200 * (attempt + 1));
+              });
             }
-          } catch (sessionError) {
-            // Keep the stored session on transient network/server errors.
-            // The public community page remains usable and the next launch
-            // will retry session restoration.
-            if (sessionError && sessionError.code === 'NETWORK_ERROR') {
-              showNetworkBanner();
-            }
+          }
+
+          if (restoredUser) {
+            window.location.replace(
+              '/saver/dashboard.html?branch=' + encodeURIComponent(branchSlug)
+            );
+            return;
+          }
+
+          // A transient failure is not evidence that the member has logged
+          // out. Keep the community page available, retain tokens, and show
+          // the connection warning. Definitive auth failures are handled by
+          // the shared API client, which clears invalid sessions.
+          if (restoreError && restoreError.code === 'NETWORK_ERROR') {
+            showNetworkBanner();
           }
         }
 
