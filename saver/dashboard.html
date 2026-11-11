@@ -1940,6 +1940,7 @@ footer a:hover { color: var(--g); }
       if (!ok) return;
       applyMobileTableLabels();
       showSection('dashboard');
+      if (window.ROSCANotifications) window.ROSCANotifications.start();
     })();
 
   })();
