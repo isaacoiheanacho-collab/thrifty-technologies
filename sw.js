@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rosca-v8';
+const CACHE_NAME = 'rosca-v9';
 const PRECACHE = ['/assets/css/base.css', '/assets/css/tokens.css'];
 
 self.addEventListener('install', () => { self.skipWaiting(); });
@@ -23,7 +23,16 @@ self.addEventListener('push', (event) => {
     data: { url: payload.url || '/notifications' },
     renotify: true
   };
-  event.waitUntil(self.registration.showNotification(title, options));
+  event.waitUntil((async () => {
+    await self.registration.showNotification(title, options);
+    // Set the PWA icon badge from the service worker so it can update
+    // while the app is backgrounded or closed (where supported by the OS).
+    try {
+      if (self.navigator && 'setAppBadge' in self.navigator) {
+        await self.navigator.setAppBadge(1);
+      }
+    } catch (_) {}
+  })());
 });
 
 self.addEventListener('notificationclick', (event) => {
