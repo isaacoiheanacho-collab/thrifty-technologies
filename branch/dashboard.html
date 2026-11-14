@@ -2368,7 +2368,7 @@ footer a:hover { color: var(--g); }
     }
     document.getElementById('contrib-status-filter').addEventListener('change', loadContributions);
     document.getElementById('contrib-tenant-filter').addEventListener('change', function () {
-      updateContributionReminderControl();
+      loadContributionReminderPreview();
       loadContributions();
     });
     document.getElementById('contrib-circle-filter').addEventListener('change', renderContributions);
