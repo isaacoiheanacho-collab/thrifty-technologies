@@ -2373,15 +2373,70 @@ footer a:hover { color: var(--g); }
     });
     document.getElementById('contrib-circle-filter').addEventListener('change', renderContributions);
 
+    let contributionReminderPreviewRequest = 0;
+    let contributionReminderPreview = null;
+
     function updateContributionReminderControl() {
       const tenantFilter = document.getElementById('contrib-tenant-filter');
       const button = document.getElementById('contrib-remind-btn');
       const hint = document.getElementById('contrib-remind-hint');
       const hasTenant = Boolean(tenantFilter.value);
-      button.disabled = !hasTenant || button.dataset.sending === 'true';
-      hint.textContent = hasTenant
-        ? 'Reminders cover outstanding co-savers across every circle in the selected tenant. The Circle filter only filters receipt records.'
-        : 'Select one tenant to remind outstanding co-savers across all its circles.';
+      const sending = button.dataset.sending === 'true';
+      const loading = button.dataset.previewLoading === 'true';
+
+      button.disabled = !hasTenant || sending || loading || !contributionReminderPreview || !contributionReminderPreview.canSend;
+      if (sending) {
+        button.textContent = 'Sending…';
+      } else if (loading) {
+        button.textContent = 'Checking…';
+      } else if (contributionReminderPreview?.canSend) {
+        button.textContent = 'Remind outstanding (' + contributionReminderPreview.eligibleCount + ')';
+      } else {
+        button.textContent = 'Remind outstanding';
+      }
+
+      if (!hasTenant) {
+        hint.textContent = 'Select one tenant to check outstanding co-savers across all its circles.';
+      } else if (loading) {
+        hint.textContent = 'Checking the selected tenant for eligible co-savers…';
+      } else if (!contributionReminderPreview) {
+        hint.textContent = 'Recipient preview is unavailable. Select the tenant again to retry.';
+      } else if (contributionReminderPreview.reason === 'TENANT_NOT_ACTIVE') {
+        hint.textContent = 'Reminders become available once this tenant is activated and contributions begin.';
+      } else if (contributionReminderPreview.reason === 'NO_CONTRIBUTION_DEADLINE') {
+        hint.textContent = 'No contribution deadline is configured for this tenant’s current cycle.';
+      } else if (contributionReminderPreview.reason === 'NO_OUTSTANDING_MEMBERS') {
+        hint.textContent = 'There are currently no outstanding co-savers to remind in this tenant.';
+      } else {
+        hint.textContent = contributionReminderPreview.eligibleCount + ' outstanding co-saver(s) found across every circle. The Circle filter only filters receipt records.';
+      }
+    }
+
+    async function loadContributionReminderPreview() {
+      const tenantFilter = document.getElementById('contrib-tenant-filter');
+      const button = document.getElementById('contrib-remind-btn');
+      const tenantId = tenantFilter.value;
+      const requestId = ++contributionReminderPreviewRequest;
+
+      contributionReminderPreview = null;
+      button.dataset.previewLoading = tenantId ? 'true' : 'false';
+      updateContributionReminderControl();
+      if (!tenantId) return;
+
+      try {
+        const result = await api('/api/branch-admin/contributions/tenants/' + encodeURIComponent(tenantId) + '/reminder-preview');
+        if (requestId !== contributionReminderPreviewRequest || tenantFilter.value !== tenantId) return;
+        contributionReminderPreview = result.data || result;
+      } catch (err) {
+        if (requestId !== contributionReminderPreviewRequest || tenantFilter.value !== tenantId) return;
+        contributionReminderPreview = null;
+        document.getElementById('contrib-remind-hint').textContent = 'Could not check reminder recipients: ' + err.message;
+      } finally {
+        if (requestId === contributionReminderPreviewRequest) {
+          button.dataset.previewLoading = 'false';
+          updateContributionReminderControl();
+        }
+      }
     }
 
     async function sendContributionReminders() {
@@ -2389,15 +2444,17 @@ footer a:hover { color: var(--g); }
       const button = document.getElementById('contrib-remind-btn');
       const tenantId = tenantFilter.value;
       const tenantName = tenantFilter.options[tenantFilter.selectedIndex]?.textContent || 'selected tenant';
-      if (!tenantId) {
-        toast('Select a tenant before sending reminders.', 'error');
+      const preview = contributionReminderPreview;
+
+      if (!tenantId || !preview?.canSend || !preview.eligibleCount) {
+        toast('There are no eligible outstanding co-savers to remind in this tenant.', 'info');
+        await loadContributionReminderPreview();
         return;
       }
-      if (!window.confirm('Send a manual contribution reminder to all outstanding co-savers across every circle in ' + tenantName + '? Co-savers who have uploaded a receipt, whose contribution is confirmed, or who are exempt will be excluded.')) return;
+      if (!window.confirm('Send a manual contribution reminder to ' + preview.eligibleCount + ' outstanding co-saver(s) across every circle in ' + tenantName + '? Co-savers who have uploaded a receipt, whose contribution is confirmed, or who are exempt will be excluded.')) return;
 
       button.dataset.sending = 'true';
-      button.disabled = true;
-      button.textContent = 'Sending…';
+      updateContributionReminderControl();
       try {
         const result = await api('/api/branch-admin/contributions/tenants/' + encodeURIComponent(tenantId) + '/remind', {
           method: 'POST'
@@ -2413,13 +2470,12 @@ footer a:hover { color: var(--g); }
         toast('Reminder failed: ' + err.message, 'error');
       } finally {
         button.dataset.sending = 'false';
-        button.textContent = 'Remind outstanding';
-        updateContributionReminderControl();
+        await loadContributionReminderPreview();
       }
     }
 
     document.getElementById('contrib-remind-btn').addEventListener('click', sendContributionReminders);
-    updateContributionReminderControl();
+    loadContributionReminderPreview();
 
     async function confirmContribution(intentId) {
       const amtStr = window.prompt('Confirm the amount received (in pence, e.g. 100000 = £1,000):', '100000');
