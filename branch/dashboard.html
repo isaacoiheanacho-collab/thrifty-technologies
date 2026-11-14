@@ -1190,7 +1190,9 @@ footer a:hover { color: var(--g); }
               <option value="">All Circles</option>
               <!-- Populated from contribution references -->
             </select>
+            <button type="button" class="btn btn--primary btn--sm" id="contrib-remind-btn" disabled>Remind outstanding</button>
           </div>
+          <p id="contrib-remind-hint" class="form-hint" style="text-align: right; margin-top: 8px;">Select one tenant to remind outstanding co-savers across all its circles.</p>
         </div>
         <div class="table-wrap">
           <table class="table" id="contrib-table">
@@ -2365,8 +2367,59 @@ footer a:hover { color: var(--g); }
       }
     }
     document.getElementById('contrib-status-filter').addEventListener('change', loadContributions);
-    document.getElementById('contrib-tenant-filter').addEventListener('change', loadContributions);
+    document.getElementById('contrib-tenant-filter').addEventListener('change', function () {
+      updateContributionReminderControl();
+      loadContributions();
+    });
     document.getElementById('contrib-circle-filter').addEventListener('change', renderContributions);
+
+    function updateContributionReminderControl() {
+      const tenantFilter = document.getElementById('contrib-tenant-filter');
+      const button = document.getElementById('contrib-remind-btn');
+      const hint = document.getElementById('contrib-remind-hint');
+      const hasTenant = Boolean(tenantFilter.value);
+      button.disabled = !hasTenant || button.dataset.sending === 'true';
+      hint.textContent = hasTenant
+        ? 'Reminders cover outstanding co-savers across every circle in the selected tenant. The Circle filter only filters receipt records.'
+        : 'Select one tenant to remind outstanding co-savers across all its circles.';
+    }
+
+    async function sendContributionReminders() {
+      const tenantFilter = document.getElementById('contrib-tenant-filter');
+      const button = document.getElementById('contrib-remind-btn');
+      const tenantId = tenantFilter.value;
+      const tenantName = tenantFilter.options[tenantFilter.selectedIndex]?.textContent || 'selected tenant';
+      if (!tenantId) {
+        toast('Select a tenant before sending reminders.', 'error');
+        return;
+      }
+      if (!window.confirm('Send a manual contribution reminder to all outstanding co-savers across every circle in ' + tenantName + '? Co-savers who have uploaded a receipt, whose contribution is confirmed, or who are exempt will be excluded.')) return;
+
+      button.dataset.sending = 'true';
+      button.disabled = true;
+      button.textContent = 'Sending…';
+      try {
+        const result = await api('/api/branch-admin/contributions/tenants/' + encodeURIComponent(tenantId) + '/remind', {
+          method: 'POST'
+        });
+        const data = result.data || result;
+        toast(
+          'Reminder processed: ' + Number(data.sent || 0) + ' co-saver(s) targeted; ' +
+          Number(data.smsSent || 0) + ' SMS accepted by TextBee; ' +
+          Number(data.smsFailed || 0) + ' SMS submission(s) failed.',
+          data.smsFailed > 0 ? 'info' : 'success'
+        );
+      } catch (err) {
+        toast('Reminder failed: ' + err.message, 'error');
+      } finally {
+        button.dataset.sending = 'false';
+        button.textContent = 'Remind outstanding';
+        updateContributionReminderControl();
+      }
+    }
+
+    document.getElementById('contrib-remind-btn').addEventListener('click', sendContributionReminders);
+    updateContributionReminderControl();
 
     async function confirmContribution(intentId) {
       const amtStr = window.prompt('Confirm the amount received (in pence, e.g. 100000 = £1,000):', '100000');
