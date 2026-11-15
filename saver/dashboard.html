@@ -663,7 +663,7 @@ footer a:hover { color: var(--g); }
             <div style="background: var(--bg); padding: 16px; border-radius: 8px; border: 1px solid var(--line);">
               <div class="form-label">Time-Value Contribution (TVC)</div>
               <div style="font-size: 20px; font-weight: 700; color: #d97706;" id="math-tvc">£0.00</div>
-              <div style="font-size: 12px; color: var(--muted); margin-top: 8px;">2.0% p.a. adjustment</div>
+              <div style="font-size: 12px; color: var(--muted); margin-top: 8px;">9.090909% p.a. adjustment</div>
             </div>
             <div style="background: var(--bg); padding: 16px; border-radius: 8px; border: 1px solid var(--line);">
               <div class="form-label">Pot After TVC</div>
@@ -684,7 +684,7 @@ footer a:hover { color: var(--g); }
           <div style="margin-top: 24px; padding: 16px; background: var(--bg); border-radius: 8px; border: 1px solid var(--line); font-size: 13px; color: var(--muted); line-height: 1.8;">
             <strong style="color: var(--ink); display: block; margin-bottom: 12px;">Payout Mathematical Formula</strong>
             <div style="margin-bottom: 8px; font-family: monospace; color: var(--g);">
-              P_net = P + [ ( (N + 1) / 2 - T ) × M × r × N ]
+              P_after_TVC = P + [ (T - (N + 1) / 2) × M × r × N ]<br>P_final = P_after_TVC − Platform Fee
             </div>
             <p style="margin-bottom: 16px; font-size: 12px;">
               <strong>Where:</strong><br>
@@ -692,7 +692,7 @@ footer a:hover { color: var(--g); }
               N = Number of members<br>
               M = Monthly contribution<br>
               T = Recipient's position (Slot)<br>
-              r = Monthly TVC rate (Annual Rate ÷ 12)
+              r = Monthly TVC rate = (1 ÷ 11) ÷ 12 = 1 ÷ 132
             </p>
             <div id="math-calculation-strings" style="padding-top: 12px; border-top: 1px dashed var(--line);"></div>
           </div>
@@ -1550,7 +1550,7 @@ footer a:hover { color: var(--g); }
             ? "Your Cycle Payout Calculation"
             : `Cycle ${tenantRes.tenant.currentCycle} Payout Calculation (For ${recipientName}, Slot ${recipientSlot})`;
 
-          const N = 12; const M = 1000; const annualRate = 0.02; const r = annualRate / 12; const pivot = (N + 1) / 2;
+          const N = 12; const M = 1000; const rateNumerator = Number(p.tvcRateNumerator ?? 1); const rateDenominator = Number(p.tvcRateDenominator ?? 11); const annualRate = rateNumerator / rateDenominator; const r = annualRate / 12; const pivot = (N + 1) / 2;
           const grossGbpNum = grossPence / 100;
           const tvcGbpNum = tvcPence / 100;
           let directionText = "";
@@ -1564,9 +1564,11 @@ footer a:hover { color: var(--g); }
               P = ${N} × £${M} = £${grossGbpNum.toFixed(2)}<br>
               pivot = (${N} + 1) / 2 = ${pivot}<br>
               T = ${T} (${recipientName}'s Slot)<br>
-              r = ${annualRate} / 12 = ${r.toFixed(6)}<br>
-              <span style="color: var(--muted);">Adjustment = (${T} - ${pivot}) × £${M} × ${r.toFixed(6)} × ${N} = ${tvcGbpNum >= 0 ? '+' : ''}£${tvcGbpNum.toFixed(2)}</span> ${directionText}<br>
-              <span style="color: var(--g); font-weight: 600;">P_net = £${grossGbpNum.toFixed(2)} + (${tvcGbpNum >= 0 ? '+' : ''}£${tvcGbpNum.toFixed(2)}) = £${(netPence/100).toFixed(2)}</span>
+              Annual TVC rate = ${rateNumerator}/${rateDenominator} = ${(annualRate * 100).toFixed(6)}%<br>
+              r = annual TVC rate ÷ 12 = ${r.toFixed(8)}<br>
+              <span style="color: var(--muted);">TVC adjustment = (${T} - ${pivot}) × £${M} × ${r.toFixed(8)} × ${N} = ${tvcGbpNum >= 0 ? '+' : ''}£${tvcGbpNum.toFixed(2)}</span> ${directionText}<br>
+              <span style="color: var(--g); font-weight: 600;">P_after_TVC = £${grossGbpNum.toFixed(2)} + (${tvcGbpNum >= 0 ? '+' : ''}£${tvcGbpNum.toFixed(2)}) = £${(potAfterTvcPence/100).toFixed(2)}</span><br>
+              <span style="font-weight: 600;">P_final = £${(potAfterTvcPence/100).toFixed(2)} − £${(feePence/100).toFixed(2)} = £${(netPence/100).toFixed(2)}</span>
             </div>
           `;
         } else {
