@@ -1530,6 +1530,15 @@ footer a:hover { color: var(--g); }
           const potAfterTvcPence = Number(p.potAfterTvcPence || 0);
           const feePence = Number(p.platformFeePence || 0);
           const netPence = Number(p.netAmountPence || 0);
+          const N = 12;
+          const tvcBps = Number(p.tvcBps);
+          const feeBps = Number(p.feeBps);
+          const annualRate = tvcBps / 10000;
+          const r = annualRate / 12;
+          const pivot = (N + 1) / 2;
+          const grossGbpNum = grossPence / 100;
+          const M = grossGbpNum / N;
+          const tvcGbpNum = tvcPence / 100;
 
           document.getElementById('math-gross').textContent = penceToGbp(grossPence);
           const tvcGbp = tvcPence / 100;
@@ -1552,10 +1561,7 @@ footer a:hover { color: var(--g); }
             ? "Your Cycle Payout Calculation"
             : `Cycle ${tenantRes.tenant.currentCycle} Payout Calculation (For ${recipientName}, Slot ${recipientSlot})`;
 
-          const N = 12; const M = grossGbpNum / N; const tvcBps = Number(p.tvcBps); const feeBps = Number(p.feeBps);
-          const annualRate = tvcBps / 10000; const r = annualRate / 12; const pivot = (N + 1) / 2;
-          const grossGbpNum = grossPence / 100;
-          const tvcGbpNum = tvcPence / 100;
+
           let directionText = "";
           if (T < pivot) directionText = `(${recipientName} collects early, so adjustment is subtracted)`;
           else if (T > pivot) directionText = `(${recipientName} collects late, so adjustment is added)`;
