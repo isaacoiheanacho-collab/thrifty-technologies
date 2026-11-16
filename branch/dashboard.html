@@ -2132,17 +2132,22 @@ footer a:hover { color: var(--g); }
       }
     });
 
+    let adminKycStatus = null;
+
     async function loadAdminKyc() {
       const form = document.getElementById('kyc-admin-form');
       const submitBtn = document.getElementById('kyc-admin-submit');
       const inputs = form.querySelectorAll('input, select');
       form.style.display = 'block';
-      inputs.forEach(el => el.disabled = false);
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Submit for Verification';
+      adminKycStatus = null;
+      // Keep submission locked until the server confirms the current KYC status.
+      inputs.forEach(el => el.disabled = true);
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Checking verification status…';
 
       try {
         const kyc = await api('/api/kyc/me');
+        adminKycStatus = String((kyc && kyc.status) || 'NOT_SUBMITTED').trim().toUpperCase();
         const communityName = (kyc && kyc.accountName) || '';
         // Both read-only fields show the community name saved at registration.
         // The bank-card holder name is sourced from the independent KYC account_name value.
@@ -2152,17 +2157,30 @@ footer a:hover { color: var(--g); }
         document.getElementById('kyc-admin-sort-code').value = (kyc && kyc.sortCode) || '';
         document.getElementById('kyc-admin-account-number').value = (kyc && kyc.accountNumber) || '';
 
-        if (kyc && (kyc.status === 'PENDING' || kyc.status === 'APPROVED')) {
+        if (adminKycStatus === 'PENDING' || adminKycStatus === 'APPROVED') {
           inputs.forEach(el => el.disabled = true);
           submitBtn.disabled = true;
-          submitBtn.textContent = kyc.status === 'APPROVED' ? '✓ Verification Approved' : 'Awaiting approval';
+          submitBtn.textContent = adminKycStatus === 'APPROVED'
+            ? '✓ Verification Approved'
+            : 'Awaiting approval';
         } else {
-          // NOT_SUBMITTED and REJECTED records remain editable; rejected details stay prefilled.
+          // Only NOT_SUBMITTED or REJECTED records may be completed/resubmitted.
+          inputs.forEach(el => el.disabled = false);
+          document.getElementById('kyc-admin-legal-name').disabled = true;
+          document.getElementById('kyc-admin-account-holder').disabled = true;
+          submitBtn.disabled = false;
+          submitBtn.textContent = adminKycStatus === 'REJECTED'
+            ? 'Resubmit for Verification'
+            : 'Submit for Verification';
         }
       } catch (_) {
-        // Keep the form available; the backend remains the source of validation.
+        // If status cannot be confirmed, fail closed to avoid duplicate submissions.
+        adminKycStatus = null;
         document.getElementById('kyc-admin-legal-name').value = '';
         document.getElementById('kyc-admin-account-holder').value = '';
+        inputs.forEach(el => el.disabled = true);
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Unable to check verification status';
       }
     }
 
@@ -2177,6 +2195,17 @@ footer a:hover { color: var(--g); }
     document.getElementById('kyc-admin-form').addEventListener('submit', async function (e) {
       e.preventDefault();
       const btn = document.getElementById('kyc-admin-submit');
+      if (adminKycStatus === 'PENDING' || adminKycStatus === 'APPROVED' || adminKycStatus === null) {
+        toast(
+          adminKycStatus === 'APPROVED'
+            ? 'Your KYC has already been approved.'
+            : adminKycStatus === 'PENDING'
+              ? 'Your KYC is awaiting approval. You cannot submit it again.'
+              : 'Verification status could not be confirmed. Please refresh and try again.',
+          'info'
+        );
+        return;
+      }
       btn.disabled = true; btn.textContent = 'Submitting…';
       try {
         const fileInput = document.getElementById('kyc-admin-selfie');
