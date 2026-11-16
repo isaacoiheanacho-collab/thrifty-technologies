@@ -1123,10 +1123,6 @@ footer a:hover { color: var(--g); }
                 <input class="form-input" type="text" id="kyc-admin-legal-name" readonly />
               </div>
               <div class="form-row">
-                <label class="form-label" for="kyc-admin-account-holder">Account Holder Name</label>
-                <input class="form-input" type="text" id="kyc-admin-account-holder" readonly />
-              </div>
-              <div class="form-row">
                 <label class="form-label" for="kyc-admin-selfie">Profile Photo / Selfie</label>
                 <input class="form-input" type="file" id="kyc-admin-selfie" accept="image/png, image/jpeg" required />
               </div>
@@ -1135,6 +1131,10 @@ footer a:hover { color: var(--g); }
           <div class="card">
             <div class="card__title">Bank Account (For Payouts)</div>
             <div class="form-grid">
+              <div class="form-row">
+                <label class="form-label" for="kyc-admin-account-holder">Account Holder Name</label>
+                <input class="form-input" type="text" id="kyc-admin-account-holder" readonly />
+              </div>
               <div class="form-row"><label class="form-label" for="kyc-admin-bank-name">Bank Name</label>
                 <select class="form-input" id="kyc-admin-bank-name" required>
                   <option value="" disabled selected>Select your bank...</option>
@@ -2153,8 +2153,8 @@ footer a:hover { color: var(--g); }
       try {
         const kyc = await api('/api/kyc/me');
         const communityName = (kyc && kyc.accountName) || '';
-        // Both read-only fields display the community name captured at registration.
-        // Account Holder Name is populated from its own KYC accountName value.
+        // Both read-only fields show the community name saved at registration.
+        // The bank-card holder name is sourced from the independent KYC account_name value.
         document.getElementById('kyc-admin-legal-name').value = communityName;
         document.getElementById('kyc-admin-account-holder').value = communityName;
         document.getElementById('kyc-admin-bank-name').value = (kyc && kyc.bankName) || '';
