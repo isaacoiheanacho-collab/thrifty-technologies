@@ -2157,19 +2157,16 @@ footer a:hover { color: var(--g); }
         // Account Holder Name is populated from its own KYC accountName value.
         document.getElementById('kyc-admin-legal-name').value = communityName;
         document.getElementById('kyc-admin-account-holder').value = communityName;
+        document.getElementById('kyc-admin-bank-name').value = (kyc && kyc.bankName) || '';
+        document.getElementById('kyc-admin-sort-code').value = (kyc && kyc.sortCode) || '';
+        document.getElementById('kyc-admin-account-number').value = (kyc && kyc.accountNumber) || '';
 
         if (kyc && (kyc.status === 'PENDING' || kyc.status === 'APPROVED')) {
-          document.getElementById('kyc-admin-bank-name').value = kyc.bankName || '';
-          document.getElementById('kyc-admin-sort-code').value = kyc.sortCode || '';
-          document.getElementById('kyc-admin-account-number').value = kyc.accountNumber || '';
           inputs.forEach(el => el.disabled = true);
           submitBtn.disabled = true;
           submitBtn.textContent = kyc.status === 'APPROVED' ? '✓ Verification Approved' : 'Awaiting approval';
         } else {
-          // NOT_SUBMITTED and REJECTED records remain editable for completion/resubmission.
-          document.getElementById('kyc-admin-bank-name').value = '';
-          document.getElementById('kyc-admin-sort-code').value = '';
-          document.getElementById('kyc-admin-account-number').value = '';
+          // NOT_SUBMITTED and REJECTED records remain editable; rejected details stay prefilled.
         }
       } catch (_) {
         // Keep the form available; the backend remains the source of validation.
