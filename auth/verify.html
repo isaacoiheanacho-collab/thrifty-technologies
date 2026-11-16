@@ -246,7 +246,7 @@
     </div>
 
     <div class="footer-note">
-      <a href="/auth/login.html">← Back to log in</a>
+      <a href="/?login=1">← Back to log in</a>
     </div>
 
   </div>
@@ -375,25 +375,20 @@
       resendBtn.textContent = 'Sending…';
 
       try {
-        // The backend does NOT have a dedicated resend endpoint.
-        // Sending again is done by re-calling /password/forgot
-        // for reset, or /register flow for signup. For phone verify,
-        // the OTP was already sent at register time. To get a fresh one,
-        // the user re-registers. But we expose a "resend" by hitting the
-        // register endpoint again with the same phone is not possible
-        // (phone is taken). So this button just extends the countdown
-        // and informs the user.
-        //
-        // NOTE: If a `/api/auth/resend-otp` endpoint is added later,
-        // replace this block with a real call.
-        //
-        setStatus('A new code will be sent if you wait — codes are limited to 5 per hour per phone.', 'info');
-      } catch (err) {
-        setStatus(err.message || 'Could not resend the code right now.', 'error');
-      } finally {
-        resendBtn.disabled = false;
-        resendBtn.innerHTML = originalText;
+        await api('/api/auth/resend-otp', {
+          method: 'POST',
+          body: { phone: phone },
+        });
+        setStatus('If your account is eligible, a new verification code has been sent.', 'success');
         startCountdown();
+      } catch (err) {
+        if (err && err.code === 'RATE_LIMIT_EXCEEDED') {
+          setStatus('Too many codes requested. Please try again later.', 'error');
+        } else {
+          setStatus((err && err.message) || 'Could not resend the code right now.', 'error');
+        }
+        resendBtn.disabled = false;
+        resendBtn.innerHTML = 'Resend code';
       }
     });
 
