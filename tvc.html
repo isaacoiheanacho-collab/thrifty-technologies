@@ -135,5 +135,37 @@
     <span>© 2026 Thrifty Technologies. All rights reserved.</span>
     <nav class="tvc-nav" aria-label="Footer navigation"><a href="/">Home</a><a href="/terminology.html">Terminology</a><a href="/terms.html">Terms of Service</a><a href="/contact.html">Contact</a></nav>
   </footer>
+<script>
+(function () {
+  var branch = new URLSearchParams(window.location.search).get('branch');
+  if (!branch) return;
+
+  var communityUrl = '/join/index.html?branch=' + encodeURIComponent(branch);
+  var communityTermsUrl = '/join/terms.html?branch=' + encodeURIComponent(branch);
+
+  var brand = document.querySelector('.tvc-brand');
+  if (brand) {
+    brand.href = communityUrl;
+    brand.setAttribute('aria-label', 'Back to this community');
+  }
+
+  var headerNav = document.querySelector('header .tvc-nav');
+  if (headerNav) {
+    headerNav.innerHTML = '<a href="' + communityUrl + '">← Back to Community</a>';
+    headerNav.setAttribute('aria-label', 'Community navigation');
+  }
+
+  var footerNav = document.querySelector('footer .tvc-nav');
+  if (footerNav) {
+    footerNav.innerHTML = '<a href="' + communityUrl + '">Back to Community</a><a href="' + communityTermsUrl + '">Community Rules</a>';
+  }
+
+  var termsLink = document.querySelector('.tvc-main a[href="/terms.html"]');
+  if (termsLink) {
+    termsLink.href = communityTermsUrl;
+    termsLink.textContent = 'Community Rules';
+  }
+})();
+</script>
 </body>
 </html>
