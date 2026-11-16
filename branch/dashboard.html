@@ -1123,6 +1123,10 @@ footer a:hover { color: var(--g); }
                 <input class="form-input" type="text" id="kyc-admin-legal-name" readonly />
               </div>
               <div class="form-row">
+                <label class="form-label" for="kyc-admin-account-holder">Account Holder Name</label>
+                <input class="form-input" type="text" id="kyc-admin-account-holder" readonly />
+              </div>
+              <div class="form-row">
                 <label class="form-label" for="kyc-admin-selfie">Profile Photo / Selfie</label>
                 <input class="form-input" type="file" id="kyc-admin-selfie" accept="image/png, image/jpeg" required />
               </div>
@@ -1137,8 +1141,8 @@ footer a:hover { color: var(--g); }
                   <option value="Barclays">Barclays</option><option value="HSBC">HSBC</option><option value="Lloyds">Lloyds</option><option value="Monzo">Monzo</option><option value="Nationwide">Nationwide</option><option value="NatWest">NatWest</option><option value="Revolut">Revolut</option><option value="Santander">Santander</option><option value="Starling">Starling</option><option value="TSB">TSB</option><option value="Halifax">Halifax</option><option value="Other">Other</option>
                 </select>
               </div>
-              <div class="form-row"><label class="form-label" for="kyc-admin-sort-code">Sort Code</label><input class="form-input" type="text" id="kyc-admin-sort-code" required placeholder="040004" maxlength="6" inputmode="numeric" /></div>
-              <div class="form-row"><label class="form-label" for="kyc-admin-account-number">Account Number</label><input class="form-input" type="text" id="kyc-admin-account-number" required placeholder="12345678" maxlength="8" inputmode="numeric" /></div>
+              <div class="form-row"><label class="form-label" for="kyc-admin-sort-code">Sort Code</label><input class="form-input" type="text" id="kyc-admin-sort-code" required placeholder="040004" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" autocomplete="off" /></div>
+              <div class="form-row"><label class="form-label" for="kyc-admin-account-number">Account Number</label><input class="form-input" type="text" id="kyc-admin-account-number" required placeholder="12345678" maxlength="8" pattern="[0-9]{8}" inputmode="numeric" autocomplete="off" /></div>
             </div>
             <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
               <button type="submit" class="btn btn--primary" id="kyc-admin-submit">Submit for Verification</button>
@@ -2131,7 +2135,7 @@ footer a:hover { color: var(--g); }
     async function loadAdminKyc() {
       const form = document.getElementById('kyc-admin-form');
       const submitBtn = document.getElementById('kyc-admin-submit');
-      const inputs = form.querySelectorAll('input:not([type="file"]), select');
+      const inputs = form.querySelectorAll('input, select');
       form.style.display = 'block';
       inputs.forEach(el => el.disabled = false);
       submitBtn.disabled = false;
@@ -2145,22 +2149,42 @@ footer a:hover { color: var(--g); }
           branchName = branch.name || '';
         }
       } catch (_) {}
-      document.getElementById('kyc-admin-legal-name').value = branchName;
 
       try {
         const kyc = await api('/api/kyc/me');
-        if (!kyc) return;
-        if (kyc.status === 'PENDING' || kyc.status === 'APPROVED') {
-          inputs.forEach(el => el.disabled = true);
-          document.getElementById('kyc-admin-legal-name').value = kyc.legalName || branchName;
+        const communityName = (kyc && kyc.accountName) || '';
+        // Both read-only fields display the community name captured at registration.
+        // Account Holder Name is populated from its own KYC accountName value.
+        document.getElementById('kyc-admin-legal-name').value = communityName;
+        document.getElementById('kyc-admin-account-holder').value = communityName;
+
+        if (kyc && (kyc.status === 'PENDING' || kyc.status === 'APPROVED')) {
           document.getElementById('kyc-admin-bank-name').value = kyc.bankName || '';
           document.getElementById('kyc-admin-sort-code').value = kyc.sortCode || '';
           document.getElementById('kyc-admin-account-number').value = kyc.accountNumber || '';
+          inputs.forEach(el => el.disabled = true);
           submitBtn.disabled = true;
           submitBtn.textContent = kyc.status === 'APPROVED' ? '✓ Verification Approved' : 'Awaiting approval';
+        } else {
+          // NOT_SUBMITTED and REJECTED records remain editable for completion/resubmission.
+          document.getElementById('kyc-admin-bank-name').value = '';
+          document.getElementById('kyc-admin-sort-code').value = '';
+          document.getElementById('kyc-admin-account-number').value = '';
         }
-      } catch (_) {}
+      } catch (_) {
+        // Keep the form available; the backend remains the source of validation.
+        document.getElementById('kyc-admin-legal-name').value = '';
+        document.getElementById('kyc-admin-account-holder').value = '';
+      }
     }
+
+    // Enforce digits-only entry while preserving leading zeroes.
+    ['kyc-admin-sort-code', 'kyc-admin-account-number'].forEach(id => {
+      const input = document.getElementById(id);
+      input.addEventListener('input', function () {
+        this.value = this.value.replace(/\\D/g, '').slice(0, id === 'kyc-admin-sort-code' ? 6 : 8);
+      });
+    });
 
     document.getElementById('kyc-admin-form').addEventListener('submit', async function (e) {
       e.preventDefault();
@@ -2170,23 +2194,25 @@ footer a:hover { color: var(--g); }
         const fileInput = document.getElementById('kyc-admin-selfie');
         if (!fileInput.files.length) throw new Error('Please select a profile photo.');
         const sortCode = document.getElementById('kyc-admin-sort-code').value.trim();
-        if (!/^\d{6}$/.test(sortCode)) throw new Error('Sort code must be exactly 6 digits.');
+        if (!/^\\d{6}$/.test(sortCode)) throw new Error('Sort code must be exactly 6 digits.');
         const accountNumber = document.getElementById('kyc-admin-account-number').value.trim();
-        if (!/^\d{8}$/.test(accountNumber)) throw new Error('Account number must be exactly 8 digits.');
+        if (!/^\\d{8}$/.test(accountNumber)) throw new Error('Account number must be exactly 8 digits.');
         const bankName = document.getElementById('kyc-admin-bank-name').value.trim();
         if (!bankName) throw new Error('Please select your bank.');
+        const accountName = document.getElementById('kyc-admin-account-holder').value.trim();
+        if (!accountName) throw new Error('Community account name is missing. Please refresh the page.');
 
         const fd = new FormData();
         fd.append('selfie', fileInput.files[0]);
-        fd.append('legalName', state.branch ? state.branch.name : '');
-        fd.append('accountName', state.branch ? state.branch.name : '');
+        fd.append('legalName', document.getElementById('kyc-admin-legal-name').value.trim());
+        fd.append('accountName', accountName);
         fd.append('bankName', bankName);
         fd.append('accountNumber', accountNumber);
         fd.append('sortCode', sortCode);
 
         await api('/api/kyc', { method: 'POST', body: fd });
         toast('Verification submitted! Awaiting Super Admin approval.', 'success');
-        loadAdminKyc();
+        await loadAdminKyc();
       } catch (err) {
         toast('Submission failed: ' + err.message, 'error');
         btn.disabled = false; btn.textContent = 'Submit for Verification';
