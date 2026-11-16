@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#073F32">
+  <meta name="description" content="Understand Thrifty's Time-Value Collection (TVC), the standard 12-member circle, payout adjustments and platform maintenance fee.">
+  <title>Time-Value Collection (TVC) Schedule — ROSCA Thrift &amp; Savings</title>
+  <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/tokens.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/brand.css">
+  <style>
+    body{margin:0;background:#0b0e11;color:#e1e3e5;font-family:Inter,sans-serif}
+    .tvc-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px clamp(20px,5vw,64px);border-bottom:1px solid #252b33;background:#11151a}
+    .tvc-brand img{width:180px;max-width:45vw}
+    .tvc-nav{display:flex;gap:22px;flex-wrap:wrap}.tvc-nav a,.tvc-footer a{color:#c4c7c9;text-decoration:none;font-size:14px}.tvc-nav a:hover,.tvc-footer a:hover{color:#00daf3}
+    .tvc-main{max-width:1120px;margin:0 auto;padding:56px 24px 80px}
+    .eyebrow{color:#00daf3;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+    h1{font-size:clamp(34px,5vw,54px);line-height:1.08;color:#fff;margin:14px 0 18px;letter-spacing:-.03em}
+    h2{font-size:clamp(24px,3vw,32px);color:#fff;margin:0 0 14px}
+    h3{font-size:18px;color:#fff;margin:0 0 8px}
+    p,li{color:#aeb5bd;line-height:1.75}
+    .lede{font-size:18px;max-width:820px}
+    .section{margin-top:54px}
+    .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:32px}
+    .stat,.panel{background:#11151a;border:1px solid #252b33;border-radius:14px;padding:22px}
+    .stat strong{display:block;color:#00daf3;font-size:26px;margin-bottom:6px}
+    .stat span{font-size:12px;color:#9ea3a8}
+    .panel{margin-top:18px}
+    .formula{overflow-x:auto;background:#080a0c;border:1px solid #252b33;border-radius:10px;padding:16px 18px;color:#eafcff;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;line-height:1.8}
+    .table-wrap{overflow-x:auto;border:1px solid #252b33;border-radius:12px;margin-top:18px}
+    table{width:100%;border-collapse:collapse;min-width:680px;background:#11151a}
+    th,td{text-align:right;padding:12px 14px;border-bottom:1px solid #252b33;font-variant-numeric:tabular-nums}
+    th{color:#00daf3;font-size:12px;text-transform:uppercase;letter-spacing:.06em;background:#151b22}
+    td{color:#d4d8dc;font-size:14px}th:first-child,td:first-child{text-align:left}
+    tr:last-child td{border-bottom:0}
+    .note{border-left:3px solid #00daf3;padding:14px 18px;background:#101a1d;border-radius:0 10px 10px 0}
+    .tvc-footer{border-top:1px solid #252b33;padding:28px 24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;background:#11151a}
+    @media(max-width:720px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.tvc-header{align-items:flex-start;flex-direction:column}.tvc-nav{gap:14px}.tvc-main{padding-top:38px}}
+  </style>
+</head>
+<body>
+  <header class="tvc-header">
+    <a class="tvc-brand" href="/" aria-label="ROSCA Thrift &amp; Savings home"><img src="/assets/brand/rosca-logo.svg" alt="ROSCA Thrift &amp; Savings"></a>
+    <nav class="tvc-nav" aria-label="Main navigation">
+      <a href="/">Home</a><a href="/about.html">About</a><a href="/partner.html">Community Partners</a><a href="/contact.html">Help &amp; FAQs</a>
+    </nav>
+  </header>
+  <main class="tvc-main">
+    <span class="eyebrow">Standard 12-member circle</span>
+    <h1>Time-Value Collection (TVC)</h1>
+    <p class="lede">TVC adjusts each payout according to when a member receives the circle's pooled contributions. Members collecting earlier receive a lower adjusted payout; members waiting longer receive a higher adjusted payout. The adjustments balance across all 12 collection positions.</p>
+
+    <div class="stats" aria-label="Standard circle details">
+      <div class="stat"><strong>12</strong><span>Co-Savers per circle</span></div>
+      <div class="stat"><strong>£1,000</strong><span>Monthly contribution per member</span></div>
+      <div class="stat"><strong>£12,000</strong><span>Gross pool per monthly cycle</span></div>
+      <div class="stat"><strong>12 months</strong><span>One complete tenure</span></div>
+    </div>
+
+    <section class="section">
+      <h2>Why TVC is used</h2>
+      <p>A member receiving the pool in the first month obtains access to the pooled contributions much earlier than a member receiving it in the twelfth month. TVC recognises this difference in collection timing through a transparent adjustment to the payout amounts. It is not a separate interest payment or a standalone fee collected by Thrifty.</p>
+      <p>The standard annual TVC rate is <strong>9.09%</strong>. The corresponding monthly rate used in the existing linear pivot calculation is <strong>0.7575% per month</strong>.</p>
+    </section>
+
+    <section class="section">
+      <h2>How the calculation works</h2>
+      <p>The standard circle has 12 members contributing £1,000 each month, giving a gross pool of £12,000 before TVC and the platform maintenance fee.</p>
+      <div class="panel">
+        <h3>1. Gross pool</h3>
+        <div class="formula">P = N × M = 12 × £1,000 = £12,000</div>
+      </div>
+      <div class="panel">
+        <h3>2. Pivot position</h3>
+        <div class="formula">Pivot = (N + 1) / 2 = (12 + 1) / 2 = 6.5</div>
+      </div>
+      <div class="panel">
+        <h3>3. TVC adjustment</h3>
+        <div class="formula">Adjustment = (T − Pivot) × M × r × N</div>
+        <p>Where T is the member's slot number, N is 12, M is £1,000 and r is the monthly rate 0.007575 (0.7575%).</p>
+      </div>
+      <div class="panel">
+        <h3>4. Adjusted payout, before maintenance</h3>
+        <div class="formula">Adjusted Payout = P + Adjustment</div>
+      </div>
+      <div class="panel">
+        <h3>5. Platform maintenance fee and final payout</h3>
+        <div class="formula">Maintenance Fee = Adjusted Payout × 1.5%<br>Final Payout = Adjusted Payout × 0.985</div>
+        <p>The maintenance fee is applied after TVC. Because it is a percentage of the adjusted payout, the fee is lower for an earlier, reduced payout and higher for a later, increased payout.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>All 12 collection positions</h2>
+      <p>The following illustration assumes all 12 members have contributed the full £1,000 for the cycle. Amounts are shown to the nearest penny.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Slot</th><th>TVC adjustment</th><th>Adjusted payout</th><th>1.5% maintenance</th><th>Final payout</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>−£499.95</td><td>£11,500.05</td><td>£172.50</td><td>£11,327.55</td></tr>
+            <tr><td>2</td><td>−£409.05</td><td>£11,590.95</td><td>£173.86</td><td>£11,417.09</td></tr>
+            <tr><td>3</td><td>−£318.15</td><td>£11,681.85</td><td>£175.23</td><td>£11,506.62</td></tr>
+            <tr><td>4</td><td>−£227.25</td><td>£11,772.75</td><td>£176.59</td><td>£11,596.16</td></tr>
+            <tr><td>5</td><td>−£136.35</td><td>£11,863.65</td><td>£177.95</td><td>£11,685.70</td></tr>
+            <tr><td>6</td><td>−£45.45</td><td>£11,954.55</td><td>£179.32</td><td>£11,775.23</td></tr>
+            <tr><td>7</td><td>+£45.45</td><td>£12,045.45</td><td>£180.68</td><td>£11,864.77</td></tr>
+            <tr><td>8</td><td>+£136.35</td><td>£12,136.35</td><td>£182.05</td><td>£11,954.30</td></tr>
+            <tr><td>9</td><td>+£227.25</td><td>£12,227.25</td><td>£183.41</td><td>£12,043.84</td></tr>
+            <tr><td>10</td><td>+£318.15</td><td>£12,318.15</td><td>£184.77</td><td>£12,133.38</td></tr>
+            <tr><td>11</td><td>+£409.05</td><td>£12,409.05</td><td>£186.14</td><td>£12,222.91</td></tr>
+            <tr><td>12</td><td>+£499.95</td><td>£12,499.95</td><td>£187.50</td><td>£12,312.45</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">The TVC adjustments total zero across the 12 positions. The adjustment changes how the gross pool is allocated between collection positions; it is not an additional amount paid to Thrifty. The maintenance fee is separate and is calculated on each adjusted payout.</p>
+    </section>
+
+    <section class="section">
+      <h2>Where the money goes</h2>
+      <ul>
+        <li>Co-Savers pay contributions directly into the bank account designated by their Community Partner or Community Admin.</li>
+        <li>The Community Admin administers the circle's pool and arranges the payout.</li>
+        <li>The Community Admin deducts the 1.5% maintenance fee from the adjusted payout and transfers that fee to Thrifty.</li>
+        <li>Thrifty provides the software calculation and records. It does not receive, hold, pool, lend or distribute Co-Savers' contributions or payout funds.</li>
+      </ul>
+      <p>These figures are an illustration of the standard, fully funded circle. A missed or unconfirmed contribution can affect the funds actually available for a payout. See the <a href="/terms.html">Terms of Service</a> and the applicable community rules for the responsibilities and procedures that apply.</p>
+    </section>
+  </main>
+  <footer class="tvc-footer">
+    <span>© 2026 Thrifty Technologies. All rights reserved.</span>
+    <nav class="tvc-nav" aria-label="Footer navigation"><a href="/">Home</a><a href="/terminology.html">Terminology</a><a href="/terms.html">Terms of Service</a><a href="/contact.html">Contact</a></nav>
+  </footer>
+</body>
+</html>
