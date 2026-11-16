@@ -2182,7 +2182,7 @@ footer a:hover { color: var(--g); }
     ['kyc-admin-sort-code', 'kyc-admin-account-number'].forEach(id => {
       const input = document.getElementById(id);
       input.addEventListener('input', function () {
-        this.value = this.value.replace(/\\D/g, '').slice(0, id === 'kyc-admin-sort-code' ? 6 : 8);
+        this.value = this.value.replace(/\D/g, '').slice(0, id === 'kyc-admin-sort-code' ? 6 : 8);
       });
     });
 
@@ -2194,9 +2194,9 @@ footer a:hover { color: var(--g); }
         const fileInput = document.getElementById('kyc-admin-selfie');
         if (!fileInput.files.length) throw new Error('Please select a profile photo.');
         const sortCode = document.getElementById('kyc-admin-sort-code').value.trim();
-        if (!/^\\d{6}$/.test(sortCode)) throw new Error('Sort code must be exactly 6 digits.');
+        if (!/^\d{6}$/.test(sortCode)) throw new Error('Sort code must be exactly 6 digits.');
         const accountNumber = document.getElementById('kyc-admin-account-number').value.trim();
-        if (!/^\\d{8}$/.test(accountNumber)) throw new Error('Account number must be exactly 8 digits.');
+        if (!/^\d{8}$/.test(accountNumber)) throw new Error('Account number must be exactly 8 digits.');
         const bankName = document.getElementById('kyc-admin-bank-name').value.trim();
         if (!bankName) throw new Error('Please select your bank.');
         const accountName = document.getElementById('kyc-admin-account-holder').value.trim();
