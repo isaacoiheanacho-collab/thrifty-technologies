@@ -2141,15 +2141,6 @@ footer a:hover { color: var(--g); }
       submitBtn.disabled = false;
       submitBtn.textContent = 'Submit for Verification';
 
-      let branchName = '';
-      try {
-        if (state.user && state.user.branchId) {
-          const branch = await api('/api/branches/id/' + state.user.branchId);
-          state.branch = branch;
-          branchName = branch.name || '';
-        }
-      } catch (_) {}
-
       try {
         const kyc = await api('/api/kyc/me');
         const communityName = (kyc && kyc.accountName) || '';
