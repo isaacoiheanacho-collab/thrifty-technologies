@@ -845,6 +845,7 @@
             <a href="/join/terminology.html" class="js-platform-link">Terminology</a>
             <a href="/join/terms.html" class="js-platform-link">Terms of Service</a>
             <a href="/join/privacy.html" class="js-platform-link">Privacy Policy</a>
+            <a href="/tvc.html">TVC Schedule</a>
           </div>
         </div>
       </div>
@@ -1169,7 +1170,8 @@
       document.querySelectorAll('.js-branch-name').forEach(function(el){ el.textContent = branchName; });
 
       const contactLinksContainer = document.getElementById('footer-contact-links');
-      let contactHtml = '<a href="/join/terminology.html?branch=' + encodeURIComponent(branchSlug) + '">Terminology</a>' +
+      let contactHtml = '<a href="/tvc.html?branch=' + encodeURIComponent(branchSlug) + '">TVC Schedule</a>' +
+                        '<a href="/join/terminology.html?branch=' + encodeURIComponent(branchSlug) + '">Terminology</a>' +
                         '<a href="/join/terms.html?branch=' + encodeURIComponent(branchSlug) + '">Terms of Service</a>' +
                         '<a href="/join/privacy.html?branch=' + encodeURIComponent(branchSlug) + '">Privacy Policy</a>';
       
