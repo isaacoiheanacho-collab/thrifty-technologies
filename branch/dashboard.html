@@ -1445,6 +1445,81 @@ footer a:hover { color: var(--g); }
   </div>
 </div>
 
+<!-- ═══ PAY FEE MODAL ═══ -->
+<div class="modal" id="pay-fee-modal" role="dialog" aria-modal="true" aria-labelledby="pay-fee-title">
+  <div class="modal__content">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <h2 id="pay-fee-title" style="font-size:22px;margin:0;color:var(--ink);">Pay Platform Fee</h2>
+      <button class="btn btn--ghost btn--sm" type="button" onclick="document.getElementById('pay-fee-modal').classList.remove('is-open')">Close</button>
+    </div>
+    <p style="color:var(--muted);margin:0 0 16px;">Transfer the platform fee to the account below, then upload your payment receipt.</p>
+    <div class="card" style="margin-bottom:20px;border-color:var(--g);background:rgba(0,139,97,0.03);">
+      <div class="card__title">Platform Maintenance Account</div>
+      <div class="form-grid">
+        <div><span class="form-label">Account Holder</span><strong id="fee-acc-holder">Loading…</strong></div>
+        <div><span class="form-label">Bank Name</span><strong id="fee-acc-bank">—</strong></div>
+        <div><span class="form-label">Sort Code</span><strong id="fee-acc-sort">—</strong></div>
+        <div><span class="form-label">Account Number</span><strong id="fee-acc-number">—</strong></div>
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="fee-amount-display">Amount to Pay (GBP)</label>
+      <input class="form-input" id="fee-amount-display" type="text" readonly>
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="fee-reference-display">Payment Reference</label>
+      <input class="form-input" id="fee-reference-display" type="text" readonly>
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="fee-sender-name">Sender Name (as shown on bank transfer)</label>
+      <input class="form-input" id="fee-sender-name" type="text" maxlength="200" autocomplete="name" placeholder="Enter the account holder name used for the transfer" required>
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="fee-receipt-file">Payment Receipt Image</label>
+      <input class="form-input" id="fee-receipt-file" type="file" accept="image/png,image/jpeg,image/heic" required>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+      <button class="btn btn--primary" id="fee-submit-btn" type="button">Upload Fee Receipt</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ UPLOAD PAYOUT RECEIPT MODAL ═══ -->
+<div class="modal" id="upload-payout-modal" role="dialog" aria-modal="true" aria-labelledby="upload-payout-title">
+  <div class="modal__content">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <h2 id="upload-payout-title" style="font-size:22px;margin:0;color:var(--ink);">Upload Payout Receipt</h2>
+      <button class="btn btn--ghost btn--sm" type="button" onclick="document.getElementById('upload-payout-modal').classList.remove('is-open')">Close</button>
+    </div>
+    <p style="color:var(--muted);margin:0 0 16px;">Transfer the net payout to the recipient’s approved bank account below, then upload the receipt.</p>
+    <div class="card" style="margin-bottom:20px;border-color:var(--g);background:rgba(0,139,97,0.03);">
+      <div class="card__title" id="modal-payout-recipient">Saver’s Account</div>
+      <div class="form-grid">
+        <div><span class="form-label">Account Holder</span><strong id="payout-acc-holder">Loading…</strong></div>
+        <div><span class="form-label">Bank Name</span><strong id="payout-acc-bank">—</strong></div>
+        <div><span class="form-label">Sort Code</span><strong id="payout-acc-sort">—</strong></div>
+        <div><span class="form-label">Account Number</span><strong id="payout-acc-number">—</strong></div>
+      </div>
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="payout-amount-display">Amount to Pay (GBP)</label>
+      <input class="form-input" id="payout-amount-display" type="text" readonly>
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="payout-reference-display">Payment Reference</label>
+      <input class="form-input" id="payout-reference-display" type="text" readonly>
+      <span class="form-hint">Use this exact reference on the bank transfer.</span>
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="payout-receipt-file">Payout Receipt Image</label>
+      <input class="form-input" id="payout-receipt-file" type="file" accept="image/png,image/jpeg,image/heic" required>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+      <button class="btn btn--primary" id="payout-submit-btn" type="button">Upload Payout Receipt</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast-container"></div>
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -2609,6 +2684,184 @@ footer a:hover { color: var(--g); }
     }
     document.getElementById('payout-status-filter').addEventListener('change', loadPayouts);
     document.getElementById('payout-tenant-filter').addEventListener('change', loadPayouts);
+
+    // ── PAYOUT FEE AND PAYOUT RECEIPT WORKFLOWS ───────────────
+    let activeFeeIntentId = null;
+    let activePayoutId = null;
+
+    async function openPayFeeModal(feeIntentId, amountPence, reference) {
+      activeFeeIntentId = feeIntentId;
+      const modal = document.getElementById('pay-fee-modal');
+      document.getElementById('fee-amount-display').value = penceToGbp(Number(amountPence));
+      document.getElementById('fee-reference-display').value = reference || '';
+      document.getElementById('fee-receipt-file').value = '';
+      document.getElementById('fee-sender-name').value = '';
+      document.getElementById('fee-acc-holder').textContent = 'Loading…';
+      document.getElementById('fee-acc-bank').textContent = '—';
+      document.getElementById('fee-acc-sort').textContent = '—';
+      document.getElementById('fee-acc-number').textContent = '—';
+      modal.classList.add('is-open');
+
+      try {
+        const account = await api('/api/branch-admin/payouts/maintenance-account');
+        if (!account) {
+          document.getElementById('fee-acc-holder').textContent = 'Not configured';
+          toast('The platform maintenance account is not configured.', 'error');
+          return;
+        }
+        document.getElementById('fee-acc-holder').textContent = account.account_holder_name || '—';
+        document.getElementById('fee-acc-bank').textContent = account.bank_name || '—';
+        document.getElementById('fee-acc-sort').textContent = account.sort_code || '—';
+        document.getElementById('fee-acc-number').textContent = account.account_number || '—';
+      } catch (err) {
+        document.getElementById('fee-acc-holder').textContent = 'Unable to load account';
+        toast('Failed to load platform account: ' + err.message, 'error');
+      }
+    }
+
+    document.getElementById('fee-submit-btn').addEventListener('click', async function () {
+      const btn = this;
+      const file = document.getElementById('fee-receipt-file').files[0];
+      const senderName = document.getElementById('fee-sender-name').value.trim();
+      const amountText = document.getElementById('fee-amount-display').value;
+      const reference = document.getElementById('fee-reference-display').value;
+      const amountPence = Math.round(Number(amountText.replace(/[^0-9.]/g, '')) * 100);
+
+      if (!activeFeeIntentId) { toast('No fee payment selected. Please reopen the action.', 'error'); return; }
+      if (!senderName || senderName.length < 2) { toast('Enter the sender name shown on the bank transfer.', 'error'); return; }
+      if (!file) { toast('Please select a receipt image.', 'error'); return; }
+      if (!Number.isSafeInteger(amountPence) || amountPence <= 0) { toast('The fee amount is invalid. Please refresh and try again.', 'error'); return; }
+
+      btn.disabled = true;
+      btn.textContent = 'Uploading…';
+      const fd = new FormData();
+      fd.append('receipt', file);
+      fd.append('claimedAmount', String(amountPence));
+      fd.append('claimedReference', reference);
+      fd.append('claimedSenderName', senderName);
+
+      try {
+        await api('/api/branch-admin/payouts/fees/' + encodeURIComponent(activeFeeIntentId) + '/receipt', { method: 'POST', body: fd });
+        toast('Fee receipt uploaded. Awaiting Super Admin approval.', 'success');
+        document.getElementById('pay-fee-modal').classList.remove('is-open');
+        await loadPayouts();
+      } catch (err) {
+        toast('Fee receipt upload failed: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Upload Fee Receipt';
+      }
+    });
+
+    async function uploadPayoutReceipt(payoutId) {
+      activePayoutId = payoutId;
+      const modal = document.getElementById('upload-payout-modal');
+      document.getElementById('payout-receipt-file').value = '';
+      document.getElementById('modal-payout-recipient').textContent = 'Loading recipient…';
+      document.getElementById('payout-acc-holder').textContent = 'Loading…';
+      document.getElementById('payout-acc-bank').textContent = '—';
+      document.getElementById('payout-acc-sort').textContent = '—';
+      document.getElementById('payout-acc-number').textContent = '—';
+      modal.classList.add('is-open');
+
+      try {
+        const result = await api('/api/branch-admin/payouts?limit=100');
+        const payout = (result.intents || []).find(p => p.id === payoutId);
+        if (!payout) throw new Error('Payout not found. Refresh the list and try again.');
+        if (!payout.recipientUserId) throw new Error('The payout does not contain a recipient account reference.');
+
+        document.getElementById('modal-payout-recipient').textContent = 'Pay to: ' + (payout.recipientName || 'Recipient');
+        document.getElementById('payout-amount-display').value = '£' + payout.netAmountGbp;
+        document.getElementById('payout-reference-display').value = payout.reference || '';
+
+        const details = await api('/api/branch-admin/payouts/saver-details/' + encodeURIComponent(payout.recipientUserId) + '?t=' + Date.now());
+        if (!details || !(details.account_name || details.legal_name) || !details.bank_name || !details.sort_code || !details.account_number) {
+          throw new Error('The recipient has incomplete approved bank details. Payout receipt upload is unavailable.');
+        }
+        document.getElementById('payout-acc-holder').textContent = details.account_name || details.legal_name;
+        document.getElementById('payout-acc-bank').textContent = details.bank_name;
+        document.getElementById('payout-acc-sort').textContent = details.sort_code;
+        document.getElementById('payout-acc-number').textContent = details.account_number;
+      } catch (err) {
+        toast('Failed to load payout details: ' + err.message, 'error');
+        modal.classList.remove('is-open');
+      }
+    }
+
+    document.getElementById('payout-submit-btn').addEventListener('click', async function () {
+      const btn = this;
+      const file = document.getElementById('payout-receipt-file').files[0];
+      const amountText = document.getElementById('payout-amount-display').value;
+      const reference = document.getElementById('payout-reference-display').value;
+      const recipientName = document.getElementById('payout-acc-holder').textContent.trim();
+      const amountPence = Math.round(Number(amountText.replace(/[^0-9.]/g, '')) * 100);
+
+      if (!activePayoutId) { toast('No payout selected. Please reopen the action.', 'error'); return; }
+      if (!file) { toast('Please select a receipt image.', 'error'); return; }
+      if (!recipientName || recipientName === 'Loading…' || recipientName === '—') { toast('Approved recipient bank details are not available.', 'error'); return; }
+      if (!Number.isSafeInteger(amountPence) || amountPence <= 0) { toast('The payout amount is invalid. Please refresh and try again.', 'error'); return; }
+
+      btn.disabled = true;
+      btn.textContent = 'Uploading…';
+      const fd = new FormData();
+      fd.append('receipt', file);
+      fd.append('claimedAmount', String(amountPence));
+      fd.append('claimedReference', reference);
+      fd.append('claimedRecipientName', recipientName);
+
+      try {
+        await api('/api/branch-admin/payouts/' + encodeURIComponent(activePayoutId) + '/receipt', { method: 'POST', body: fd });
+        toast('Payout receipt uploaded. Awaiting confirmation.', 'success');
+        document.getElementById('upload-payout-modal').classList.remove('is-open');
+        await loadPayouts();
+      } catch (err) {
+        toast('Payout receipt upload failed: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Upload Payout Receipt';
+      }
+    });
+
+    async function confirmPayout(payoutId) {
+      if (!window.confirm('Confirm this payout has been made to the recipient?')) return;
+      try {
+        await api('/api/branch-admin/payouts/' + encodeURIComponent(payoutId) + '/confirm', { method: 'POST' });
+        toast('Payout confirmed.', 'success');
+        await loadPayouts();
+      } catch (err) {
+        toast('Payout confirmation failed: ' + err.message, 'error');
+      }
+    }
+
+    async function failPayout(payoutId) {
+      const reason = window.prompt('Reason for marking payout failed (at least 5 characters):');
+      if (!reason || reason.trim().length < 5) {
+        toast('A reason of at least 5 characters is required.', 'error');
+        return;
+      }
+      try {
+        await api('/api/branch-admin/payouts/' + encodeURIComponent(payoutId) + '/fail', {
+          method: 'POST',
+          body: { reason: reason.trim() }
+        });
+        toast('Payout marked as failed.', 'info');
+        await loadPayouts();
+      } catch (err) {
+        toast('Failed to update payout: ' + err.message, 'error');
+      }
+    }
+
+    async function retryPayout(payoutId) {
+      if (!window.confirm('Create a retry for this failed payout?')) return;
+      try {
+        await api('/api/branch-admin/payouts/' + encodeURIComponent(payoutId) + '/retry', { method: 'POST' });
+        toast('Payout retry created.', 'success');
+        await loadPayouts();
+      } catch (err) {
+        toast('Payout retry failed: ' + err.message, 'error');
+      }
+    }
+
 
     async function loadTenants() {
       const tbody = document.querySelector('#tenants-table tbody');
