@@ -1463,12 +1463,18 @@ footer a:hover { color: var(--g); }
       </div>
     </div>
     <div class="form-row">
+      <label class="form-label" for="fee-payout-reference-display">Related Payout Reference</label>
+      <input class="form-input" id="fee-payout-reference-display" type="text" readonly>
+      <span class="form-hint">Identifies the recipient payout linked to this fee.</span>
+    </div>
+    <div class="form-row">
       <label class="form-label" for="fee-amount-display">Amount to Pay (GBP)</label>
       <input class="form-input" id="fee-amount-display" type="text" readonly>
     </div>
     <div class="form-row">
-      <label class="form-label" for="fee-reference-display">Payment Reference</label>
+      <label class="form-label" for="fee-reference-display">Fee Transfer Reference</label>
       <input class="form-input" id="fee-reference-display" type="text" readonly>
+      <span class="form-hint">Use this exact reference for the £ fee bank transfer to Thrifty Technologies.</span>
     </div>
     <div class="form-row">
       <label class="form-label" for="fee-sender-name">Sender Name (as shown on bank transfer)</label>
@@ -2649,7 +2655,7 @@ footer a:hover { color: var(--g); }
           if (p.feeIntent) {
             if (p.feeIntent.state === 'PENDING') {
               feeHtml = `<span style="color: #d97706; font-weight: 600;">£${p.feeIntent.amountGbp} (Unpaid)</span>`;
-              actionHtml = isDue ? `<button class="btn btn--primary btn--sm" data-pay-fee="${p.feeIntent.id}" data-fee-amount="${p.feeIntent.amountPence}" data-fee-ref="${p.feeIntent.reference}">Pay Fee</button>` : `<span style="font-size: 12px; color: var(--muted);">Not due yet</span>`;
+              actionHtml = isDue ? `<button class="btn btn--primary btn--sm" data-pay-fee="${p.feeIntent.id}" data-fee-amount="${p.feeIntent.amountPence}" data-fee-ref="${p.feeIntent.reference}" data-payout-ref="${p.reference}">Pay Fee</button>` : `<span style="font-size: 12px; color: var(--muted);">Not due yet</span>`;
             } else if (p.feeIntent.state === 'RECEIPT_UPLOADED') {
               feeHtml = `<span style="color: var(--g); font-weight: 600;">£${p.feeIntent.amountGbp} (Pending Review)</span>`;
               actionHtml = `<span class="badge badge--info">Awaiting Super Admin</span>`;
@@ -2663,7 +2669,9 @@ footer a:hover { color: var(--g); }
           else if (p.state === 'FAILED') actionHtml = `<button class="btn btn--ghost btn--sm" data-payout-retry="${p.id}">Retry</button>`;
           const stateBadge = p.state === 'CONFIRMED' ? 'success' : p.state === 'FAILED' ? 'error' : p.state === 'FEE_PAID' ? 'info' : 'warning';
           return '<tr>' +
-            '<td data-label="Reference"><code>' + escapeHtml(p.reference) + '</code></td>' +
+            '<td data-label="Reference"><code>' + escapeHtml(p.reference) + '</code>' +
+              (p.feeIntent && p.feeIntent.reference ? '<br><span style="font-size:11px;color:var(--muted);">Fee transfer: <code>' + escapeHtml(p.feeIntent.reference) + '</code></span>' : '') +
+            '</td>' +
             '<td data-label="Tenant">' + escapeHtml(p.tenantName || 'Unknown') + '</td>' +
             '<td data-label="Cycle / Tenure">Cycle ' + p.cycle + ' / Tenure ' + p.tenure + '</td>' +
             '<td data-label="Recipient">' + escapeHtml(p.recipientName) + ' (slot ' + p.recipientSlot + ')</td>' +
@@ -2674,7 +2682,7 @@ footer a:hover { color: var(--g); }
             '<td data-label="Actions"><div class="table__actions">' + actionHtml + '</div></td>' +
           '</tr>';
         }).join('');
-        tbody.querySelectorAll('[data-pay-fee]').forEach(b => b.addEventListener('click', () => openPayFeeModal(b.dataset.payFee, b.dataset.feeAmount, b.dataset.feeRef)));
+        tbody.querySelectorAll('[data-pay-fee]').forEach(b => b.addEventListener('click', () => openPayFeeModal(b.dataset.payFee, b.dataset.feeAmount, b.dataset.feeRef, b.dataset.payoutRef)));
         tbody.querySelectorAll('[data-payout-receipt]').forEach(b => b.addEventListener('click', () => uploadPayoutReceipt(b.dataset.payoutReceipt)));
         tbody.querySelectorAll('[data-payout-confirm]').forEach(b => b.addEventListener('click', () => confirmPayout(b.dataset.payoutConfirm)));
         tbody.querySelectorAll('[data-payout-retry]').forEach(b => b.addEventListener('click', () => retryPayout(b.dataset.payoutRetry)));
@@ -2689,11 +2697,12 @@ footer a:hover { color: var(--g); }
     let activeFeeIntentId = null;
     let activePayoutId = null;
 
-    async function openPayFeeModal(feeIntentId, amountPence, reference) {
+    async function openPayFeeModal(feeIntentId, amountPence, reference, payoutReference) {
       activeFeeIntentId = feeIntentId;
       const modal = document.getElementById('pay-fee-modal');
       document.getElementById('fee-amount-display').value = penceToGbp(Number(amountPence));
       document.getElementById('fee-reference-display').value = reference || '';
+      document.getElementById('fee-payout-reference-display').value = payoutReference || '';
       document.getElementById('fee-receipt-file').value = '';
       document.getElementById('fee-sender-name').value = '';
       document.getElementById('fee-acc-holder').textContent = 'Loading…';
