@@ -773,13 +773,14 @@
                 <th>Branch & Admin</th>
                 <th>Tenant & Cycle</th>
                 <th>Payout Reference</th>
+                <th>Fee Transfer Reference</th>
                 <th>Fee Amount</th>
                 <th>Receipt</th>
                 <th>Status</th>
                 <th style="text-align: right;">Actions</th>
               </tr>
             </thead>
-            <tbody><tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--muted);">Loading…</td></tr></tbody>
+            <tbody><tr><td colspan="8" style="text-align: center; padding: 40px; color: var(--muted);">Loading…</td></tr></tbody>
           </table>
         </div>
       </section>
@@ -1791,6 +1792,7 @@
               '<span style="font-size:12px;color:var(--muted);">Cycle ' + f.cycle + ' / Tenure ' + f.tenure + '</span>' +
             '</td>' +
             '<td><code>' + escapeHtml(f.reference || '—') + '</code></td>' +
+            '<td><code>' + escapeHtml(f.feeReference || '—') + '</code></td>' +
             '<td><strong style="color: var(--g);">£' + f.amountGbp + '</strong></td>' +
             '<td>' +
               (f.receiptUrl ? '<a class="btn btn--ghost btn--sm" href="' + f.receiptUrl + '" target="_blank">View Receipt</a>' : '—') +
