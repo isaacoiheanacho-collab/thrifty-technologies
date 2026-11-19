@@ -375,6 +375,7 @@
 
     /* Grids & Cards */
     .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .grid-5 { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 20px; }
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
     .grid-mobile-section { display: grid; grid-template-columns: 1fr 340px 1fr; gap: 40px; align-items: center; }
@@ -438,7 +439,7 @@
       .hero__container { grid-template-columns: 1fr; text-align: center; gap: 40px; }
       .hero__content { margin: 0 auto; }
       .hero__actions, .hero__stats { justify-content: center; }
-      .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+      .grid-4, .grid-5, .grid-3, .grid-2 { grid-template-columns: 1fr; }
       .cta-box { grid-template-columns: 1fr; padding: 32px 24px; }
     }
 
@@ -749,10 +750,10 @@
   <section class="section section--alt">
     <div class="section__inner">
       <span class="section__eyebrow">Getting Started</span>
-      <h2>Four steps to become a Community Partner</h2>
+      <h2>Five steps to become a Community Partner</h2>
       <p class="section__lede">Simple, transparent, and takes less than five minutes.</p>
 
-      <div class="grid-4">
+      <div class="grid-5">
         <div class="step-card">
           <span class="num">01</span>
           <div class="step-icon">
@@ -794,6 +795,17 @@
           </div>
           <h3>Start Onboarding</h3>
           <p>Onboard your co-savers and track circle progress.</p>
+        </div>
+        <div class="step-card">
+          <span class="num">05</span>
+          <div class="step-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M8 12h8M12 8l4 4-4 4"></path>
+            </svg>
+          </div>
+          <h3>Try the ROSCA Sandbox</h3>
+          <p>Not ready to get started? Experience the five-co-saver, five-week ROSCA Sandbox trial first. Explore the process, then move on to ROSCA Thrift if you're satisfied. Have reservations or suggestions? <a href="https://thriftysandbox.vercel.app/" target="_blank" rel="noopener noreferrer">Explore the Sandbox Trial</a> or <a href="/contact.html">contact us</a>.</p>
         </div>
       </div>
     </div>
