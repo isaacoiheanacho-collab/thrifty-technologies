@@ -1428,8 +1428,12 @@ footer a:hover { color: var(--g); }
           btn.disabled = true; btn.textContent = 'Receipt Awaiting Approval'; fileInput.disabled = true;
           if (formNote) formNote.textContent = 'Your receipt has been submitted. Your Branch Admin will verify it shortly.';
         } else {
-          btn.disabled = false; btn.textContent = 'Upload Receipt'; fileInput.disabled = false;
-          if (formNote) formNote.textContent = '';
+          btn.disabled = false;
+          fileInput.disabled = false;
+          btn.textContent = intent.receiptStatus === 'REJECTED' ? 'Upload Replacement Receipt' : 'Upload Receipt';
+          if (formNote) formNote.textContent = intent.receiptStatus === 'REJECTED'
+            ? 'Your previous receipt was rejected. ' + (intent.receiptRejectionReason || 'Please review the details and upload a replacement receipt.')
+            : '';
         }
       } catch (err) {
         content.style.display = 'none';
