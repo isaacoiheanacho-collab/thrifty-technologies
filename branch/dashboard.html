@@ -1184,6 +1184,7 @@ footer a:hover { color: var(--g); }
           <div class="row" style="gap: 12px; flex-wrap: wrap; justify-content: flex-end;">
             <select class="form-input" id="contrib-status-filter" style="width: 150px; padding: 8px 12px;">
               <option value="PENDING">Pending Receipts</option>
+              <option value="REJECTED">Rejected Receipts</option>
               <option value="CONFIRMED">Confirmed History</option>
             </select>
             <select class="form-input" id="contrib-tenant-filter" style="width: 150px; padding: 8px 12px;">
@@ -2430,12 +2431,29 @@ footer a:hover { color: var(--g); }
       );
 
       if (!rows.length) {
-        const label = contributionStatus === 'CONFIRMED' ? 'confirmed contributions' : 'pending contributions';
+        const label = contributionStatus === 'CONFIRMED' ? 'confirmed contributions' : contributionStatus === 'REJECTED' ? 'rejected receipts' : 'pending contributions';
         tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No ' + label + ' found for this circle</h3></div></td></tr>';
         return;
       }
 
-      if (contributionStatus === 'CONFIRMED') {
+      if (contributionStatus === 'REJECTED') {
+        tbody.innerHTML = rows.map(r => {
+          const amount = r.amountPence ? penceToGbp(r.amountPence) : '—';
+          const receiptBtn = r.objectUrl
+            ? '<a class="btn btn--ghost btn--sm" href="' + escapeHtml(r.objectUrl) + '" target="_blank" rel="noopener">View</a>'
+            : '<span style="color:var(--muted);">none</span>';
+          return `
+            <tr>
+              <td data-label="Tenant & Saver"><strong>${escapeHtml(r.tenantName || 'Unassigned')}</strong><br><span style="font-size:12px;color:var(--muted);">${escapeHtml(r.userName || 'Unknown')}</span></td>
+              <td data-label="Reference"><code>${escapeHtml(r.reference)}</code></td>
+              <td data-label="Cycle">${r.cycle}</td>
+              <td data-label="Amount">${amount}</td>
+              <td data-label="Receipt">${receiptBtn}<br><span class="badge badge--danger" style="margin-top:6px;">Rejected</span></td>
+              <td data-label="Actions"><span style="color:var(--muted);font-size:12px;">${escapeHtml(r.rejectionReason || 'No reason provided')}<br>Uploaded ${formatDate(r.uploadedAt)}</span></td>
+            </tr>
+          `;
+        }).join('');
+      } else if (contributionStatus === 'CONFIRMED') {
         tbody.innerHTML = rows.map(c => `
           <tr>
             <td data-label="Tenant & Saver"><strong>${escapeHtml(c.tenantName)}</strong><br><span style="font-size:12px;color:var(--muted);">${escapeHtml(c.userName)}</span></td>
@@ -2481,7 +2499,9 @@ footer a:hover { color: var(--g); }
         const result = await api(url);
         contributionRows = statusFilter === 'CONFIRMED'
           ? (result.contributions || [])
-          : (result.intents || []);
+          : statusFilter === 'REJECTED'
+            ? (result.receipts || [])
+            : (result.intents || []);
         populateContributionCircleFilter(contributionRows);
         renderContributions();
       } catch (err) {
