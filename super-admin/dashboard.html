@@ -1267,7 +1267,22 @@
         document.getElementById('stat-tenants-total').textContent = stats.tenants.total;
         document.getElementById('stat-monthly-contribs').textContent = '£' + (stats.contributions.thisMonthGbp || '0.00');
         document.getElementById('stat-monthly-payouts').textContent = '£' + (stats.payouts.thisMonthGbp || '0.00');
-        document.getElementById('stat-total-revenue').textContent = '£' + (stats.platformRevenueGbp || '0.00');
+
+        // Platform revenue is returned by the dedicated fee-revenue endpoint,
+        // not by /stats. Request the current month and display its confirmed fees.
+        try {
+          const monthlyFeeRevenue = await api('/api/super-admin/stats/fee-revenue?months=1');
+          const currentMonthRevenue = Array.isArray(monthlyFeeRevenue)
+            ? monthlyFeeRevenue[monthlyFeeRevenue.length - 1]
+            : null;
+          document.getElementById('stat-total-revenue').textContent =
+            '£' + (currentMonthRevenue && currentMonthRevenue.feesGbp != null
+              ? currentMonthRevenue.feesGbp
+              : '0.00');
+        } catch (revenueError) {
+          console.error('Failed to load current-month platform fee revenue:', revenueError);
+          document.getElementById('stat-total-revenue').textContent = '£0.00';
+        }
 
         const feeData = await api('/api/super-admin/stats/fees-by-branch');
         renderRevenueChart(feeData);
