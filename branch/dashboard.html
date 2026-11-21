@@ -190,6 +190,19 @@ button { cursor: pointer; }
 .table tr:last-child td { border-bottom: none; }
 .table tr:hover { background: rgba(0,0,0,0.01); }
 
+/* Completed payout receipt actions */
+#payouts-table th:last-child,
+#payouts-table td:last-child { text-align: center; }
+.payout-receipt-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.payout-receipt-actions .btn { min-width: 138px; justify-content: center; }
+
+
 /* ── Badges & Status ────────────────────────────────────── */
 .badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
 .badge--success { background: #d9f9df; color: #07823c; }
@@ -2692,7 +2705,7 @@ footer a:hover { color: var(--g); }
             const payoutReceiptLink = p.payoutReceiptUrl
               ? `<a class="btn btn--ghost btn--sm" href="${escapeHtml(p.payoutReceiptUrl)}" target="_blank" rel="noopener">Pool Payout Receipt</a>`
               : '<span style="font-size:12px;color:var(--muted);">Pool receipt unavailable</span>';
-            actionHtml = `<span class="badge badge--success">Completed</span><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;margin-top:6px;">${feeReceiptLink}${payoutReceiptLink}</div>`;
+            actionHtml = `<div class="payout-receipt-actions">${feeReceiptLink}${payoutReceiptLink}</div>`;
           }
           else if (p.state === 'FAILED') actionHtml = `<button class="btn btn--ghost btn--sm" data-payout-retry="${p.id}">Retry</button>`;
           const stateBadge = p.state === 'CONFIRMED' ? 'success' : p.state === 'FAILED' ? 'error' : p.state === 'FEE_PAID' ? 'info' : 'warning';
