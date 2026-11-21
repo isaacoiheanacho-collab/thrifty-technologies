@@ -1276,9 +1276,9 @@
             ? monthlyFeeRevenue[monthlyFeeRevenue.length - 1]
             : null;
           document.getElementById('stat-total-revenue').textContent =
-            '£' + (currentMonthRevenue && currentMonthRevenue.feesGbp != null
+            currentMonthRevenue && currentMonthRevenue.feesGbp != null
               ? currentMonthRevenue.feesGbp
-              : '0.00');
+              : '£0.00';
         } catch (revenueError) {
           console.error('Failed to load current-month platform fee revenue:', revenueError);
           document.getElementById('stat-total-revenue').textContent = '£0.00';
