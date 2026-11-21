@@ -1205,7 +1205,7 @@ footer a:hover { color: var(--g); }
               <!-- Populated via JS -->
             </select>
             <select class="form-input" id="contrib-circle-filter" style="width: 150px; padding: 8px 12px;">
-              <option value="">All Circles</option>
+              <option value="">All Cycles</option>
               <!-- Populated from contribution references -->
             </select>
             <button type="button" class="btn btn--primary btn--sm" id="contrib-remind-btn" disabled>Remind outstanding</button>
@@ -2414,38 +2414,37 @@ footer a:hover { color: var(--g); }
       }
     }
 
-    // Circle is encoded in the final two digits of the contribution reference.
-    // Keep the loaded records in memory so changing Circle never triggers another API request.
+    // The final two digits of an IN reference encode the cycle, not a separate circle.
+    // Load every API page so the cycle filter is built from the complete contribution history.
     let contributionRows = [];
     let contributionStatus = 'PENDING';
 
-    function getContributionCircle(reference) {
-      if (!reference || String(reference).length < 13) return null;
-      const circle = parseInt(String(reference).slice(-2), 10);
-      return Number.isFinite(circle) && circle > 0 ? circle : null;
+    function getContributionCycle(row) {
+      const cycle = Number(row?.cycle ?? String(row?.reference || '').slice(-2));
+      return Number.isInteger(cycle) && cycle >= 1 && cycle <= 12 ? cycle : null;
     }
 
-    function populateContributionCircleFilter(rows) {
+    function populateContributionCycleFilter(rows) {
       const select = document.getElementById('contrib-circle-filter');
       const selected = select.value;
-      const circles = [...new Set(rows.map(row => getContributionCircle(row.reference)).filter(circle => circle !== null))]
+      const cycles = [...new Set(rows.map(getContributionCycle).filter(cycle => cycle !== null))]
         .sort((a, b) => a - b);
-      select.innerHTML = '<option value="">All Circles</option>' + circles.map(circle =>
-        '<option value="' + circle + '">Circle ' + circle + '</option>'
+      select.innerHTML = '<option value="">All Cycles</option>' + cycles.map(cycle =>
+        '<option value="' + cycle + '">Cycle ' + cycle + '</option>'
       ).join('');
-      if (circles.some(circle => String(circle) === selected)) select.value = selected;
+      if (cycles.some(cycle => String(cycle) === selected)) select.value = selected;
     }
 
     function renderContributions() {
       const tbody = document.querySelector('#contrib-table tbody');
-      const circleFilter = document.getElementById('contrib-circle-filter').value;
+      const cycleFilter = document.getElementById('contrib-circle-filter').value;
       const rows = contributionRows.filter(row =>
-        !circleFilter || String(getContributionCircle(row.reference)) === String(circleFilter)
+        !cycleFilter || String(getContributionCycle(row)) === String(cycleFilter)
       );
 
       if (!rows.length) {
         const label = contributionStatus === 'CONFIRMED' ? 'confirmed contributions' : contributionStatus === 'REJECTED' ? 'rejected receipts' : 'pending contributions';
-        tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No ' + label + ' found for this circle</h3></div></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No ' + label + ' found for this cycle</h3></div></td></tr>';
         return;
       }
 
@@ -2512,19 +2511,36 @@ footer a:hover { color: var(--g); }
       const tenantFilter = document.getElementById('contrib-tenant-filter').value;
       contributionStatus = statusFilter;
       try {
-        let url = '/api/branch-admin/contributions?status=' + statusFilter + '&limit=50';
-        if (tenantFilter) url += '&tenantId=' + encodeURIComponent(tenantFilter);
-        const result = await api(url);
-        contributionRows = statusFilter === 'CONFIRMED'
-          ? (result.contributions || [])
-          : statusFilter === 'REJECTED'
-            ? (result.receipts || [])
-            : (result.intents || []);
-        populateContributionCircleFilter(contributionRows);
+        const pageSize = 100;
+        let offset = 0;
+        let total = Infinity;
+        const allRows = [];
+
+        // The API caps each page at 100. Continue until the server-reported total is loaded.
+        while (allRows.length < total) {
+          let url = '/api/branch-admin/contributions?status=' + encodeURIComponent(statusFilter)
+            + '&limit=' + pageSize + '&offset=' + offset;
+          if (tenantFilter) url += '&tenantId=' + encodeURIComponent(tenantFilter);
+
+          const result = await api(url);
+          const pageRows = statusFilter === 'CONFIRMED'
+            ? (result.contributions || [])
+            : statusFilter === 'REJECTED'
+              ? (result.receipts || [])
+              : (result.intents || []);
+
+          allRows.push(...pageRows);
+          total = Number.isFinite(Number(result.total)) ? Number(result.total) : allRows.length;
+          if (pageRows.length === 0 || pageRows.length < pageSize) break;
+          offset += pageRows.length;
+        }
+
+        contributionRows = allRows;
+        populateContributionCycleFilter(contributionRows);
         renderContributions();
       } catch (err) {
         contributionRows = [];
-        populateContributionCircleFilter([]);
+        populateContributionCycleFilter([]);
         tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#e32626;">' + escapeHtml(err.message) + '</td></tr>';
       }
     }
@@ -2570,7 +2586,7 @@ footer a:hover { color: var(--g); }
       } else if (contributionReminderPreview.reason === 'NO_OUTSTANDING_MEMBERS') {
         hint.textContent = 'There are currently no outstanding co-savers to remind in this tenant.';
       } else {
-        hint.textContent = contributionReminderPreview.eligibleCount + ' outstanding co-saver(s) found across every circle. The Circle filter only filters receipt records.';
+        hint.textContent = contributionReminderPreview.eligibleCount + ' outstanding co-saver(s) found across every circle. The Cycle filter only filters receipt records.';
       }
     }
 
