@@ -2473,7 +2473,12 @@ footer a:hover { color: var(--g); }
             <td data-label="Reference"><code>${escapeHtml(c.reference)}</code></td>
             <td data-label="Cycle">${c.cycle}</td>
             <td data-label="Amount">${penceToGbp(c.amountPence)}</td>
-            <td data-label="Receipt"><span class="badge badge--success">Confirmed</span></td>
+            <td data-label="Receipt">
+              ${c.receipt && c.receipt.objectUrl
+                ? '<a class="btn btn--ghost btn--sm" href="' + escapeHtml(c.receipt.objectUrl) + '" target="_blank" rel="noopener">View Receipt</a>'
+                : '<span style="color:var(--muted);font-size:12px;">Receipt unavailable</span>'}
+              <br><span class="badge badge--success" style="margin-top:6px;">Confirmed</span>
+            </td>
             <td data-label="Actions" style="text-align: right; color: var(--muted); font-size: 12px;">${formatDate(c.confirmedAt)}</td>
           </tr>
         `).join('');
