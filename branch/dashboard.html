@@ -2685,7 +2685,15 @@ footer a:hover { color: var(--g); }
             }
           }
           if (p.state === 'RECEIPT_UPLOADED') actionHtml = `<button class="btn btn--success btn--sm" data-payout-confirm="${p.id}">Confirm Payout</button>`;
-          else if (p.state === 'CONFIRMED') actionHtml = `<span class="badge badge--success">Completed</span>`;
+          else if (p.state === 'CONFIRMED') {
+            const feeReceiptLink = p.feeReceiptUrl
+              ? `<a class="btn btn--ghost btn--sm" href="${escapeHtml(p.feeReceiptUrl)}" target="_blank" rel="noopener">Fee Receipt</a>`
+              : '<span style="font-size:12px;color:var(--muted);">Fee receipt unavailable</span>';
+            const payoutReceiptLink = p.payoutReceiptUrl
+              ? `<a class="btn btn--ghost btn--sm" href="${escapeHtml(p.payoutReceiptUrl)}" target="_blank" rel="noopener">Pool Payout Receipt</a>`
+              : '<span style="font-size:12px;color:var(--muted);">Pool receipt unavailable</span>';
+            actionHtml = `<span class="badge badge--success">Completed</span><div class="table__actions" style="margin-top:6px;">${feeReceiptLink}${payoutReceiptLink}</div>`;
+          }
           else if (p.state === 'FAILED') actionHtml = `<button class="btn btn--ghost btn--sm" data-payout-retry="${p.id}">Retry</button>`;
           const stateBadge = p.state === 'CONFIRMED' ? 'success' : p.state === 'FAILED' ? 'error' : p.state === 'FEE_PAID' ? 'info' : 'warning';
           return '<tr>' +
