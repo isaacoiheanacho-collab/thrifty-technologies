@@ -904,5 +904,14 @@
   })();
 </script>
 
+<script>
+(function () {
+  var branch = new URLSearchParams(window.location.search).get('branch');
+  if (!branch) return;
+  document.querySelectorAll('a[href="/dashboard.html"]').forEach(function (link) {
+    link.href = '/dashboard.html?branch=' + encodeURIComponent(branch);
+  });
+})();
+</script>
 </body>
 </html>
