@@ -684,7 +684,7 @@ footer a:hover { color: var(--g); }
           <div style="margin-top: 24px; padding: 16px; background: var(--bg); border-radius: 8px; border: 1px solid var(--line); font-size: 13px; color: var(--muted); line-height: 1.8;">
             <strong style="color: var(--ink); display: block; margin-bottom: 12px;">Payout Mathematical Formula</strong>
             <div style="margin-bottom: 8px; font-family: monospace; color: var(--g);">
-              P_net = P + [ ( (N + 1) / 2 - T ) × M × r × N ]
+              P_net = P + [ ( T - (N + 1) / 2 ) × M × r × N ]
             </div>
             <p style="margin-bottom: 16px; font-size: 12px;">
               <strong>Where:</strong><br>
@@ -692,7 +692,7 @@ footer a:hover { color: var(--g); }
               N = Number of members<br>
               M = Monthly contribution<br>
               T = Recipient's position (Slot)<br>
-              r = Monthly TVC rate (Annual Rate ÷ 12)
+              r = Monthly calculation factor (currently 0.007575)
             </p>
             <div id="math-calculation-strings" style="padding-top: 12px; border-top: 1px dashed var(--line);"></div>
           </div>
