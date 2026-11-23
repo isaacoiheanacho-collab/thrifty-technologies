@@ -24,11 +24,10 @@
       'use strict';
       const status = document.getElementById('status');
       const params = new URLSearchParams(window.location.search);
-      let branch = params.get('branch');
-      try {
-        if (branch) sessionStorage.setItem('rosca_branch_slug', branch);
-        if (!branch) branch = sessionStorage.getItem('rosca_branch_slug');
-      } catch (_) {}
+      const branch = params.get('branch');
+      if (branch) {
+        try { sessionStorage.setItem('rosca_branch_slug', branch); } catch (_) {}
+      }
 
       const branchEntry = branch
         ? '/join/index.html?branch=' + encodeURIComponent(branch)
