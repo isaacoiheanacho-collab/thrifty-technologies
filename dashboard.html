@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Opening your dashboard — ROSCA Thrift</title>
+  <style>
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0b0e11;color:#e1e3e5;font:15px Inter,Arial,sans-serif}
+    main{max-width:440px;padding:32px;text-align:center}
+    h1{font-size:22px;color:#00daf3}
+    p{color:#9ea3a8;line-height:1.6}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Opening your dashboard</h1>
+    <p id="status">Checking your sign-in and community details…</p>
+  </main>
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/api.js"></script>
+  <script>
+    (async function () {
+      'use strict';
+      const status = document.getElementById('status');
+      const params = new URLSearchParams(window.location.search);
+      let branch = params.get('branch');
+      try {
+        if (branch) sessionStorage.setItem('rosca_branch_slug', branch);
+        if (!branch) branch = sessionStorage.getItem('rosca_branch_slug');
+      } catch (_) {}
+
+      const branchEntry = branch
+        ? '/join/index.html?branch=' + encodeURIComponent(branch)
+        : '/?login=1';
+
+      const api = window.ROSCA_API;
+      if (!api || (!api.getAccessToken() && !api.getRefreshToken())) {
+        window.location.replace(branchEntry);
+        return;
+      }
+
+      try {
+        const user = await api.api('/api/users/me');
+        const destinations = {
+          SUPER_ADMIN: '/super-admin/dashboard.html',
+          BRANCH_ADMIN: '/branch/dashboard.html',
+          SAVER: '/saver/dashboard.html'
+        };
+        const destination = destinations[user && user.role];
+        if (!destination) {
+          window.location.replace(branchEntry);
+          return;
+        }
+        if (user.role === 'SAVER' && branch) {
+          window.location.replace(destination + '?branch=' + encodeURIComponent(branch));
+        } else {
+          window.location.replace(destination);
+        }
+      } catch (error) {
+        status.textContent = 'We could not confirm your session. Taking you to the correct sign-in page…';
+        const expired = error && (error.status === 401 || error.status === 403 ||
+          error.code === 'AUTH_TOKEN_INVALID' || error.code === 'AUTH_REFRESH_INVALID' ||
+          error.code === 'AUTH_SESSION_ENDED');
+        if (expired && api.clearTokens) api.clearTokens();
+        window.location.replace(branchEntry);
+      }
+    })();
+  </script>
+</body>
+</html>
