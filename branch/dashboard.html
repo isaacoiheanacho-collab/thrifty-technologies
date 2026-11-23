@@ -1312,7 +1312,7 @@ footer a:hover { color: var(--g); }
     <footer>
       <div><strong>Thrifty Technologies</strong> &nbsp;© 2025. All rights reserved.</div>
       <div class="links">
-        <a href="/terms.html">Privacy Policy</a> | <a href="/terms.html">T&Cs</a> | <a href="#">Help Center</a> | <a href="#">FAQ</a>
+        <a href="/privacy.html">Privacy Policy</a> | <a href="/terms.html">T&Cs</a> | <a href="/contact.html#faq">Help Center &amp; FAQ</a> | <a href="/dashboard.html" id="footer-dashboard-link">Dashboard</a>
       </div>
       <div class="social">Follow Us: &nbsp; in&nbsp; f&nbsp; X&nbsp; ▶</div>
     </footer>
@@ -1761,6 +1761,19 @@ footer a:hover { color: var(--g); }
 
       modal.classList.add('is-open');
     };
+
+    // Keep the public-page return link aware of the signed-in community.
+    (async function setFooterDashboardLink() {
+      try {
+        const me = await api('/api/users/me');
+        if (!me || me.role !== 'BRANCH_ADMIN' || !me.branchId) return;
+        const branch = await api('/api/branches/id/' + me.branchId);
+        if (branch && branch.slug) {
+          const link = document.getElementById('footer-dashboard-link');
+          if (link) link.href = '/dashboard.html?branch=' + encodeURIComponent(branch.slug);
+        }
+      } catch (_) {}
+    })();
 
     // ── Boot ─────────────────────────────────────────────────
     async function loadMe() {
