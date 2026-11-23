@@ -507,6 +507,7 @@
         <div class="footer__col-title">Navigation</div>
         <div class="footer__col-links">
           <a href="/join/index.html" class="js-join-link">Return to Join Page</a>
+          <a href="/dashboard.html" class="js-dashboard-link">Dashboard</a>
           <a href="/join/terminology.html" class="js-join-link">Terminology</a>
         </div>
       </div>
@@ -532,6 +533,10 @@
     'use strict';
     const params = new URLSearchParams(window.location.search);
     const branch = params.get('branch');
+    const dashboardLink = document.querySelector('.js-dashboard-link');
+    if (dashboardLink && branch) {
+      dashboardLink.href = '/dashboard.html?branch=' + encodeURIComponent(branch);
+    }
     if (branch) {
       document.querySelectorAll('.js-join-link').forEach(link => {
         const href = link.getAttribute('href');
