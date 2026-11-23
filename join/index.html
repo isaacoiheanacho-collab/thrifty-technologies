@@ -898,6 +898,11 @@
     const errorState = document.getElementById('error-state');
     const mainContent = document.getElementById('main-content');
     const backToTop = document.getElementById('back-to-top');
+    // Preserve the community slug when visitors open dashboard-related public pages.
+    try { sessionStorage.setItem('rosca_branch_slug', branchSlug); } catch (_) {}
+    document.querySelectorAll('a[href="/dashboard.html"]').forEach(function (link) {
+      link.href = '/dashboard.html?branch=' + encodeURIComponent(branchSlug);
+    });
 
     // ── Network banner helpers ─────────────────────────────
     let networkBannerTimer = null;
