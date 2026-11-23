@@ -622,7 +622,7 @@
         <p>11.2. TVC is intended to recognise the difference in collection timing between Co-Savers occupying different Collection Positions in a Circle.</p>
         <p>11.3. In a standard 12-Co-Saver Circle, the maximum TVC adjustment is 50% of one monthly Contribution. The adjustment for each Co-Saver depends on their Collection Position and is zero at the midpoint.</p>
         <p>11.4. The monthly calculation factor used in the standard 12-member formula is:</p>
-        <div class="formula">r = 1 / 132</div>
+        <div class="formula">r = 0.007575</div>
         <p>11.5. The TVC calculation uses the number of Co-Savers in the Circle, the monthly Contribution amount, the Co-Saver's Collection Position and the Circle's pivot position.</p>
         <p>11.6. The formula is as follows:</p>
         <p><strong>A. Base Pool</strong></p>
@@ -630,21 +630,21 @@
         <p><strong>B. Pivot Position</strong></p>
         <div class="formula">Pivot = (N + 1) / 2</div>
         <p><strong>C. TVC Adjustment</strong></p>
-        <div class="formula">Adjustment = (Pivot − T) × M × r × N</div>
+        <div class="formula">Adjustment = (T − Pivot) × M × r × N</div>
         <p><strong>D. Adjusted Payout</strong></p>
         <div class="formula">P_net = P + Adjustment</div>
         <p><strong>E. Equivalent Factored Formula</strong></p>
-        <div class="formula">P_net = P × [1 + r × (Pivot − T)]</div>
+        <div class="formula">P_net = P × [1 + r × (T − Pivot)]</div>
         <p>11.7. For this calculation:</p>
         <ul>
           <li><strong>N</strong> = total number of Co-Savers in the Circle;</li>
           <li><strong>M</strong> = monthly Contribution per Co-Saver;</li>
           <li><strong>T</strong> = the Co-Saver's Collection Position, numbered from 1 to N;</li>
-          <li><strong>r</strong> = monthly TVC rate, calculated as the annual rate divided by 12;</li>
+          <li><strong>r</strong> = the monthly calculation factor, currently 0.007575;</li>
           <li><strong>P</strong> = base pool, calculated as N × M;</li>
           <li><strong>P_net</strong> = adjusted Payout after applying the TVC adjustment.</li>
         </ul>
-        <p>11.8. Where the Collection Position is earlier than the pivot position, the formula produces a positive adjustment. Where the Collection Position is later than the pivot position, the formula produces a negative adjustment.</p>
+        <p>11.8. Where the Collection Position is earlier than the pivot position, the formula produces a negative adjustment. Where the Collection Position is later than the pivot position, the formula produces a positive adjustment.</p>
         <p>11.9. A Collection Position equal to the pivot position produces no TVC adjustment.</p>
         <p>11.10. The TVC is an adjustment in the distribution of the Circle's Payouts. It is not a separate fee charged by Thrifty.</p>
         <p>11.11. Neither Thrifty nor the Community Admin separately receives, holds, collects or distributes TVC as a standalone payment. It is reflected through the Payout calculation and the corresponding allocation of the Circle pool.</p>
