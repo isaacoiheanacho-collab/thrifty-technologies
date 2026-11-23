@@ -65,7 +65,7 @@
     <section class="section">
       <h2>Why TVC is used</h2>
       <p>A member receiving the pool in the first month obtains access to the pooled contributions much earlier than a member receiving it in the twelfth month. TVC recognises this difference in collection timing through a transparent adjustment to the payout amounts. It is not a separate interest payment or a standalone fee collected by Thrifty.</p>
-      <p>The standard annual TVC rate is <strong>9.09%</strong>. The corresponding monthly rate used in the existing linear pivot calculation is <strong>0.7575% per month</strong>.</p>
+      <p>For the standard 12-member circle, the maximum TVC adjustment is <strong>50% of one monthly contribution</strong>. The adjustment varies by collection position and balances across all 12 positions. The calculation uses a monthly factor of <strong>1/132</strong>.</p>
     </section>
 
     <section class="section">
@@ -82,7 +82,7 @@
       <div class="panel">
         <h3>3. TVC adjustment</h3>
         <div class="formula">Adjustment = (T − Pivot) × M × r × N</div>
-        <p>Where T is the member's slot number, N is 12, M is £1,000 and r is the monthly rate 0.007575 (0.7575%).</p>
+        <p>Where T is the member's slot number, N is 12, M is £1,000 and r is the monthly calculation factor 1/132 (approximately 0.00757576).</p>
       </div>
       <div class="panel">
         <h3>4. Adjusted payout, before maintenance</h3>
@@ -133,13 +133,14 @@
   </main>
   <footer class="tvc-footer">
     <span>© 2026 Thrifty Technologies. All rights reserved.</span>
-    <nav class="tvc-nav" aria-label="Footer navigation"><a href="/">Home</a><a href="/terminology.html">Terminology</a><a href="/terms.html">Terms of Service</a><a href="/contact.html">Contact</a></nav>
+    <nav class="tvc-nav" aria-label="Footer navigation"><a href="/">Home</a><a href="/terminology.html">Terminology</a><a href="/terms.html">Terms of Service</a><a href="/contact.html">Contact</a><a href="/dashboard.html">Dashboard</a></nav>
   </footer>
 <script>
 (function () {
   var branch = new URLSearchParams(window.location.search).get('branch');
   if (!branch) return;
 
+  sessionStorage.setItem('rosca_branch_slug', branch);
   var communityUrl = '/join/index.html?branch=' + encodeURIComponent(branch);
   var communityTermsUrl = '/join/terms.html?branch=' + encodeURIComponent(branch);
 
@@ -157,7 +158,7 @@
 
   var footerNav = document.querySelector('footer .tvc-nav');
   if (footerNav) {
-    footerNav.innerHTML = '<a href="' + communityUrl + '">Back to Community</a><a href="' + communityTermsUrl + '">Community Rules</a>';
+    footerNav.innerHTML = '<a href="' + communityUrl + '">Back to Community</a><a href="' + communityTermsUrl + '">Community Rules</a><a href="/dashboard.html?branch=' + encodeURIComponent(branch) + '">Dashboard</a>';
   }
 
   var termsLink = document.querySelector('.tvc-main a[href="/terms.html"]');
