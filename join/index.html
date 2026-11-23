@@ -1017,6 +1017,11 @@
         );
       }
 
+      // Preserve this community when opening the TVC explanation.
+      document.querySelectorAll('a[href="/tvc.html"]').forEach(function (link) {
+        link.href = '/tvc.html?branch=' + encodeURIComponent(branchSlug);
+      });
+
       // Decorate platform links with the branch slug
       document.querySelectorAll('.js-platform-link').forEach(function(link) {
         const href = link.getAttribute('href');
