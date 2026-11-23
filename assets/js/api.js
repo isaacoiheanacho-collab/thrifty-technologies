@@ -81,7 +81,7 @@
     const branch = params.get('branch');
     const path = window.location.pathname;
     const isCoSaverContext = !!branch &&
-      (path.indexOf('/join/') === 0 || path.indexOf('/saver/') === 0);
+      (path.indexOf('/join/') === 0 || path.indexOf('/saver/') === 0 || path === '/dashboard.html');
 
     // Keep an expired co-saver session inside its own community instead of
     // sending the user to the platform/admin landing page.
