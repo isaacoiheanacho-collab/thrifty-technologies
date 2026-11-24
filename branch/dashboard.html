@@ -3049,6 +3049,7 @@ footer a:hover { color: var(--g); }
         document.getElementById('circle-config-members').value = 12;
         document.getElementById('circle-config-window').value = 21;
         document.getElementById('circle-config-duration').value = 30;
+        updateCircleTenurePreview();
         await loadCircleConfigurations();
       } catch (error) {
         status.textContent = error.message || 'Could not create configuration.';
