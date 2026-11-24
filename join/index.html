@@ -780,6 +780,21 @@
       </div>
     </section>
 
+    <section class="section section--center" id="circle-configuration">
+      <div class="section__inner section__inner--narrow">
+        <div class="section__eyebrow">Choose your savings arrangement</div>
+        <h2>Select a circle configuration</h2>
+        <p class="section__lede" style="text-align:center;">Choose the contribution arrangement you are joining. Members are grouped only with co-savers who selected the same configuration.</p>
+        <div class="consent-gate" style="text-align:left;">
+          <label class="form-label" for="circle-configuration-select">Available configurations</label>
+          <select id="circle-configuration-select" class="form-input" style="width:100%;padding:14px;border-radius:10px;">
+            <option value="">Loading configurations…</option>
+          </select>
+          <div id="circle-configuration-summary" class="consent-gate__sub" style="margin:12px 0 0;">Loading community circle arrangements…</div>
+        </div>
+      </div>
+    </section>
+
     <section class="section section--center" id="consent">
       <div class="section__inner">
         <div class="section__eyebrow" style="display: inline-block;">Before you join</div>
@@ -894,6 +909,7 @@
 
     const params = new URLSearchParams(window.location.search);
     const branchSlug = params.get('branch') || window.location.pathname.split('/').filter(Boolean).pop();
+    let selectedCircleConfigurationId = '';
 
     const loadingState = document.getElementById('loading-state');
     const errorState = document.getElementById('error-state');
@@ -1423,16 +1439,31 @@
       const msg = document.getElementById('consent-msg');
 
       const all = [cbBranchTerms, cbBranchPrivacy, cbPlatform];
+      const configSelect = document.getElementById('circle-configuration-select');
+      const configSummary = document.getElementById('circle-configuration-summary');
+      api('/api/circle-configurations/' + encodeURIComponent(slug)).then(function (rows) {
+        configSelect.innerHTML = '<option value="">Choose a configuration</option>' + (rows || []).map(function (c) {
+          return '<option value="' + escapeHtml(c.id) + '">' + escapeHtml(c.name) + ' — ' + escapeHtml(c.contributionFrequency) + ' — ' + escapeHtml(penceToGbp(c.contributionAmountPence)) + ' / contribution — ' + c.memberCapacity + ' co-savers</option>';
+        }).join('');
+        if (!rows || !rows.length) { configSelect.innerHTML = '<option value="">No configurations available</option>'; configSummary.textContent = 'This community has not published a savings-circle configuration yet. Please contact the Community Admin.'; }
+        update();
+      }).catch(function () { configSelect.innerHTML = '<option value="">Unable to load configurations</option>'; configSummary.textContent = 'Please refresh this page or contact the Community Admin.'; update(); });
+      configSelect.addEventListener('change', function () {
+        selectedCircleConfigurationId = configSelect.value;
+        const option = configSelect.options[configSelect.selectedIndex];
+        configSummary.textContent = option && option.value ? option.textContent + '. Your registration will be allocated only within this configuration.' : 'Select a configuration to continue.';
+        update();
+      });
 
       function update() {
         all.forEach(function (cb) { cb.closest('.consent-item').classList.toggle('is-checked', cb.checked); });
-        const ready = all.every(function (cb) { return cb.checked; });
+        const ready = all.every(function (cb) { return cb.checked; }) && !!selectedCircleConfigurationId;
         btnRegister.disabled = !ready;
         if (ready) {
           msg.textContent = 'You can now create your account.';
           msg.style.color = 'var(--brand-primary, #00daf3)';
         } else {
-          msg.textContent = 'Tick all three boxes above to continue.';
+          msg.textContent = selectedCircleConfigurationId ? 'Tick all three boxes above to continue.' : 'Select a circle configuration and tick all three boxes to continue.';
           msg.style.color = 'var(--on-surface-variant, #94a3b8)';
         }
       }
@@ -1441,10 +1472,10 @@
 
       btnRegister.addEventListener('click', function () {
         sessionStorage.setItem('rosca_consent', JSON.stringify({
-          branchSlug: slug, branchTerms: true, branchPrivacy: true, platform: true,
+          branchSlug: slug, circleConfigurationId: selectedCircleConfigurationId, branchTerms: true, branchPrivacy: true, platform: true,
           recordedAt: new Date().toISOString()
         }));
-        window.location.href = '/saver/register.html?branch=' + encodeURIComponent(slug);
+        window.location.href = '/saver/register.html?branch=' + encodeURIComponent(slug) + '&configuration=' + encodeURIComponent(selectedCircleConfigurationId);
       });
 
       update();
