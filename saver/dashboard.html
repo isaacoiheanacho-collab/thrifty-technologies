@@ -1583,7 +1583,7 @@ footer a:hover { color: var(--g); }
               Gross pool = ${N} × £${M.toFixed(2)} = £${grossGbpNum.toFixed(2)}<br>
               Pivot = (${N} + 1) / 2 = ${pivot}<br>
               T = ${T} (${recipientName}'s collection position)<br>
-              <span style="color: var(--muted);">TVC adjustment = M × (T − Pivot) / (N − 1) = ${tvcGbpNum >= 0 ? '+' : ''}£${tvcGbpNum.toFixed(2)}</span> ${directionText}<br>
+              <span style="color: var(--muted);">TVC adjustment = M × (T − Pivot) / (N − 1) = ${tvcGbpNum >= 0 ? '+' : '-'}£${Math.abs(tvcGbpNum).toFixed(2)}</span> ${directionText}<br>
               <span style="color: var(--g); font-weight: 600;">Payout before platform fee = £${grossGbpNum.toFixed(2)} + (${tvcGbpNum >= 0 ? '+' : ''}£${tvcGbpNum.toFixed(2)}) = £${(potAfterTvcPence/100).toFixed(2)}</span>
             </div>
           `;
