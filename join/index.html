@@ -938,6 +938,8 @@
     window.addEventListener('online', hideNetworkBanner);
     window.addEventListener('offline', showNetworkBanner);
 
+    function penceToGbp(value) { return '£' + (Number(value || 0) / 100).toFixed(2); }
+
     function escapeHtml(s) {
       return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
         return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
