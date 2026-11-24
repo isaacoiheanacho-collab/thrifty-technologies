@@ -862,6 +862,10 @@ footer a:hover { color: var(--g); }
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
         Payouts
       </button>
+      <button class="nav-item" data-section="circle-configurations">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg>
+        Circle configurations
+      </button>
       <button class="nav-item" data-section="tenants">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
         Tenants
@@ -994,7 +998,7 @@ footer a:hover { color: var(--g); }
               <div class="chart-area">
                 <div class="chart-legend">
                   <div><span class="dot dot-g"></span>Contributions</div>
-                  <div><span class="dot dot-gray"></span>Target (12)</div>
+                  <div><span class="dot dot-gray"></span>Configured circle target</div>
                 </div>
                 <div id="contribution-chart-container" class="chart-shell">
                   <div class="chart-yaxis" id="chart-yaxis">
@@ -1241,6 +1245,34 @@ footer a:hover { color: var(--g); }
             <thead><tr><th>Reference</th><th>Tenant</th><th>Cycle / Tenure</th><th>Recipient</th><th>Net Payout</th><th>Platform Fee</th><th>Due Date</th><th>State</th><th style="text-align: right;">Actions</th></tr></thead>
             <tbody><tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--muted);">Loading…</td></tr></tbody>
           </table>
+        </div>
+      </section>
+
+      <!-- ═══ CIRCLE CONFIGURATIONS ═══ -->
+      <section class="section" id="section-circle-configurations">
+        <div class="page-header"><div><h1>Circle configurations</h1><p>Create reusable savings-circle arrangements. Each configuration generates its own tenant sequence automatically.</p></div></div>
+        <div class="card">
+          <div class="card__title">Create a new configuration</div>
+          <form id="circle-config-form">
+            <div class="form-grid">
+              <div class="form-row"><label class="form-label" for="circle-config-name">Configuration name</label><input class="form-input" id="circle-config-name" required maxlength="80" placeholder="e.g. Orange"></div>
+              <div class="form-row"><label class="form-label" for="circle-config-amount">Contribution amount (£)</label><input class="form-input" id="circle-config-amount" type="number" min="0.01" step="0.01" required placeholder="1000.00"></div>
+              <div class="form-row"><label class="form-label" for="circle-config-frequency">Contribution frequency</label><select class="form-input" id="circle-config-frequency"><option value="WEEKLY">Weekly</option><option value="MONTHLY">Monthly</option></select></div>
+              <div class="form-row"><label class="form-label" for="circle-config-members">Maximum co-savers / collection positions</label><input class="form-input" id="circle-config-members" type="number" min="2" max="100" step="1" required value="12"></div>
+              <div class="form-row"><label class="form-label" for="circle-config-window">Contribution window (days)</label><input class="form-input" id="circle-config-window" type="number" min="1" max="90" required value="21"></div>
+              <div class="form-row"><label class="form-label" for="circle-config-duration">Cycle duration (days)</label><input class="form-input" id="circle-config-duration" type="number" min="1" max="120" required value="30"></div>
+            </div>
+            <p class="form-hint">Collection positions automatically equal the number of co-savers. Payout frequency follows contribution frequency. <strong id="circle-config-tenure-preview">Estimated full tenure: 360 days</strong>. Existing configurations cannot be edited; create a new configuration for different settings.</p>
+            <button class="btn btn--primary" type="submit" id="circle-config-submit">Create configuration</button>
+            <div id="circle-config-status" class="form-hint" role="status" style="margin-top:12px;"></div>
+          </form>
+        </div>
+        <div class="card">
+          <div class="card__title">Your configurations</div>
+          <div class="table-wrap"><table class="table" id="circle-config-table">
+            <thead><tr><th>Configuration</th><th>Contribution</th><th>Frequency</th><th>Co-savers / Positions</th><th>Contribution window / cycle / full tenure</th><th>Tenants</th></tr></thead>
+            <tbody><tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted);">Loading…</td></tr></tbody>
+          </table></div>
         </div>
       </section>
 
@@ -1604,6 +1636,7 @@ footer a:hover { color: var(--g); }
       'contributions': 'Contributions',
       'payouts': 'Payouts',
       'tenants': 'Tenants',
+      'circle-configurations': 'Circle configurations',
       'analytics': 'Analytics',
       'settings': 'Settings',
     };
@@ -1653,6 +1686,7 @@ footer a:hover { color: var(--g); }
       else if (key === 'contributions') loadContributions();
       else if (key === 'payouts') loadPayouts();
       else if (key === 'tenants') loadTenants();
+      else if (key === 'circle-configurations') loadCircleConfigurations();
       else if (key === 'analytics') loadAnalytics();
       else if (key === 'settings') loadSettings();
 
@@ -1895,10 +1929,12 @@ footer a:hover { color: var(--g); }
       const yAxis = document.getElementById('chart-yaxis');
       const barsEl = document.getElementById('chart-bars');
 
-      // 1. Y-axis: £0 → £12,000
+      // 1. Scale the chart to the largest configured circle pool.
+      const maxPoolPence = Math.max(100, ...(tenants || []).map(t => Number(t.contributionAmountPence || 0) * Number(t.memberCapacity || 0)));
+      const maxPoolGbp = Math.ceil((maxPoolPence / 100) / 1000) * 1000 || 1000;
       const yLabels = [];
       for (let i = 12; i >= 0; i--) {
-        yLabels.push('£' + (i * 1000).toLocaleString());
+        yLabels.push('£' + Math.round((maxPoolGbp * i) / 12).toLocaleString());
       }
       yAxis.innerHTML = yLabels.map(v => `<div>${v}</div>`).join('');
 
@@ -1923,7 +1959,9 @@ footer a:hover { color: var(--g); }
         return {
           id: t.id,
           name: t.name || 'Unnamed Circle',
-          saverCount: t.memberCount || 12,
+          saverCount: t.memberCount || 0,
+          memberCapacity: t.memberCapacity || 0,
+          targetPoolPence: Number(t.contributionAmountPence || 0) * Number(t.memberCapacity || 0),
           totalPence: confirmedPence,
           currentCycle: t.currentCycle || 1,
           currentTenure: t.currentTenure || 1,
@@ -1964,7 +2002,7 @@ footer a:hover { color: var(--g); }
         }
 
         const totalGbp = s.totalPence / 100;
-        const pct = Math.min(100, (totalGbp / 12000) * 100);
+        const pct = Math.min(100, (totalGbp / maxPoolGbp) * 100);
         const payout = payoutsByTenant[s.id];
 
         const tip = {
@@ -2003,9 +2041,9 @@ footer a:hover { color: var(--g); }
           const d = JSON.parse(raw);
           tooltip.innerHTML = `
             <strong>${escapeHtml(d.tenantName)}</strong> (${d.tnLabel})<br>
-            Slots: ${d.saverCount} savers<br>
+            Co-savers: ${d.saverCount}<br>
             Amount collected: <strong>${d.amount}</strong><br>
-            <strong>Circle ${d.circle} of 12</strong> · Tenure ${d.tenure}<br>
+            <strong>Collection position ${d.circle}</strong> · Tenure ${d.tenure}<br>
             Next beneficiary slot: <strong>${d.beneficiarySlot}</strong>
           `;
           positionTooltip(tooltip, e);
@@ -2434,7 +2472,7 @@ footer a:hover { color: var(--g); }
 
     function getContributionCycle(row) {
       const cycle = Number(row?.cycle ?? String(row?.reference || '').slice(-2));
-      return Number.isInteger(cycle) && cycle >= 1 && cycle <= 12 ? cycle : null;
+      return Number.isInteger(cycle) && cycle >= 1 && cycle <= 100 ? cycle : null;
     }
 
     function populateContributionCycleFilter(rows) {
@@ -2947,6 +2985,78 @@ footer a:hover { color: var(--g); }
     }
 
 
+    function updateCircleTenurePreview() {
+      const capacity = Number(document.getElementById('circle-config-members')?.value || 0);
+      const duration = Number(document.getElementById('circle-config-duration')?.value || 0);
+      const preview = document.getElementById('circle-config-tenure-preview');
+      if (preview) preview.textContent = 'Estimated full tenure: ' + (capacity > 0 && duration > 0 ? capacity * duration : '—') + ' days';
+    }
+    document.getElementById('circle-config-members')?.addEventListener('input', updateCircleTenurePreview);
+    document.getElementById('circle-config-duration')?.addEventListener('input', updateCircleTenurePreview);
+    updateCircleTenurePreview();
+
+    async function loadCircleConfigurations() {
+      const body = document.querySelector('#circle-config-table tbody');
+      if (!body) return;
+      try {
+        const rows = await api('/api/branch-admin/circle-configurations');
+        body.innerHTML = rows.length ? rows.map(function (c) {
+          return '<tr><td><strong>' + escapeHtml(c.name) + '</strong></td>' +
+            '<td>' + penceToGbp(c.contributionAmountPence) + '</td>' +
+            '<td>' + escapeHtml(c.contributionFrequency) + '</td>' +
+            '<td>' + c.memberCapacity + ' / ' + c.collectionPositions + '</td>' +
+            '<td>' + c.contributionWindowDays + ' / ' + c.cycleDurationDays + ' / ' + c.tenureDurationDays + ' days</td>' +
+            '<td>' + (c.tenantCount || 0) + ' <span style="color:var(--muted);">(' + (c.fillingCount || 0) + ' filling)</span></td></tr>';
+        }).join('') : '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted);">No configurations created yet.</td></tr>';
+      } catch (error) {
+        body.innerHTML = '<tr><td colspan="6">Unable to load circle configurations.</td></tr>';
+        console.error('[circle-configurations]', error);
+      }
+    }
+
+    document.getElementById('circle-config-form')?.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      const button = document.getElementById('circle-config-submit');
+      const status = document.getElementById('circle-config-status');
+      const amount = Number(document.getElementById('circle-config-amount').value);
+      const windowDays = Number(document.getElementById('circle-config-window').value);
+      const durationDays = Number(document.getElementById('circle-config-duration').value);
+      if (!Number.isFinite(amount) || amount <= 0 || Math.round(amount * 100) <= 0) {
+        status.textContent = 'Enter a valid contribution amount.';
+        return;
+      }
+      if (windowDays > durationDays) {
+        status.textContent = 'Contribution window cannot exceed cycle duration.';
+        return;
+      }
+      button.disabled = true;
+      status.textContent = 'Creating configuration…';
+      try {
+        await api('/api/branch-admin/circle-configurations', {
+          method: 'POST',
+          body: {
+            name: document.getElementById('circle-config-name').value.trim(),
+            contributionAmountPence: String(Math.round(amount * 100)),
+            contributionFrequency: document.getElementById('circle-config-frequency').value,
+            memberCapacity: Number(document.getElementById('circle-config-members').value),
+            contributionWindowDays: windowDays,
+            cycleDurationDays: durationDays
+          }
+        });
+        status.textContent = 'Configuration created. Its tenants will be generated automatically as co-savers join.';
+        status.style.color = 'var(--g)';
+        document.getElementById('circle-config-form').reset();
+        document.getElementById('circle-config-members').value = 12;
+        document.getElementById('circle-config-window').value = 21;
+        document.getElementById('circle-config-duration').value = 30;
+        updateCircleTenurePreview();
+        await loadCircleConfigurations();
+      } catch (error) {
+        status.textContent = error.message || 'Could not create configuration.';
+        status.style.color = '#e32626';
+      } finally { button.disabled = false; }
+    });
+
     async function loadTenants() {
       const tbody = document.querySelector('#tenants-table tbody');
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted);">Loading…</td></tr>';
@@ -2954,7 +3064,7 @@ footer a:hover { color: var(--g); }
         const summary = await api('/api/branch-admin/tenants/summary');
         const tenants = summary.tenants || [];
         if (!tenants.length) {
-          tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No circles yet</h3><p>Circles form automatically once 12 verified members join your branch.</p></div></td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No circles yet</h3><p>Create a circle configuration, then co-savers who select it are grouped automatically into circles of its configured size.</p></div></td></tr>';
           return;
         }
         tbody.innerHTML = tenants.map(t => {
@@ -2965,7 +3075,7 @@ footer a:hover { color: var(--g); }
               <td data-label="Status"><span class="badge badge--${statusBadge}">${t.status}</span></td>
               <td data-label="Cycle">${t.currentCycle}</td>
               <td data-label="Tenure">${t.currentTenure}</td>
-              <td data-label="Members">${t.memberCount} / 12</td>
+              <td data-label="Members">${t.memberCount} / ${t.memberCapacity || '—'}</td>
               <td data-label="Details"><div class="table__actions">
                 <button class="btn btn--primary btn--sm" data-view-members="${t.id}" data-tenant-name="${escapeHtml(t.name || '')}">View Members</button>
               </div></td>

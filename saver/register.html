@@ -327,6 +327,7 @@
 
     const params = new URLSearchParams(window.location.search);
     const branchSlug = params.get('branch');
+    const circleConfigurationId = params.get('configuration');
     const phoneParam = params.get('phone');
 
     const form = document.getElementById('register-form');
@@ -459,6 +460,7 @@
             password: password,
             fullName: fullName,
             branchSlug: branchSlug,
+            circleConfigurationId: circleConfigurationId || undefined,
             consents: {
               terms: {
                 accepted: true,

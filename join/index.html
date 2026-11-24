@@ -602,7 +602,7 @@
         </nav>
         <div class="header__actions">
           <button type="button" class="header__login" data-login-trigger>Log in</button>
-          <a href="#consent" class="header__cta">Join</a>
+          <a href="#circle-configuration" class="header__cta">Join</a>
         </div>
       </div>
 
@@ -624,7 +624,7 @@
       </div>
       <div class="mobile-nav-actions">
         <button type="button" class="header__login" data-login-trigger>Log in</button>
-        <a href="#consent" class="header__cta">Join</a>
+        <a href="#circle-configuration" class="header__cta">Join</a>
       </div>
     </div>
 
@@ -670,14 +670,14 @@
           shows every member the same transparent picture.
         </p>
         <div class="hero__actions">
-          <a href="#consent" class="btn btn--primary">Join the circle</a>
+          <a href="#circle-configuration" class="btn btn--primary">Join the circle</a>
           <button type="button" class="btn btn--ghost" data-login-trigger>Already a member? Log in</button>
           <button type="button" class="btn btn--ghost" id="pwa-install-button" hidden>Install app</button>
         </div>
 
         <div class="hero__stats">
-          <div class="hero__stat"><span class="hero__stat-value">12</span><span class="hero__stat-label">Members per circle</span></div>
-          <div class="hero__stat"><span class="hero__stat-value">12</span><span class="hero__stat-label">Months per tenure</span></div>
+          <div class="hero__stat"><span class="hero__stat-value">Flexible</span><span class="hero__stat-label">Circle size</span></div>
+          <div class="hero__stat"><span class="hero__stat-value">Configurable</span><span class="hero__stat-label">Collection positions</span></div>
           <div class="hero__stat"><span class="hero__stat-value">1.5%</span><span class="hero__stat-label">Platform fee</span></div>
           <div class="hero__stat"><span class="hero__stat-value">50%</span><span class="hero__stat-label">Maximum TVC adjustment of one contribution</span></div>
         </div>
@@ -690,10 +690,7 @@
         <h2>What a savings circle is</h2>
         <p class="section__lede">
           A ROSCA — Rotating Savings and Credit Association — is a savings
-          tradition used across the world. A small group contributes a fixed
-          amount every month. Each month, one member receives the whole pool.
-          Over 12 months, everyone contributes the same total and receives
-          the pool exactly once.
+          tradition used across the world. A group contributes an agreed amount at its selected frequency. At each collection position, one member receives the pool. The number of co-savers determines the number of collection positions in that circle tenure.
         </p>
 
         <div class="feature-grid">
@@ -703,8 +700,8 @@
             </div>
             <div class="feature__body">
               <div class="feature__num">01 — Members</div>
-              <h3>12 people, one circle</h3>
-              <p>A circle is exactly 12 verified members. Every member contributes the same amount every month. After 12 months, everyone has contributed twelve times and received once.</p>
+              <h3>Configured group, one circle</h3>
+              <p>Each circle uses the contribution amount, frequency and co-saver capacity selected at registration. Every co-saver has one collection position, and the circle tenure has the same number of collection cycles.</p>
             </div>
           </div>
           <div class="feature reveal reveal--delay-1">
@@ -713,8 +710,8 @@
             </div>
             <div class="feature__body">
               <div class="feature__num">02 — Payout</div>
-              <h3>One collection per month</h3>
-              <p>Each month, one member receives the whole pot. Slot numbers are assigned randomly — no favouritism, no negotiation. Slot 1 collects in month 1, slot 12 in month 12.</p>
+              <h3>One collection per cycle</h3>
+              <p>At each collection cycle, one member receives the whole pot. Slot numbers are assigned randomly — no favouritism, no negotiation. The collection schedule follows the configuration selected by the co-saver.</p>
             </div>
           </div>
           <div class="feature reveal reveal--delay-2">
@@ -724,7 +721,7 @@
             <div class="feature__body">
               <div class="feature__num">03 — Fairness</div>
               <h3>Fair to everyone</h3>
-              <p>Early receivers pay a small time-value premium, later receivers receive a small bonus. For a standard 12-member circle, the maximum TVC adjustment is 50% of one monthly contribution. Each member’s adjustment depends on their collection position, and the adjustments balance across all 12 positions.</p>
+              <p>Early receivers pay a small time-value premium, later receivers receive a small bonus. The earliest collection position receives an adjustment of up to 50% below one individual contribution; the final position receives up to 50% above it. Intermediate positions are calculated proportionally, and the adjustments balance across all positions in the circle.</p>
             </div>
           </div>
         </div>
@@ -776,6 +773,21 @@
             <summary class="accordion__summary">Read the full Privacy Notice of this community</summary>
             <div class="accordion__content" id="privacy-body">Loading…</div>
           </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--center" id="circle-configuration">
+      <div class="section__inner section__inner--narrow">
+        <div class="section__eyebrow">Choose your savings arrangement</div>
+        <h2>Select a circle configuration</h2>
+        <p class="section__lede" style="text-align:center;">Choose the contribution arrangement you are joining. Members are grouped only with co-savers who selected the same configuration.</p>
+        <div class="consent-gate" style="text-align:left;">
+          <label class="form-label" for="circle-configuration-select">Available configurations</label>
+          <select id="circle-configuration-select" class="form-input" style="width:100%;padding:14px;border-radius:10px;">
+            <option value="">Loading configurations…</option>
+          </select>
+          <div id="circle-configuration-summary" class="consent-gate__sub" style="margin:12px 0 0;">Loading community circle arrangements…</div>
         </div>
       </div>
     </section>
@@ -836,7 +848,7 @@
             <a href="#how-it-works">How it works</a>
             <a href="#about-branch">About</a>
             <a href="#branch-rules">Rules</a>
-            <a href="#consent">Join</a>
+            <a href="#circle-configuration">Join</a>
           </div>
         </div>
         <div>
@@ -894,6 +906,7 @@
 
     const params = new URLSearchParams(window.location.search);
     const branchSlug = params.get('branch') || window.location.pathname.split('/').filter(Boolean).pop();
+    let selectedCircleConfigurationId = '';
 
     const loadingState = document.getElementById('loading-state');
     const errorState = document.getElementById('error-state');
@@ -921,6 +934,8 @@
     }
     window.addEventListener('online', hideNetworkBanner);
     window.addEventListener('offline', showNetworkBanner);
+
+    function penceToGbp(value) { return '£' + (Number(value || 0) / 100).toFixed(2); }
 
     function escapeHtml(s) {
       return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -1423,16 +1438,31 @@
       const msg = document.getElementById('consent-msg');
 
       const all = [cbBranchTerms, cbBranchPrivacy, cbPlatform];
+      const configSelect = document.getElementById('circle-configuration-select');
+      const configSummary = document.getElementById('circle-configuration-summary');
+      api('/api/circle-configurations/' + encodeURIComponent(slug)).then(function (rows) {
+        configSelect.innerHTML = '<option value="">Choose a configuration</option>' + (rows || []).map(function (c) {
+          return '<option value="' + escapeHtml(c.id) + '">' + escapeHtml(c.name) + ' — ' + escapeHtml(c.contributionFrequency) + ' — ' + escapeHtml(penceToGbp(c.contributionAmountPence)) + ' / contribution — ' + c.memberCapacity + ' co-savers — approx. ' + c.tenureDurationDays + ' days total</option>';
+        }).join('');
+        if (!rows || !rows.length) { configSelect.innerHTML = '<option value="">No configurations available</option>'; configSummary.textContent = 'This community has not published a savings-circle configuration yet. Please contact the Community Admin.'; }
+        update();
+      }).catch(function () { configSelect.innerHTML = '<option value="">Unable to load configurations</option>'; configSummary.textContent = 'Please refresh this page or contact the Community Admin.'; update(); });
+      configSelect.addEventListener('change', function () {
+        selectedCircleConfigurationId = configSelect.value;
+        const option = configSelect.options[configSelect.selectedIndex];
+        configSummary.textContent = option && option.value ? option.textContent + '. Your registration will be allocated only within this configuration.' : 'Select a configuration to continue.';
+        update();
+      });
 
       function update() {
         all.forEach(function (cb) { cb.closest('.consent-item').classList.toggle('is-checked', cb.checked); });
-        const ready = all.every(function (cb) { return cb.checked; });
+        const ready = all.every(function (cb) { return cb.checked; }) && !!selectedCircleConfigurationId;
         btnRegister.disabled = !ready;
         if (ready) {
           msg.textContent = 'You can now create your account.';
           msg.style.color = 'var(--brand-primary, #00daf3)';
         } else {
-          msg.textContent = 'Tick all three boxes above to continue.';
+          msg.textContent = selectedCircleConfigurationId ? 'Tick all three boxes above to continue.' : 'Select a circle configuration and tick all three boxes to continue.';
           msg.style.color = 'var(--on-surface-variant, #94a3b8)';
         }
       }
@@ -1441,10 +1471,10 @@
 
       btnRegister.addEventListener('click', function () {
         sessionStorage.setItem('rosca_consent', JSON.stringify({
-          branchSlug: slug, branchTerms: true, branchPrivacy: true, platform: true,
+          branchSlug: slug, circleConfigurationId: selectedCircleConfigurationId, branchTerms: true, branchPrivacy: true, platform: true,
           recordedAt: new Date().toISOString()
         }));
-        window.location.href = '/saver/register.html?branch=' + encodeURIComponent(slug);
+        window.location.href = '/saver/register.html?branch=' + encodeURIComponent(slug) + '&configuration=' + encodeURIComponent(selectedCircleConfigurationId);
       });
 
       update();
