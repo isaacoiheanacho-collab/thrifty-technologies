@@ -1259,8 +1259,8 @@ footer a:hover { color: var(--g); }
               <div class="form-row"><label class="form-label" for="circle-config-amount">Contribution amount (£)</label><input class="form-input" id="circle-config-amount" type="number" min="0.01" step="0.01" required placeholder="1000.00"></div>
               <div class="form-row"><label class="form-label" for="circle-config-frequency">Contribution frequency</label><select class="form-input" id="circle-config-frequency"><option value="WEEKLY">Weekly</option><option value="MONTHLY">Monthly</option></select></div>
               <div class="form-row"><label class="form-label" for="circle-config-members">Maximum co-savers / collection positions</label><input class="form-input" id="circle-config-members" type="number" min="2" max="100" step="1" required value="12"></div>
-              <div class="form-row"><label class="form-label" for="circle-config-window">Contribution window (days)</label><input class="form-input" id="circle-config-window" type="number" min="1" max="90" required value="21"></div>
-              <div class="form-row"><label class="form-label" for="circle-config-duration">Cycle duration (days)</label><input class="form-input" id="circle-config-duration" type="number" min="1" max="120" required value="30"></div>
+              <div class="form-row"><label class="form-label" for="circle-config-window">Contribution window (days)</label><input class="form-input" id="circle-config-window" type="number" value="5" readonly aria-readonly="true"><span class="form-hint">Automatically set by contribution frequency.</span></div>
+              <div class="form-row"><label class="form-label" for="circle-config-duration">Cycle duration (days)</label><input class="form-input" id="circle-config-duration" type="number" value="7" readonly aria-readonly="true"><span class="form-hint">Payout is due on the final day of each cycle.</span></div>
             </div>
             <p class="form-hint">Collection positions automatically equal the number of co-savers. Payout frequency follows contribution frequency. <strong id="circle-config-tenure-preview">Estimated full tenure: 360 days</strong>. Existing configurations cannot be edited; create a new configuration for different settings.</p>
             <button class="btn btn--primary" type="submit" id="circle-config-submit">Create configuration</button>
@@ -2985,14 +2985,23 @@ footer a:hover { color: var(--g); }
     }
 
 
-    function updateCircleTenurePreview() {
-      const capacity = Number(document.getElementById('circle-config-members')?.value || 0);
-      const duration = Number(document.getElementById('circle-config-duration')?.value || 0);
-      const preview = document.getElementById('circle-config-tenure-preview');
-      if (preview) preview.textContent = 'Estimated full tenure: ' + (capacity > 0 && duration > 0 ? capacity * duration : '—') + ' days';
+    function getCircleScheduleDays(frequency) {
+      return frequency === 'WEEKLY'
+        ? { contributionWindowDays: 5, cycleDurationDays: 7 }
+        : { contributionWindowDays: 21, cycleDurationDays: 30 };
     }
+
+    function updateCircleTenurePreview() {
+      const frequency = document.getElementById('circle-config-frequency')?.value || 'WEEKLY';
+      const capacity = Number(document.getElementById('circle-config-members')?.value || 0);
+      const schedule = getCircleScheduleDays(frequency);
+      document.getElementById('circle-config-window').value = schedule.contributionWindowDays;
+      document.getElementById('circle-config-duration').value = schedule.cycleDurationDays;
+      const preview = document.getElementById('circle-config-tenure-preview');
+      if (preview) preview.textContent = 'Estimated full tenure: ' + (capacity > 0 ? capacity * schedule.cycleDurationDays : '—') + ' days';
+    }
+    document.getElementById('circle-config-frequency')?.addEventListener('change', updateCircleTenurePreview);
     document.getElementById('circle-config-members')?.addEventListener('input', updateCircleTenurePreview);
-    document.getElementById('circle-config-duration')?.addEventListener('input', updateCircleTenurePreview);
     updateCircleTenurePreview();
 
     async function loadCircleConfigurations() {
@@ -3019,8 +3028,10 @@ footer a:hover { color: var(--g); }
       const button = document.getElementById('circle-config-submit');
       const status = document.getElementById('circle-config-status');
       const amount = Number(document.getElementById('circle-config-amount').value);
-      const windowDays = Number(document.getElementById('circle-config-window').value);
-      const durationDays = Number(document.getElementById('circle-config-duration').value);
+      const frequency = document.getElementById('circle-config-frequency').value;
+      const schedule = getCircleScheduleDays(frequency);
+      const windowDays = schedule.contributionWindowDays;
+      const durationDays = schedule.cycleDurationDays;
       if (!Number.isFinite(amount) || amount <= 0 || Math.round(amount * 100) <= 0) {
         status.textContent = 'Enter a valid contribution amount.';
         return;
@@ -3037,7 +3048,7 @@ footer a:hover { color: var(--g); }
           body: {
             name: document.getElementById('circle-config-name').value.trim(),
             contributionAmountPence: String(Math.round(amount * 100)),
-            contributionFrequency: document.getElementById('circle-config-frequency').value,
+            contributionFrequency: frequency,
             memberCapacity: Number(document.getElementById('circle-config-members').value),
             contributionWindowDays: windowDays,
             cycleDurationDays: durationDays
@@ -3047,8 +3058,9 @@ footer a:hover { color: var(--g); }
         status.style.color = 'var(--g)';
         document.getElementById('circle-config-form').reset();
         document.getElementById('circle-config-members').value = 12;
-        document.getElementById('circle-config-window').value = 21;
-        document.getElementById('circle-config-duration').value = 30;
+        document.getElementById('circle-config-frequency').value = 'WEEKLY';
+        document.getElementById('circle-config-window').value = 5;
+        document.getElementById('circle-config-duration').value = 7;
         updateCircleTenurePreview();
         await loadCircleConfigurations();
       } catch (error) {
