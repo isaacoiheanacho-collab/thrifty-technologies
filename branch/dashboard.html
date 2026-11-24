@@ -998,7 +998,7 @@ footer a:hover { color: var(--g); }
               <div class="chart-area">
                 <div class="chart-legend">
                   <div><span class="dot dot-g"></span>Contributions</div>
-                  <div><span class="dot dot-gray"></span>Target (12)</div>
+                  <div><span class="dot dot-gray"></span>Configured circle target</div>
                 </div>
                 <div id="contribution-chart-container" class="chart-shell">
                   <div class="chart-yaxis" id="chart-yaxis">
@@ -1929,10 +1929,12 @@ footer a:hover { color: var(--g); }
       const yAxis = document.getElementById('chart-yaxis');
       const barsEl = document.getElementById('chart-bars');
 
-      // 1. Y-axis: £0 → £12,000
+      // 1. Scale the chart to the largest configured circle pool.
+      const maxPoolPence = Math.max(100, ...(tenants || []).map(t => Number(t.contributionAmountPence || 0) * Number(t.memberCapacity || 0)));
+      const maxPoolGbp = Math.ceil((maxPoolPence / 100) / 1000) * 1000 || 1000;
       const yLabels = [];
       for (let i = 12; i >= 0; i--) {
-        yLabels.push('£' + (i * 1000).toLocaleString());
+        yLabels.push('£' + Math.round((maxPoolGbp * i) / 12).toLocaleString());
       }
       yAxis.innerHTML = yLabels.map(v => `<div>${v}</div>`).join('');
 
@@ -1957,7 +1959,9 @@ footer a:hover { color: var(--g); }
         return {
           id: t.id,
           name: t.name || 'Unnamed Circle',
-          saverCount: t.memberCount || 12,
+          saverCount: t.memberCount || 0,
+          memberCapacity: t.memberCapacity || 0,
+          targetPoolPence: Number(t.contributionAmountPence || 0) * Number(t.memberCapacity || 0),
           totalPence: confirmedPence,
           currentCycle: t.currentCycle || 1,
           currentTenure: t.currentTenure || 1,
@@ -1998,7 +2002,7 @@ footer a:hover { color: var(--g); }
         }
 
         const totalGbp = s.totalPence / 100;
-        const pct = Math.min(100, (totalGbp / 12000) * 100);
+        const pct = Math.min(100, (totalGbp / maxPoolGbp) * 100);
         const payout = payoutsByTenant[s.id];
 
         const tip = {
@@ -2037,9 +2041,9 @@ footer a:hover { color: var(--g); }
           const d = JSON.parse(raw);
           tooltip.innerHTML = `
             <strong>${escapeHtml(d.tenantName)}</strong> (${d.tnLabel})<br>
-            Slots: ${d.saverCount} savers<br>
+            Co-savers: ${d.saverCount}<br>
             Amount collected: <strong>${d.amount}</strong><br>
-            <strong>Circle ${d.circle} of 12</strong> · Tenure ${d.tenure}<br>
+            <strong>Collection position ${d.circle}</strong> · Tenure ${d.tenure}<br>
             Next beneficiary slot: <strong>${d.beneficiarySlot}</strong>
           `;
           positionTooltip(tooltip, e);
@@ -2468,7 +2472,7 @@ footer a:hover { color: var(--g); }
 
     function getContributionCycle(row) {
       const cycle = Number(row?.cycle ?? String(row?.reference || '').slice(-2));
-      return Number.isInteger(cycle) && cycle >= 1 && cycle <= 12 ? cycle : null;
+      return Number.isInteger(cycle) && cycle >= 1 && cycle <= 100 ? cycle : null;
     }
 
     function populateContributionCycleFilter(rows) {
@@ -3049,7 +3053,7 @@ footer a:hover { color: var(--g); }
         const summary = await api('/api/branch-admin/tenants/summary');
         const tenants = summary.tenants || [];
         if (!tenants.length) {
-          tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No circles yet</h3><p>Circles form automatically once 12 verified members join your branch.</p></div></td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No circles yet</h3><p>Create a circle configuration, then co-savers who select it are grouped automatically into circles of its configured size.</p></div></td></tr>';
           return;
         }
         tbody.innerHTML = tenants.map(t => {
@@ -3060,7 +3064,7 @@ footer a:hover { color: var(--g); }
               <td data-label="Status"><span class="badge badge--${statusBadge}">${t.status}</span></td>
               <td data-label="Cycle">${t.currentCycle}</td>
               <td data-label="Tenure">${t.currentTenure}</td>
-              <td data-label="Members">${t.memberCount} / 12</td>
+              <td data-label="Members">${t.memberCount} / ${t.memberCapacity || '—'}</td>
               <td data-label="Details"><div class="table__actions">
                 <button class="btn btn--primary btn--sm" data-view-members="${t.id}" data-tenant-name="${escapeHtml(t.name || '')}">View Members</button>
               </div></td>
