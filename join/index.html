@@ -1442,7 +1442,7 @@
       const configSummary = document.getElementById('circle-configuration-summary');
       api('/api/circle-configurations/' + encodeURIComponent(slug)).then(function (rows) {
         configSelect.innerHTML = '<option value="">Choose a configuration</option>' + (rows || []).map(function (c) {
-          return '<option value="' + escapeHtml(c.id) + '">' + escapeHtml(c.name) + ' — ' + escapeHtml(c.contributionFrequency) + ' — ' + escapeHtml(penceToGbp(c.contributionAmountPence)) + ' / contribution — ' + c.memberCapacity + ' co-savers</option>';
+          return '<option value="' + escapeHtml(c.id) + '">' + escapeHtml(c.name) + ' — ' + escapeHtml(c.contributionFrequency) + ' — ' + escapeHtml(penceToGbp(c.contributionAmountPence)) + ' / contribution — ' + c.memberCapacity + ' co-savers — approx. ' + c.tenureDurationDays + ' days total</option>';
         }).join('');
         if (!rows || !rows.length) { configSelect.innerHTML = '<option value="">No configurations available</option>'; configSummary.textContent = 'This community has not published a savings-circle configuration yet. Please contact the Community Admin.'; }
         update();
