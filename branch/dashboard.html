@@ -2697,8 +2697,8 @@ footer a:hover { color: var(--g); }
 
       tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--muted);">Loading…</td></tr>';
       try {
-        const selectedName=document.getElementById('payout-tenant-filter').value;
-        const tenantIds=selectedName?[selectedConfigurationTenants.find(t=>(t.name||'')===selectedName)?.id].filter(Boolean):selectedTenantIds();
+        const selectedTenantId=selectedTenantForFilter('payout-tenant-filter');
+        const tenantIds=selectedTenantId?[selectedTenantId]:selectedTenantIds();
         const groups=await Promise.all(tenantIds.map(async tenantId=>{let offset=0,rows=[];while(true){const result=await api('/api/branch-admin/payouts?limit=100&offset='+offset+'&tenantId='+encodeURIComponent(tenantId));const page=result.intents||[];rows.push(...page);if(page.length<100||rows.length>=Number(result.total||0))break;offset+=page.length;}return rows;}));
         let intents=groups.flat();
 
@@ -2978,7 +2978,7 @@ footer a:hover { color: var(--g); }
     function resetTenantFilterOptions(id, tenants){
       const el=document.getElementById(id); if(!el)return;
       const previous=el.value; el.innerHTML='<option value="">All circles in this configuration</option>';
-      tenants.forEach(t=>{const o=document.createElement('option');o.value=id==='payout-tenant-filter'?(t.name||''):t.id;o.textContent=t.name||'Unnamed circle';el.appendChild(o);});
+      tenants.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.name||'Unnamed circle';el.appendChild(o);});
       if(Array.from(el.options).some(o=>o.value===previous))el.value=previous;
     }
     async function loadSelectedConfigurationTenants(){
