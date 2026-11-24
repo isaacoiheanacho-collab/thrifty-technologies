@@ -2705,10 +2705,6 @@ footer a:hover { color: var(--g); }
         if (filter === 'CONFIRMED') intents = intents.filter(p => p.state === 'CONFIRMED');
         else if (filter === 'PENDING') intents = intents.filter(p => p.state !== 'CONFIRMED');
         
-        if (tenantFilter) {
-          intents = intents.filter(p => p.tenantName === tenantFilter);
-        }
-
         if (!intents.length) { tbody.innerHTML = '<tr><td colspan="9"><div class="empty"><h3>No payouts found</h3></div></td></tr>'; return; }
 
         const now = new Date();
@@ -3068,6 +3064,7 @@ footer a:hover { color: var(--g); }
         document.getElementById('circle-config-duration').value = 7;
         updateCircleTenurePreview();
         await loadCircleConfigurations();
+        await loadConfigurationContext();
       } catch (error) {
         status.textContent = error.message || 'Could not create configuration.';
         status.style.color = '#e32626';
@@ -3081,7 +3078,7 @@ footer a:hover { color: var(--g); }
         const summary = await api('/api/branch-admin/tenants/summary');
         const tenants = (summary.tenants || []).filter(t => t.configurationId === selectedConfigurationId);
         if (!tenants.length) {
-          tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No circles yet</h3><p>Create a circle configuration, then co-savers who select it are grouped automatically into circles of its configured size.</p></div></td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No circles in this configuration yet</h3><p>Co-savers who select this configuration will be grouped automatically into circles of its configured size.</p></div></td></tr>';
           return;
         }
         tbody.innerHTML = tenants.map(t => {
