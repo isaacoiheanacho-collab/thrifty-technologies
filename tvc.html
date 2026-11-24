@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#073F32">
-  <meta name="description" content="Understand Thrifty's Time-Value Collection (TVC), the standard 12-member circle, payout adjustments and platform maintenance fee.">
+  <meta name="description" content="Learn how Thrifty Technologies calculates Time-Value Collection (TVC), with a maximum adjustment of 50% of one contribution across different circle sizes.">
   <title>Time-Value Collection (TVC) Schedule — ROSCA Thrift &amp; Savings</title>
   <link rel="icon" type="image/svg+xml" href="/icons/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,85 +50,64 @@
       <a href="/">Home</a><a href="/about.html">About</a><a href="/partner.html">Community Partners</a><a href="/contact.html">Help &amp; FAQs</a>
     </nav>
   </header>
-  <main class="tvc-main">
-    <span class="eyebrow">Standard 12-member circle</span>
+    <main class="tvc-main">
+    <span class="eyebrow">A contribution-based adjustment for every circle size</span>
     <h1>Time-Value Collection (TVC)</h1>
-    <p class="lede">TVC adjusts each payout according to when a member receives the circle's pooled contributions. Members collecting earlier receive a lower adjusted payout; members waiting longer receive a higher adjusted payout. The adjustments balance across all 12 collection positions.</p>
-
-    <div class="stats" aria-label="Standard circle details">
-      <div class="stat"><strong>12</strong><span>Co-Savers per circle</span></div>
-      <div class="stat"><strong>£1,000</strong><span>Monthly contribution per member</span></div>
-      <div class="stat"><strong>£12,000</strong><span>Gross pool per monthly cycle</span></div>
-      <div class="stat"><strong>12 months</strong><span>One complete tenure</span></div>
+    <p class="lede">TVC is Thrifty's position-based payout adjustment. It recognises that receiving a rotating savings pool earlier or later changes the timing benefit for each member. The adjustment is calculated from the individual contribution amount and the circle's actual membership—not from an annual rate or an arbitrary percentage of the pool.</p>
+    <div class="stats" aria-label="TVC principles">
+      <div class="stat"><strong>50%</strong><span>Maximum adjustment of one individual contribution</span></div>
+      <div class="stat"><strong>Dynamic</strong><span>Works with different circle sizes</span></div>
+      <div class="stat"><strong>Balanced</strong><span>Adjustments total zero across the circle</span></div>
+      <div class="stat"><strong>1.5%</strong><span>Separate platform maintenance fee on adjusted payout</span></div>
     </div>
-
     <section class="section">
       <h2>Why TVC is used</h2>
-      <p>A member receiving the pool in the first month obtains access to the pooled contributions much earlier than a member receiving it in the twelfth month. TVC recognises this difference in collection timing through a transparent adjustment to the payout amounts. It is not a separate interest payment or a standalone fee collected by Thrifty.</p>
-      <p>For the standard 12-member circle, the maximum TVC adjustment is <strong>50% of one monthly contribution</strong>. The adjustment varies by collection position and balances across all 12 positions. The calculation uses a monthly factor of <strong>1/132</strong>.</p>
+      <p>A member collecting early receives the pooled contributions sooner than a member collecting later. TVC recognises this difference by adjusting the amount allocated to each collection position. Earlier positions receive a lower adjusted payout; later positions receive a higher adjusted payout.</p>
+      <p>The maximum adjustment in either direction is 50% of one individual contribution for the collection period. The adjustment is not an annual interest rate and is not calculated as a percentage of the total pool. The positive and negative adjustments balance across the circle.</p>
     </section>
-
     <section class="section">
       <h2>How the calculation works</h2>
-      <p>The standard circle has 12 members contributing £1,000 each month, giving a gross pool of £12,000 before TVC and the platform maintenance fee.</p>
-      <div class="panel">
-        <h3>1. Gross pool</h3>
-        <div class="formula">P = N × M = 12 × £1,000 = £12,000</div>
-      </div>
-      <div class="panel">
-        <h3>2. Pivot position</h3>
-        <div class="formula">Pivot = (N + 1) / 2 = (12 + 1) / 2 = 6.5</div>
-      </div>
+      <p>The calculation adapts to the actual number of co-savers and the contribution amount agreed for the circle.</p>
+      <div class="panel"><h3>1. Gross pool</h3><div class="formula">Gross Pool = N × M</div></div>
+      <div class="panel"><h3>2. Pivot position</h3><div class="formula">Pivot = (N + 1) / 2</div></div>
       <div class="panel">
         <h3>3. TVC adjustment</h3>
-        <div class="formula">Adjustment = (T − Pivot) × M × r × N</div>
-        <p>Where T is the member's slot number, N is 12, M is £1,000 and r is the monthly calculation factor 0.007575.</p>
+        <div class="formula">TVC Adjustment = M × (T − Pivot) / (N − 1)</div>
+        <p>N is the number of co-savers, M is the individual contribution for one collection period, and T is the member's collection position numbered from 1 to N.</p>
       </div>
-      <div class="panel">
-        <h3>4. Adjusted payout, before maintenance</h3>
-        <div class="formula">Adjusted Payout = P + Adjustment</div>
-      </div>
+      <div class="panel"><h3>4. Adjusted payout before maintenance</h3><div class="formula">Adjusted Payout = Gross Pool + TVC Adjustment</div></div>
       <div class="panel">
         <h3>5. Platform maintenance fee and final payout</h3>
-        <div class="formula">Maintenance Fee = Adjusted Payout × 1.5%<br>Final Payout = Adjusted Payout × 0.985</div>
-        <p>The maintenance fee is applied after TVC. Because it is a percentage of the adjusted payout, the fee is lower for an earlier, reduced payout and higher for a later, increased payout.</p>
+        <div class="formula">Maintenance Fee = Adjusted Payout × 1.5%<br>Final Payout = Adjusted Payout − Maintenance Fee</div>
+        <p>The maintenance fee is separate from TVC and is applied after the TVC adjustment.</p>
       </div>
     </section>
-
     <section class="section">
-      <h2>All 12 collection positions</h2>
-      <p>The following illustration assumes all 12 members have contributed the full £1,000 for the cycle. Amounts are shown to the nearest penny.</p>
+      <h2>Worked example: five co-savers contributing £200 weekly</h2>
+      <p>This example illustrates a five-member circle. Each member contributes £200 for the collection period, creating a gross pool of £1,000. The TVC adjustment ranges from minus £100 to plus £100, which is 50% of one £200 contribution.</p>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Slot</th><th>TVC adjustment</th><th>Adjusted payout</th><th>1.5% maintenance</th><th>Final payout</th></tr></thead>
           <tbody>
-            <tr><td>1</td><td>−£499.95</td><td>£11,500.05</td><td>£172.50</td><td>£11,327.55</td></tr>
-            <tr><td>2</td><td>−£409.05</td><td>£11,590.95</td><td>£173.86</td><td>£11,417.09</td></tr>
-            <tr><td>3</td><td>−£318.15</td><td>£11,681.85</td><td>£175.23</td><td>£11,506.62</td></tr>
-            <tr><td>4</td><td>−£227.25</td><td>£11,772.75</td><td>£176.59</td><td>£11,596.16</td></tr>
-            <tr><td>5</td><td>−£136.35</td><td>£11,863.65</td><td>£177.95</td><td>£11,685.70</td></tr>
-            <tr><td>6</td><td>−£45.45</td><td>£11,954.55</td><td>£179.32</td><td>£11,775.23</td></tr>
-            <tr><td>7</td><td>+£45.45</td><td>£12,045.45</td><td>£180.68</td><td>£11,864.77</td></tr>
-            <tr><td>8</td><td>+£136.35</td><td>£12,136.35</td><td>£182.05</td><td>£11,954.30</td></tr>
-            <tr><td>9</td><td>+£227.25</td><td>£12,227.25</td><td>£183.41</td><td>£12,043.84</td></tr>
-            <tr><td>10</td><td>+£318.15</td><td>£12,318.15</td><td>£184.77</td><td>£12,133.38</td></tr>
-            <tr><td>11</td><td>+£409.05</td><td>£12,409.05</td><td>£186.14</td><td>£12,222.91</td></tr>
-            <tr><td>12</td><td>+£499.95</td><td>£12,499.95</td><td>£187.50</td><td>£12,312.45</td></tr>
+            <tr><td>1</td><td>−£100.00</td><td>£900.00</td><td>£13.50</td><td>£886.50</td></tr>
+            <tr><td>2</td><td>−£50.00</td><td>£950.00</td><td>£14.25</td><td>£935.75</td></tr>
+            <tr><td>3</td><td>£0.00</td><td>£1,000.00</td><td>£15.00</td><td>£985.00</td></tr>
+            <tr><td>4</td><td>+£50.00</td><td>£1,050.00</td><td>£15.75</td><td>£1,034.25</td></tr>
+            <tr><td>5</td><td>+£100.00</td><td>£1,100.00</td><td>£16.50</td><td>£1,083.50</td></tr>
           </tbody>
         </table>
       </div>
-      <p class="note">The TVC adjustments total zero across the 12 positions. The adjustment changes how the gross pool is allocated between collection positions; it is not an additional amount paid to Thrifty. The maintenance fee is separate and is calculated on each adjusted payout.</p>
+      <p class="note">The five TVC adjustments total £0.00. The adjustment redistributes the gross pool between collection positions; it is not an additional charge or payment to Thrifty. The maintenance fee is calculated separately on each adjusted payout.</p>
     </section>
-
     <section class="section">
       <h2>Where the money goes</h2>
       <ul>
-        <li>Co-Savers pay contributions directly into the bank account designated by their Community Partner or Community Admin.</li>
+        <li>Co-savers transfer contributions directly to the bank account designated by their Community Partner or Community Admin.</li>
         <li>The Community Admin administers the circle's pool and arranges the payout.</li>
-        <li>The Community Admin deducts the 1.5% maintenance fee from the adjusted payout and transfers that fee to Thrifty.</li>
-        <li>Thrifty provides the software calculation and records. It does not receive, hold, pool, lend or distribute Co-Savers' contributions or payout funds.</li>
+        <li>The Community Admin deducts the 1.5% platform maintenance fee from the adjusted payout and transfers that fee to Thrifty.</li>
+        <li>Thrifty provides the software, calculation and records. It does not receive, hold, pool, lend or distribute co-savers' contributions or payout funds.</li>
       </ul>
-      <p>These figures are an illustration of the standard, fully funded circle. A missed or unconfirmed contribution can affect the funds actually available for a payout. See the <a href="/terms.html">Terms of Service</a> and the applicable community rules for the responsibilities and procedures that apply.</p>
+      <p>Bank or financial-institution transfer charges may apply independently. See the <a href="/terms.html">Terms of Service</a> and the applicable Circle Rules for the responsibilities and procedures that apply.</p>
     </section>
   </main>
   <footer class="tvc-footer">
