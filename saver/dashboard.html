@@ -658,7 +658,7 @@ footer a:hover { color: var(--g); }
             <div style="background: var(--bg); padding: 16px; border-radius: 8px; border: 1px solid var(--line);">
               <div class="form-label">Gross Pool</div>
               <div style="font-size: 20px; font-weight: 700;" id="math-gross">£0.00</div>
-              <div style="font-size: 12px; color: var(--muted); margin-top: 8px;">12 members × £1,000 contribution</div>
+              <div style="font-size: 12px; color: var(--muted); margin-top: 8px;">Configured co-saver capacity × individual contribution</div>
             </div>
             <div style="background: var(--bg); padding: 16px; border-radius: 8px; border: 1px solid var(--line);">
               <div class="form-label">Time-Value Contribution (TVC)</div>
@@ -743,7 +743,7 @@ footer a:hover { color: var(--g); }
         </div>
         <div id="renewal-empty" class="empty" style="display: none;">
           <h3>No active vote</h3>
-          <p>Voting will open when cycle 12 is complete.</p>
+          <p>Voting will open when every collection position in this tenure is complete.</p>
         </div>
       </section>
 
@@ -1271,9 +1271,10 @@ footer a:hover { color: var(--g); }
         const cycleData = await api('/api/tenants/me/contributions');
         const members = cycleData.members || [];
         const confirmed = members.filter(m => m.intentState === 'CONFIRMED');
-        const total = members.length || 12;
+        const total = members.length;
+        const capacity = Number(res.tenant.memberCapacity || total);
 
-        document.getElementById('stat-members').textContent = total + ' / 12';
+        document.getElementById('stat-members').textContent = total + ' / ' + capacity;
         document.getElementById('stat-contributed').textContent = confirmed.length + ' / ' + total;
         document.getElementById('stat-pending').textContent = (total - confirmed.length) + ' / ' + total;
 
@@ -1568,7 +1569,7 @@ footer a:hover { color: var(--g); }
             ? "Your Cycle Payout Calculation"
             : `Cycle ${tenantRes.tenant.currentCycle} Payout Calculation (For ${recipientName}, Slot ${recipientSlot})`;
 
-          const N = 12; const M = 1000; const annualRate = 0.02; const r = annualRate / 12; const pivot = (N + 1) / 2;
+          const N = Number(tenantRes.tenant.memberCapacity); const M = Number(tenantRes.tenant.contributionAmountPence) / 100; const pivot = (N + 1) / 2;
           const grossGbpNum = grossPence / 100;
           const tvcGbpNum = tvcPence / 100;
           let directionText = "";
@@ -1579,12 +1580,11 @@ footer a:hover { color: var(--g); }
           document.getElementById('math-calculation-strings').innerHTML = `
             <div style="margin-bottom: 8px; font-size: 13px;">
               <strong>Calculation for Cycle ${tenantRes.tenant.currentCycle} Recipient:</strong><br>
-              P = ${N} × £${M} = £${grossGbpNum.toFixed(2)}<br>
-              pivot = (${N} + 1) / 2 = ${pivot}<br>
-              T = ${T} (${recipientName}'s Slot)<br>
-              r = ${annualRate} / 12 = ${r.toFixed(6)}<br>
-              <span style="color: var(--muted);">Adjustment = (${T} - ${pivot}) × £${M} × ${r.toFixed(6)} × ${N} = ${tvcGbpNum >= 0 ? '+' : ''}£${tvcGbpNum.toFixed(2)}</span> ${directionText}<br>
-              <span style="color: var(--g); font-weight: 600;">P_net = £${grossGbpNum.toFixed(2)} + (${tvcGbpNum >= 0 ? '+' : ''}£${tvcGbpNum.toFixed(2)}) = £${(netPence/100).toFixed(2)}</span>
+              Gross pool = ${N} × £${M.toFixed(2)} = £${grossGbpNum.toFixed(2)}<br>
+              Pivot = (${N} + 1) / 2 = ${pivot}<br>
+              T = ${T} (${recipientName}'s collection position)<br>
+              <span style="color: var(--muted);">TVC adjustment = M × (T − Pivot) / (N − 1) = ${tvcGbpNum >= 0 ? '+' : ''}£${tvcGbpNum.toFixed(2)}</span> ${directionText}<br>
+              <span style="color: var(--g); font-weight: 600;">Payout before platform fee = £${grossGbpNum.toFixed(2)} + (${tvcGbpNum >= 0 ? '+' : ''}£${tvcGbpNum.toFixed(2)}) = £${(potAfterTvcPence/100).toFixed(2)}</span>
             </div>
           `;
         } else {
@@ -1797,7 +1797,7 @@ footer a:hover { color: var(--g); }
         const status = data.status;
 
         if (status.renewalState === 'VOTING') {
-          text.textContent = 'Voting is open! All 12 members must agree to renew.';
+          text.textContent = 'Voting is open! All members must agree to renew this circle.';
           actions.style.display = 'flex';
           actions.querySelectorAll('button').forEach(function(b) {
             b.disabled = data.myVote !== 'PENDING';
