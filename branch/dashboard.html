@@ -80,6 +80,7 @@ button { cursor: pointer; }
 .menu-btn { display: none; border: 0; background: none; font-size: 24px; color: var(--ink); }
 .topbar__title { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
 .topbar__subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.config-context{display:flex;align-items:center;gap:8px;min-width:220px;max-width:340px}.config-context label{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap}.config-context select{width:100%;min-width:0;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font-weight:600}@media(max-width:700px){.config-context{min-width:0;max-width:42vw;flex-direction:column;align-items:stretch;gap:2px}.config-context label{font-size:9px}.config-context select{padding:8px 5px;font-size:11px}}
 .spacer { flex: 1; }
 .topbar__avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--g); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; overflow: hidden; }
 
@@ -909,6 +910,7 @@ footer a:hover { color: var(--g); }
         <div class="topbar__title" id="topbar-title">Dashboard</div>
         <div class="topbar__subtitle" id="topbar-subtitle">Branch Dashboard</div>
       </div>
+      <div class="config-context" id="configuration-context" style="display:none;"><label for="branch-config-context">Active configuration</label><select id="branch-config-context" aria-label="Select active circle configuration"><option value="">Loading configurations…</option></select></div>
       <div class="spacer"></div>
 
       <!-- Manual Refresh Button -->
@@ -2390,16 +2392,9 @@ footer a:hover { color: var(--g); }
       tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted);">Loading…</td></tr>';
       
       try {
-        let url = statusFilter === 'ALL' 
-          ? '/api/branch-admin/kyc?limit=50' 
-          : '/api/branch-admin/kyc?limit=50&status=' + statusFilter;
-
-        if (tenantFilter) {
-          url += '&tenantId=' + tenantFilter;
-        }
-
-        const result = await api(url);
-        const subs = result.submissions || [];
+        const contextIds=selectedTenantIds();
+        const tenantIds=tenantFilter&&contextIds.includes(tenantFilter)?[tenantFilter]:contextIds;
+        const subs=await fetchTenantScopedRows('/api/branch-admin/kyc',tenantIds,statusFilter,'submissions');
         if (!subs.length) {
           tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><h3>No records found</h3><p>Try changing the filters.</p></div></td></tr>';
           return;
@@ -2556,44 +2551,11 @@ footer a:hover { color: var(--g); }
     }
 
     async function loadContributions() {
-      const tbody = document.querySelector('#contrib-table tbody');
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted);">Loading…</td></tr>';
-      const statusFilter = document.getElementById('contrib-status-filter').value;
-      const tenantFilter = document.getElementById('contrib-tenant-filter').value;
-      contributionStatus = statusFilter;
-      try {
-        const pageSize = 100;
-        let offset = 0;
-        let total = Infinity;
-        const allRows = [];
-
-        // The API caps each page at 100. Continue until the server-reported total is loaded.
-        while (allRows.length < total) {
-          let url = '/api/branch-admin/contributions?status=' + encodeURIComponent(statusFilter)
-            + '&limit=' + pageSize + '&offset=' + offset;
-          if (tenantFilter) url += '&tenantId=' + encodeURIComponent(tenantFilter);
-
-          const result = await api(url);
-          const pageRows = statusFilter === 'CONFIRMED'
-            ? (result.contributions || [])
-            : statusFilter === 'REJECTED'
-              ? (result.receipts || [])
-              : (result.intents || []);
-
-          allRows.push(...pageRows);
-          total = Number.isFinite(Number(result.total)) ? Number(result.total) : allRows.length;
-          if (pageRows.length === 0 || pageRows.length < pageSize) break;
-          offset += pageRows.length;
-        }
-
-        contributionRows = allRows;
-        populateContributionCycleFilter(contributionRows);
-        renderContributions();
-      } catch (err) {
-        contributionRows = [];
-        populateContributionCycleFilter([]);
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#e32626;">' + escapeHtml(err.message) + '</td></tr>';
-      }
+      const tbody=document.querySelector('#contrib-table tbody');tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted);">Loading…</td></tr>';
+      const statusFilter=document.getElementById('contrib-status-filter').value;const tenantFilter=selectedTenantForFilter('contrib-tenant-filter');contributionStatus=statusFilter;
+      try{const tenantIds=tenantFilter?[tenantFilter]:selectedTenantIds();const key=statusFilter==='CONFIRMED'?'contributions':statusFilter==='REJECTED'?'receipts':'intents';
+        contributionRows=await fetchTenantScopedRows('/api/branch-admin/contributions',tenantIds,statusFilter,key);populateContributionCycleFilter(contributionRows);renderContributions();
+      }catch(err){contributionRows=[];populateContributionCycleFilter([]);tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:40px;color:#e32626;">'+escapeHtml(err.message)+'</td></tr>';}
     }
     document.getElementById('contrib-status-filter').addEventListener('change', loadContributions);
     document.getElementById('contrib-tenant-filter').addEventListener('change', function () {
@@ -2735,16 +2697,14 @@ footer a:hover { color: var(--g); }
 
       tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--muted);">Loading…</td></tr>';
       try {
-        const result = await api('/api/branch-admin/payouts?limit=100');
-        let intents = result.intents || [];
+        const selectedTenantId=selectedTenantForFilter('payout-tenant-filter');
+        const tenantIds=selectedTenantId?[selectedTenantId]:selectedTenantIds();
+        const groups=await Promise.all(tenantIds.map(async tenantId=>{let offset=0,rows=[];while(true){const result=await api('/api/branch-admin/payouts?limit=100&offset='+offset+'&tenantId='+encodeURIComponent(tenantId));const page=result.intents||[];rows.push(...page);if(page.length<100||rows.length>=Number(result.total||0))break;offset+=page.length;}return rows;}));
+        let intents=groups.flat();
 
         if (filter === 'CONFIRMED') intents = intents.filter(p => p.state === 'CONFIRMED');
         else if (filter === 'PENDING') intents = intents.filter(p => p.state !== 'CONFIRMED');
         
-        if (tenantFilter) {
-          intents = intents.filter(p => p.tenantName === tenantFilter);
-        }
-
         if (!intents.length) { tbody.innerHTML = '<tr><td colspan="9"><div class="empty"><h3>No payouts found</h3></div></td></tr>'; return; }
 
         const now = new Date();
@@ -3004,6 +2964,47 @@ footer a:hover { color: var(--g); }
     document.getElementById('circle-config-members')?.addEventListener('input', updateCircleTenurePreview);
     updateCircleTenurePreview();
 
+    // Persistent configuration context shared by every Branch Admin section.
+    const CONFIG_CONTEXT_STORAGE_KEY = 'rosca.branchAdmin.selectedConfigurationId';
+    let selectedConfigurationId = localStorage.getItem(CONFIG_CONTEXT_STORAGE_KEY) || '';
+    let selectedConfiguration = null;
+    let selectedConfigurationTenants = [];
+    function selectedTenantIds(){ return selectedConfigurationTenants.map(t => t.id); }
+    function selectedTenantForFilter(id){ const value=document.getElementById(id)?.value||''; return value && selectedTenantIds().includes(value) ? value : ''; }
+    function resetTenantFilterOptions(id, tenants){
+      const el=document.getElementById(id); if(!el)return;
+      const previous=el.value; el.innerHTML='<option value="">All circles in this configuration</option>';
+      tenants.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.name||'Unnamed circle';el.appendChild(o);});
+      if(Array.from(el.options).some(o=>o.value===previous))el.value=previous;
+    }
+    async function loadSelectedConfigurationTenants(){
+      selectedConfigurationTenants=[]; if(!selectedConfigurationId)return;
+      const summary=await api('/api/branch-admin/tenants/summary');
+      selectedConfigurationTenants=(summary.tenants||[]).filter(t=>t.configurationId===selectedConfigurationId);
+    }
+    async function loadConfigurationContext(){
+      const wrap=document.getElementById('configuration-context'), select=document.getElementById('branch-config-context'); if(!wrap||!select)return;
+      const configs=await api('/api/branch-admin/circle-configurations'); wrap.style.display='flex';
+      select.innerHTML='<option value="">Select a circle configuration</option>';
+      configs.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name+' · '+c.memberCapacity+' members · '+String(c.contributionFrequency).toLowerCase();select.appendChild(o);});
+      if(!configs.length){selectedConfigurationId='';selectedConfiguration=null;selectedConfigurationTenants=[];select.disabled=true;select.innerHTML='<option value="">No configurations created</option>';localStorage.removeItem(CONFIG_CONTEXT_STORAGE_KEY);return;}
+      select.disabled=false; if(!configs.some(c=>c.id===selectedConfigurationId))selectedConfigurationId=configs[0].id;
+      selectedConfiguration=configs.find(c=>c.id===selectedConfigurationId)||null;select.value=selectedConfigurationId;localStorage.setItem(CONFIG_CONTEXT_STORAGE_KEY,selectedConfigurationId);
+      await loadSelectedConfigurationTenants();
+      resetTenantFilterOptions('kyc-tenant-filter',selectedConfigurationTenants);resetTenantFilterOptions('contrib-tenant-filter',selectedConfigurationTenants);resetTenantFilterOptions('payout-tenant-filter',selectedConfigurationTenants);
+    }
+    async function onConfigurationContextChange(){
+      const select=document.getElementById('branch-config-context');selectedConfigurationId=select.value;selectedConfiguration=null;selectedConfigurationTenants=[];
+      const configs=await api('/api/branch-admin/circle-configurations');selectedConfiguration=configs.find(c=>c.id===selectedConfigurationId)||null;
+      if(selectedConfigurationId)localStorage.setItem(CONFIG_CONTEXT_STORAGE_KEY,selectedConfigurationId);else localStorage.removeItem(CONFIG_CONTEXT_STORAGE_KEY);
+      await loadSelectedConfigurationTenants();resetTenantFilterOptions('kyc-tenant-filter',selectedConfigurationTenants);resetTenantFilterOptions('contrib-tenant-filter',selectedConfigurationTenants);resetTenantFilterOptions('payout-tenant-filter',selectedConfigurationTenants);
+      showSection(currentSectionKey||'dashboard',true);
+    }
+    document.getElementById('branch-config-context')?.addEventListener('change',onConfigurationContextChange);
+    async function fetchTenantScopedRows(path,tenantIds,status,key){
+      if(!tenantIds.length)return [];
+      const groups=await Promise.all(tenantIds.map(async tenantId=>{let offset=0,rows=[];while(true){const q=new URLSearchParams({limit:'100',offset:String(offset),tenantId});if(status&&status!=='ALL')q.set('status',status);const result=await api(path+'?'+q.toString());const page=result[key]||[];rows.push(...page);if(page.length<100||rows.length>=Number(result.total||0))break;offset+=page.length;}return rows;}));return groups.flat();
+    }
     async function loadCircleConfigurations() {
       const body = document.querySelector('#circle-config-table tbody');
       if (!body) return;
@@ -3063,6 +3064,7 @@ footer a:hover { color: var(--g); }
         document.getElementById('circle-config-duration').value = 7;
         updateCircleTenurePreview();
         await loadCircleConfigurations();
+        await loadConfigurationContext();
       } catch (error) {
         status.textContent = error.message || 'Could not create configuration.';
         status.style.color = '#e32626';
@@ -3074,9 +3076,9 @@ footer a:hover { color: var(--g); }
       tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted);">Loading…</td></tr>';
       try {
         const summary = await api('/api/branch-admin/tenants/summary');
-        const tenants = summary.tenants || [];
+        const tenants = (summary.tenants || []).filter(t => t.configurationId === selectedConfigurationId);
         if (!tenants.length) {
-          tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No circles yet</h3><p>Create a circle configuration, then co-savers who select it are grouped automatically into circles of its configured size.</p></div></td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No circles in this configuration yet</h3><p>Co-savers who select this configuration will be grouped automatically into circles of its configured size.</p></div></td></tr>';
           return;
         }
         tbody.innerHTML = tenants.map(t => {
@@ -3197,48 +3199,10 @@ footer a:hover { color: var(--g); }
     });
 
     // ── Populate Tenant filters ──────────────────────────────
-    async function populateTenantFilters() {
-      try {
-        const summary = await api('/api/branch-admin/tenants/summary');
-        const tenants = summary.tenants || [];
-        
-        // KYC filter
-        const kycFilter = document.getElementById('kyc-tenant-filter');
-        if (kycFilter && tenants.length > 0) {
-          tenants.forEach(t => {
-            const opt = document.createElement('option');
-            opt.value = t.id;
-            opt.textContent = t.name || 'Unnamed Tenant';
-            kycFilter.appendChild(opt);
-          });
-        }
-
-        // Contributions filter
-        const contribFilter = document.getElementById('contrib-tenant-filter');
-        if (contribFilter && tenants.length > 0) {
-          tenants.forEach(t => {
-            const opt = document.createElement('option');
-            opt.value = t.id;
-            opt.textContent = t.name || 'Unnamed Tenant';
-            contribFilter.appendChild(opt);
-          });
-        }
-
-        // Payouts filter
-        const payoutFilter = document.getElementById('payout-tenant-filter');
-        if (payoutFilter && tenants.length > 0) {
-          tenants.forEach(t => {
-            const opt = document.createElement('option');
-            opt.value = t.name || 'Unnamed Tenant';
-            opt.textContent = t.name || 'Unnamed Tenant';
-            payoutFilter.appendChild(opt);
-          });
-        }
-      } catch (err) {
-        console.error('Failed to load tenants for filter', err);
-      }
+    async function populateTenantFilters(){
+      try{await loadConfigurationContext();resetTenantFilterOptions('kyc-tenant-filter',selectedConfigurationTenants);resetTenantFilterOptions('contrib-tenant-filter',selectedConfigurationTenants);resetTenantFilterOptions('payout-tenant-filter',selectedConfigurationTenants);}
+      catch(err){console.error('Failed to load configuration-scoped tenant filters',err);}
     }
-
     // ═══════════════════════════════════════════════════════
     // MOBILE BOTTOM NAV LOGIC
     // ═══════════════════════════════════════════════════════
