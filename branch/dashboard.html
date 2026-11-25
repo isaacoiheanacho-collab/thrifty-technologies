@@ -2564,7 +2564,10 @@ footer a:hover { color: var(--g); }
             </tr>
           `;
         }).join('');
-        tbody.querySelectorAll('[data-contrib-approve]').forEach(b => b.addEventListener('click', () => confirmContribution(b.dataset.contribApprove)));
+        tbody.querySelectorAll('[data-contrib-approve]').forEach(b => b.addEventListener('click', () => {
+          const intent = contributionRows.find(row => row.id === b.dataset.contribApprove);
+          confirmContribution(b.dataset.contribApprove, intent?.expectedAmountPence);
+        }));
         tbody.querySelectorAll('[data-contrib-reject]').forEach(b => b.addEventListener('click', () => rejectContribution(b.dataset.contribReject)));
       }
     }
@@ -2687,15 +2690,37 @@ footer a:hover { color: var(--g); }
     document.getElementById('contrib-remind-btn').addEventListener('click', sendContributionReminders);
     loadContributionReminderPreview();
 
-    async function confirmContribution(intentId) {
-      const amtStr = window.prompt('Confirm the amount received (in pence, e.g. 100000 = £1,000):', '100000');
-      if (!amtStr) return;
-      const amount = parseInt(amtStr, 10);
-      if (!isFinite(amount) || amount <= 0) { toast('Amount must be a positive integer.', 'error'); return; }
+    async function confirmContribution(intentId, expectedAmountPence) {
+      // The pending-intent API supplies this amount from the persisted intent,
+      // which was created using the selected group's configured contribution.
+      // Never fall back to the historic £1,000 / 100,000-pence default.
+      const expectedAmount = Number(expectedAmountPence);
+      if (!Number.isSafeInteger(expectedAmount) || expectedAmount <= 0) {
+        toast('The configured contribution amount could not be loaded. Refresh the list before confirming.', 'error');
+        return;
+      }
+      const expectedGbp = (expectedAmount / 100).toLocaleString('en-GB', {
+        style: 'currency', currency: 'GBP'
+      });
+      const amtStr = window.prompt(
+        'Confirm the amount received in pence. This group contribution is ' +
+          expectedGbp + ' (' + expectedAmount.toLocaleString('en-GB') + ' pence):',
+        String(expectedAmount)
+      );
+      if (amtStr === null || amtStr.trim() === '') return;
+      if (!/^\d+$/.test(amtStr.trim())) {
+        toast('Amount must be a positive whole number of pence.', 'error');
+        return;
+      }
+      const amount = Number(amtStr.trim());
+      if (!Number.isSafeInteger(amount) || amount <= 0) {
+        toast('Amount must be a positive whole number of pence.', 'error');
+        return;
+      }
       try {
         await api('/api/branch-admin/contributions/' + intentId + '/confirm', { method: 'POST', body: { intentId, amount } });
         toast('Contribution confirmed', 'success');
-        loadContributions();
+        await loadContributions();
       } catch (err) { toast('Confirm failed: ' + err.message, 'error'); }
     }
 
