@@ -1242,18 +1242,20 @@ footer a:hover { color: var(--g); }
     // ── DASHBOARD LOADING ────────────────────────────────────
 
     async function loadDashboard() {
-      if (!state.tenant) {
-         document.getElementById('overview-body').style.display = 'none';
-         document.getElementById('overview-empty').style.display = 'block';
-         return;
-      }
-      
-      document.getElementById('overview-body').style.display = 'block';
-      document.getElementById('overview-empty').style.display = 'none';
-
+      // Always re-read membership. The backend can safely recover a failed
+      // post-KYC allocation, and this also prevents a stale null tenant from
+      // keeping an already-assigned saver on the waiting screen.
       try {
         const res = await api('/api/tenants/me');
+        if (!res || !res.tenant) {
+          state.tenant = null;
+          document.getElementById('overview-body').style.display = 'none';
+          document.getElementById('overview-empty').style.display = 'block';
+          return;
+        }
         state.tenant = res.tenant;
+        document.getElementById('overview-body').style.display = 'block';
+        document.getElementById('overview-empty').style.display = 'none';
         
         // Populate Top Counters
         document.getElementById('stat-slot').textContent = res.mySlot;
