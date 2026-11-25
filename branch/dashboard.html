@@ -2120,7 +2120,7 @@ footer a:hover { color: var(--g); }
       const [kycRes, contribRes, payoutRes] = await Promise.all([
         safe(() => api('/api/branch-admin/kyc?limit=100&configurationId=' + encodeURIComponent(selectedConfigurationId))),
         safe(() => fetchTenantScopedRows('/api/branch-admin/contributions', selectedTenantIds(), 'CONFIRMED', 'contributions').then(contributions => ({ contributions }))),
-        safe(() => api('/api/branch-admin/payouts?limit=20')),
+        safe(() => api('/api/branch-admin/payouts?limit=100')),
       ]);
 
       if (kycRes && kycRes.submissions) {
@@ -2397,11 +2397,16 @@ footer a:hover { color: var(--g); }
       tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted);">Loading…</td></tr>';
       
       try {
-        const q=new URLSearchParams({limit:'100',offset:'0',configurationId:selectedConfigurationId});
-        if(statusFilter&&statusFilter!=='ALL')q.set('status',statusFilter);
-        if(tenantFilter&&selectedTenantIds().includes(tenantFilter))q.set('tenantId',tenantFilter);
-        const response=await api('/api/branch-admin/kyc?'+q.toString());
-        const subs=response.submissions||[];
+        let offset=0,subs=[];
+        while(true){
+          const q=new URLSearchParams({limit:'100',offset:String(offset),configurationId:selectedConfigurationId});
+          if(statusFilter&&statusFilter!=='ALL')q.set('status',statusFilter);
+          if(tenantFilter&&selectedTenantIds().includes(tenantFilter))q.set('tenantId',tenantFilter);
+          const response=await api('/api/branch-admin/kyc?'+q.toString());
+          const page=response.submissions||[];subs.push(...page);
+          if(page.length<100||subs.length>=Number(response.total||0))break;
+          offset+=page.length;
+        }
         if (!subs.length) {
           tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><h3>No records found</h3><p>Try changing the filters.</p></div></td></tr>';
           return;
