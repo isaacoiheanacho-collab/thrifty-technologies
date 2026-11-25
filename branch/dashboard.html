@@ -1892,6 +1892,8 @@ footer a:hover { color: var(--g); }
 
       document.getElementById('overview-body').style.display = 'block';
       document.getElementById('overview-empty').style.display = 'none';
+      const scopeTitle=document.getElementById('overview-scope-title');
+      if(scopeTitle)scopeTitle.textContent='Selected group: '+(selectedConfiguration?.name||'Current group')+'.';
 
       try {
         if (!selectedConfigurationId) throw new Error('Select a group to view its overview.');
