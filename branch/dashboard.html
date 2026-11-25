@@ -865,7 +865,7 @@ footer a:hover { color: var(--g); }
       </button>
       <button class="nav-item" data-section="circle-configurations">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg>
-        Circle configurations
+        Groups
       </button>
       <button class="nav-item" data-section="tenants">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg>
@@ -910,7 +910,7 @@ footer a:hover { color: var(--g); }
         <div class="topbar__title" id="topbar-title">Dashboard</div>
         <div class="topbar__subtitle" id="topbar-subtitle">Branch Dashboard</div>
       </div>
-      <div class="config-context" id="configuration-context" style="display:none;"><label for="branch-config-context">Active configuration</label><select id="branch-config-context" aria-label="Select active circle configuration"><option value="">Loading configurations…</option></select></div>
+      <div class="config-context" id="configuration-context" style="display:none;"><label for="branch-config-context">Active group</label><select id="branch-config-context" aria-label="Select active group"><option value="">Loading configurations…</option></select></div>
       <div class="spacer"></div>
 
       <!-- Manual Refresh Button -->
@@ -947,34 +947,34 @@ footer a:hover { color: var(--g); }
         </div>
 
         <div id="overview-body" style="display: none;">
-          <div role="note" style="padding:12px 16px;border-radius:12px;margin-bottom:18px;background:#e0edff;border:1px solid #8ab4f8;color:#174ea6;line-height:1.5;"><strong>Branch-wide overview:</strong> All figures, charts and activity on this page cover every circle configuration in this branch. They do not change when you switch the selected configuration.</div>
+          <div role="note" id="overview-scope-note" style="padding:12px 16px;border-radius:12px;margin-bottom:18px;background:#e0edff;border:1px solid #8ab4f8;color:#174ea6;line-height:1.5;"><strong id="overview-scope-title">Selected group overview</strong><span id="overview-scope-description"> Figures, tenant bars, payouts and recent activity below are limited to the selected group.</span></div>
           <!-- TOP COUNTERS -->
           <div class="stat-grid">
             <div class="stat-card">
               <div class="stat-icon bg-green">♟</div>
               <div class="stat-info">
-                <div class="stat-label">Branch tenants (all configurations)</div>
+                <div class="stat-label">Group circles</div>
                 <div class="stat-value" id="stat-total-tenants">0</div>
               </div>
             </div>
             <div class="stat-card">
               <div class="stat-icon bg-teal">♟</div>
               <div class="stat-info">
-                <div class="stat-label">Active branch tenants</div>
+                <div class="stat-label">Active group circles</div>
                 <div class="stat-value" id="stat-active-tenants">0</div>
               </div>
             </div>
             <div class="stat-card">
               <div class="stat-icon bg-blue">▣</div>
               <div class="stat-info">
-                <div class="stat-label">Branch co-savers (all configurations)</div>
+                <div class="stat-label">Group co-savers</div>
                 <div class="stat-value" id="stat-total-members">0</div>
               </div>
             </div>
             <div class="stat-card">
               <div class="stat-icon bg-gold">★</div>
               <div class="stat-info">
-                <div class="stat-label">Branch pending KYC</div>
+                <div class="stat-label">Group pending KYC</div>
                 <div class="stat-value" id="stat-pending-kyc">0</div>
               </div>
             </div>
@@ -982,10 +982,10 @@ footer a:hover { color: var(--g); }
 
           <!-- SECOND ROW COUNTERS -->
           <div class="stat-grid" style="grid-template-columns: repeat(4, 1fr);">
-            <div class="stat-card"><div class="stat-info"><div class="stat-label">Branch pending receipts</div><div class="stat-value" id="stat-pending-contribs" style="color: #d97706;">0</div></div></div>
-            <div class="stat-card"><div class="stat-info"><div class="stat-label">Branch pending payouts</div><div class="stat-value" id="stat-pending-payouts" style="color: #d97706;">0</div></div></div>
-            <div class="stat-card"><div class="stat-info"><div class="stat-label">Branch contributions (month)</div><div class="stat-value" id="stat-contribs-month" style="color: var(--g);">£0</div></div></div>
-            <div class="stat-card"><div class="stat-info"><div class="stat-label">Branch payouts (month)</div><div class="stat-value" id="stat-payouts-month" style="color: var(--g);">£0</div></div></div>
+            <div class="stat-card"><div class="stat-info"><div class="stat-label">Group pending receipts</div><div class="stat-value" id="stat-pending-contribs" style="color: #d97706;">0</div></div></div>
+            <div class="stat-card"><div class="stat-info"><div class="stat-label">Group pending payouts</div><div class="stat-value" id="stat-pending-payouts" style="color: #d97706;">0</div></div></div>
+            <div class="stat-card"><div class="stat-info"><div class="stat-label">Group contributions (month)</div><div class="stat-value" id="stat-contribs-month" style="color: var(--g);">£0</div></div></div>
+            <div class="stat-card"><div class="stat-info"><div class="stat-label">Group payouts (month)</div><div class="stat-value" id="stat-payouts-month" style="color: var(--g);">£0</div></div></div>
           </div>
 
           <div class="dash-grid-main">
@@ -1252,27 +1252,27 @@ footer a:hover { color: var(--g); }
 
       <!-- ═══ CIRCLE CONFIGURATIONS ═══ -->
       <section class="section" id="section-circle-configurations">
-        <div class="page-header"><div><h1>Circle configurations</h1><p>Create reusable savings-circle arrangements. Each configuration generates its own tenant sequence automatically.</p></div></div>
+        <div class="page-header"><div><h1>Groups</h1><p>Create reusable savings-circle arrangements. Each group generates its own circle sequence automatically.</p></div></div>
         <div class="card">
-          <div class="card__title">Create a new configuration</div>
+          <div class="card__title">Create a new group</div>
           <form id="circle-config-form">
             <div class="form-grid">
-              <div class="form-row"><label class="form-label" for="circle-config-name">Configuration name</label><input class="form-input" id="circle-config-name" required maxlength="80" placeholder="e.g. Orange"></div>
+              <div class="form-row"><label class="form-label" for="circle-config-name">Group name</label><input class="form-input" id="circle-config-name" required maxlength="80" placeholder="e.g. Orange"></div>
               <div class="form-row"><label class="form-label" for="circle-config-amount">Contribution amount (£)</label><input class="form-input" id="circle-config-amount" type="number" min="0.01" step="0.01" required placeholder="1000.00"></div>
               <div class="form-row"><label class="form-label" for="circle-config-frequency">Contribution frequency</label><select class="form-input" id="circle-config-frequency"><option value="WEEKLY">Weekly</option><option value="MONTHLY">Monthly</option></select></div>
               <div class="form-row"><label class="form-label" for="circle-config-members">Maximum co-savers / collection positions</label><input class="form-input" id="circle-config-members" type="number" min="2" max="100" step="1" required value="12"></div>
               <div class="form-row"><label class="form-label" for="circle-config-window">Contribution window (days)</label><input class="form-input" id="circle-config-window" type="number" value="5" readonly aria-readonly="true"><span class="form-hint">Automatically set by contribution frequency.</span></div>
               <div class="form-row"><label class="form-label" for="circle-config-duration">Cycle duration (days)</label><input class="form-input" id="circle-config-duration" type="number" value="7" readonly aria-readonly="true"><span class="form-hint">Payout is due on the final day of each cycle.</span></div>
             </div>
-            <p class="form-hint">Collection positions automatically equal the number of co-savers. Payout frequency follows contribution frequency. <strong id="circle-config-tenure-preview">Estimated full tenure: 360 days</strong>. Existing configurations cannot be edited; create a new configuration for different settings.</p>
-            <button class="btn btn--primary" type="submit" id="circle-config-submit">Create configuration</button>
+            <p class="form-hint">Collection positions automatically equal the number of co-savers. Payout frequency follows contribution frequency. <strong id="circle-config-tenure-preview">Estimated full tenure: 360 days</strong>. Existing configurations cannot be edited; create a new group for different settings.</p>
+            <button class="btn btn--primary" type="submit" id="circle-config-submit">Create group</button>
             <div id="circle-config-status" class="form-hint" role="status" style="margin-top:12px;"></div>
           </form>
         </div>
         <div class="card">
-          <div class="card__title">Your configurations</div>
+          <div class="card__title">Your groups</div>
           <div class="table-wrap"><table class="table" id="circle-config-table">
-            <thead><tr><th>Configuration</th><th>Contribution</th><th>Frequency</th><th>Co-savers / Positions</th><th>Contribution window / cycle / full tenure</th><th>Tenants</th></tr></thead>
+            <thead><tr><th>Group</th><th>Contribution</th><th>Frequency</th><th>Co-savers / Positions</th><th>Contribution window / cycle / full tenure</th><th>Tenants</th></tr></thead>
             <tbody><tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted);">Loading…</td></tr></tbody>
           </table></div>
         </div>
@@ -1291,7 +1291,7 @@ footer a:hover { color: var(--g); }
 
       <!-- ═══ ANALYTICS ═══ -->
       <section class="section" id="section-analytics">
-        <div class="page-header"><div><h1>Analytics</h1><p>Volume and activity across all circle configurations in your branch.</p></div></div>
+        <div class="page-header"><div><h1>Analytics</h1><p>Volume and activity across all groups in your branch.</p></div></div>
         <div role="note" style="padding:12px 16px;border-radius:12px;margin-bottom:18px;background:#e0edff;border:1px solid #8ab4f8;color:#174ea6;line-height:1.5;"><strong>Branch-wide analytics:</strong> The figures and tenant breakdown below include all configurations in this branch. They are not filtered by the selected configuration.</div>
         <div class="stat-grid">
           <div class="stat-card"><div class="stat-info"><div class="stat-label">Branch contributions this month</div><div class="stat-value" id="analytics-contribs-month" style="color: var(--g);">£0</div></div></div>
@@ -1639,7 +1639,7 @@ footer a:hover { color: var(--g); }
       'contributions': 'Contributions',
       'payouts': 'Payouts',
       'tenants': 'Tenants',
-      'circle-configurations': 'Circle configurations',
+      'circle-configurations': 'Groups',
       'analytics': 'Analytics',
       'settings': 'Settings',
     };
@@ -1892,9 +1892,12 @@ footer a:hover { color: var(--g); }
 
       document.getElementById('overview-body').style.display = 'block';
       document.getElementById('overview-empty').style.display = 'none';
+      const scopeTitle=document.getElementById('overview-scope-title');
+      if(scopeTitle)scopeTitle.textContent='Selected group: '+(selectedConfiguration?.name||'Current group')+'.';
 
       try {
-        const stats = await api('/api/branch-admin/stats');
+        if (!selectedConfigurationId) throw new Error('Select a group to view its overview.');
+        const stats = await api('/api/branch-admin/stats?configurationId=' + encodeURIComponent(selectedConfigurationId));
         document.getElementById('stat-total-tenants').textContent = stats.tenants.total;
         document.getElementById('stat-active-tenants').textContent = stats.tenants.active;
         document.getElementById('stat-total-members').textContent = stats.members.total;
@@ -1907,7 +1910,7 @@ footer a:hover { color: var(--g); }
 
       try {
         const summary = await api('/api/branch-admin/tenants/summary');
-        state.tenants = summary.tenants || [];
+        state.tenants = (summary.tenants || []).filter(t => t.configurationId === selectedConfigurationId);
         await renderContributionChart(state.tenants);
       } catch (err) {
         console.error('[dashboard] tenants failed', err);
@@ -1975,7 +1978,7 @@ footer a:hover { color: var(--g); }
       let payoutsByTenant = {};
       try {
         const res = await api('/api/branch-admin/payouts?limit=100'); 
-        (res.intents || []).forEach(p => {
+        (res.intents || []).filter(p => enriched.some(t => t.id === p.tenantId)).forEach(p => {
           if (p.state !== 'CONFIRMED' && !payoutsByTenant[p.tenantId]) {
             payoutsByTenant[p.tenantId] = p;
           }
@@ -2077,7 +2080,8 @@ footer a:hover { color: var(--g); }
       tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;">Loading…</td></tr>';
       try {
         const result = await api('/api/branch-admin/payouts?limit=100');
-        let intents = (result.intents || []).filter(p => p.state !== 'CONFIRMED');
+        const groupTenantIds = new Set(selectedTenantIds());
+        let intents = (result.intents || []).filter(p => groupTenantIds.has(p.tenantId) && p.state !== 'CONFIRMED');
         intents.sort((a, b) => new Date(a.dueDate || a.createdAt) - new Date(b.dueDate || b.createdAt));
         intents = intents.slice(0, 5);
 
@@ -2114,9 +2118,9 @@ footer a:hover { color: var(--g); }
       const safe = fn => fn().catch(err => { console.warn('[activity]', err); return null; });
 
       const [kycRes, contribRes, payoutRes] = await Promise.all([
-        safe(() => api('/api/branch-admin/kyc?limit=20')),
-        safe(() => api('/api/branch-admin/contributions?status=CONFIRMED&limit=20')),
-        safe(() => api('/api/branch-admin/payouts?limit=20')),
+        safe(() => api('/api/branch-admin/kyc?limit=100&configurationId=' + encodeURIComponent(selectedConfigurationId))),
+        safe(() => fetchTenantScopedRows('/api/branch-admin/contributions', selectedTenantIds(), 'CONFIRMED', 'contributions').then(contributions => ({ contributions }))),
+        safe(() => api('/api/branch-admin/payouts?limit=100')),
       ]);
 
       if (kycRes && kycRes.submissions) {
@@ -2146,7 +2150,7 @@ footer a:hover { color: var(--g); }
         });
       }
       if (payoutRes && payoutRes.intents) {
-        payoutRes.intents.forEach(p => {
+        payoutRes.intents.filter(p => selectedTenantIds().includes(p.tenantId)).forEach(p => {
           if (p.state === 'CONFIRMED') {
             events.push({
               ts: p.confirmedAt || p.updatedAt || p.createdAt,
@@ -2393,9 +2397,16 @@ footer a:hover { color: var(--g); }
       tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted);">Loading…</td></tr>';
       
       try {
-        const contextIds=selectedTenantIds();
-        const tenantIds=tenantFilter&&contextIds.includes(tenantFilter)?[tenantFilter]:contextIds;
-        const subs=await fetchTenantScopedRows('/api/branch-admin/kyc',tenantIds,statusFilter,'submissions');
+        let offset=0,subs=[];
+        while(true){
+          const q=new URLSearchParams({limit:'100',offset:String(offset),configurationId:selectedConfigurationId});
+          if(statusFilter&&statusFilter!=='ALL')q.set('status',statusFilter);
+          if(tenantFilter&&selectedTenantIds().includes(tenantFilter))q.set('tenantId',tenantFilter);
+          const response=await api('/api/branch-admin/kyc?'+q.toString());
+          const page=response.submissions||[];subs.push(...page);
+          if(page.length<100||subs.length>=Number(response.total||0))break;
+          offset+=page.length;
+        }
         if (!subs.length) {
           tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><h3>No records found</h3><p>Try changing the filters.</p></div></td></tr>';
           return;
@@ -2974,7 +2985,7 @@ footer a:hover { color: var(--g); }
     function selectedTenantForFilter(id){ const value=document.getElementById(id)?.value||''; return value && selectedTenantIds().includes(value) ? value : ''; }
     function resetTenantFilterOptions(id, tenants){
       const el=document.getElementById(id); if(!el)return;
-      const previous=el.value; el.innerHTML='<option value="">All circles in this configuration</option>';
+      const previous=el.value; el.innerHTML='<option value="">All circles in this group</option>';
       tenants.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.name||'Unnamed circle';el.appendChild(o);});
       if(Array.from(el.options).some(o=>o.value===previous))el.value=previous;
     }
@@ -2986,9 +2997,9 @@ footer a:hover { color: var(--g); }
     async function loadConfigurationContext(){
       const wrap=document.getElementById('configuration-context'), select=document.getElementById('branch-config-context'); if(!wrap||!select)return;
       const configs=await api('/api/branch-admin/circle-configurations'); wrap.style.display='flex';
-      select.innerHTML='<option value="">Select a circle configuration</option>';
+      select.innerHTML='<option value="">Select a group</option>';
       configs.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name+' · '+c.memberCapacity+' members · '+String(c.contributionFrequency).toLowerCase();select.appendChild(o);});
-      if(!configs.length){selectedConfigurationId='';selectedConfiguration=null;selectedConfigurationTenants=[];select.disabled=true;select.innerHTML='<option value="">No configurations created</option>';localStorage.removeItem(CONFIG_CONTEXT_STORAGE_KEY);return;}
+      if(!configs.length){selectedConfigurationId='';selectedConfiguration=null;selectedConfigurationTenants=[];select.disabled=true;select.innerHTML='<option value="">No groups created</option>';localStorage.removeItem(CONFIG_CONTEXT_STORAGE_KEY);return;}
       select.disabled=false; if(!configs.some(c=>c.id===selectedConfigurationId))selectedConfigurationId=configs[0].id;
       selectedConfiguration=configs.find(c=>c.id===selectedConfigurationId)||null;select.value=selectedConfigurationId;localStorage.setItem(CONFIG_CONTEXT_STORAGE_KEY,selectedConfigurationId);
       await loadSelectedConfigurationTenants();
@@ -3018,9 +3029,9 @@ footer a:hover { color: var(--g); }
             '<td>' + c.memberCapacity + ' / ' + c.collectionPositions + '</td>' +
             '<td>' + c.contributionWindowDays + ' / ' + c.cycleDurationDays + ' / ' + c.tenureDurationDays + ' days</td>' +
             '<td>' + (c.tenantCount || 0) + ' <span style="color:var(--muted);">(' + (c.fillingCount || 0) + ' filling)</span></td></tr>';
-        }).join('') : '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted);">No configurations created yet.</td></tr>';
+        }).join('') : '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted);">No groups created yet.</td></tr>';
       } catch (error) {
-        body.innerHTML = '<tr><td colspan="6">Unable to load circle configurations.</td></tr>';
+        body.innerHTML = '<tr><td colspan="6">Unable to load groups.</td></tr>';
         console.error('[circle-configurations]', error);
       }
     }
@@ -3079,7 +3090,7 @@ footer a:hover { color: var(--g); }
         const summary = await api('/api/branch-admin/tenants/summary');
         const tenants = (summary.tenants || []).filter(t => t.configurationId === selectedConfigurationId);
         if (!tenants.length) {
-          tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No circles in this configuration yet</h3><p>Co-savers who select this configuration will be grouped automatically into circles of its configured size.</p></div></td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6"><div class="empty"><h3>No circles in this group yet</h3><p>Co-savers who select this group will be grouped automatically into circles of its configured size.</p></div></td></tr>';
           return;
         }
         tbody.innerHTML = tenants.map(t => {

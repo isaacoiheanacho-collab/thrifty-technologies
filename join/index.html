@@ -711,7 +711,7 @@
             <div class="feature__body">
               <div class="feature__num">02 — Payout</div>
               <h3>One collection per cycle</h3>
-              <p>At each collection cycle, one member receives the whole pot. Slot numbers are assigned randomly — no favouritism, no negotiation. The collection schedule follows the configuration selected by the co-saver.</p>
+              <p>At each collection cycle, one member receives the whole pot. Slot numbers are assigned randomly — no favouritism, no negotiation. The collection schedule follows the group selected by the co-saver.</p>
             </div>
           </div>
           <div class="feature reveal reveal--delay-2">
@@ -780,14 +780,14 @@
     <section class="section section--center" id="circle-configuration">
       <div class="section__inner section__inner--narrow">
         <div class="section__eyebrow">Choose your savings arrangement</div>
-        <h2>Select a circle configuration</h2>
-        <p class="section__lede" style="text-align:center;">Choose the contribution arrangement you are joining. Members are grouped only with co-savers who selected the same configuration.</p>
+        <h2>Select a savings group</h2>
+        <p class="section__lede" style="text-align:center;">Choose the contribution arrangement you are joining. Members are grouped only with co-savers who selected the same group.</p>
         <div class="consent-gate" style="text-align:left;">
-          <label class="form-label" for="circle-configuration-select">Available configurations</label>
+          <label class="form-label" for="circle-configuration-select">Available groups</label>
           <select id="circle-configuration-select" class="form-input" style="width:100%;padding:14px;border-radius:10px;">
-            <option value="">Loading configurations…</option>
+            <option value="">Loading groups…</option>
           </select>
-          <div id="circle-configuration-summary" class="consent-gate__sub" style="margin:12px 0 0;">Loading community circle arrangements…</div>
+          <div id="circle-configuration-summary" class="consent-gate__sub" style="margin:12px 0 0;">Loading available savings groups…</div>
         </div>
       </div>
     </section>
@@ -1049,69 +1049,9 @@
         const b = await api('/api/branches/' + encodeURIComponent(branchSlug) + '/public');
         retryAttempts = 0;
 
-        // A PWA always opens its manifest start_url. Restore a saved
-        // co-saver session before exposing the public sign-in page.
-        const hasSavedSession =
-          window.ROSCA_API.getAccessToken() || window.ROSCA_API.getRefreshToken();
-
-        if (hasSavedSession) {
-          let restoredUser = null;
-          let restoreError = null;
-
-          // Mobile browsers can need a few seconds to restore network access
-          // after the app has been swiped away. Retry transient failures rather
-          // than immediately falling back to the public sign-in screen.
-          for (let attempt = 0; attempt < 5; attempt++) {
-            try {
-              const currentUser = await api('/api/users/me');
-
-              if (currentUser && currentUser.role === 'SAVER' && currentUser.branchId) {
-                // Resolve the user's actual branch by ID and compare its slug.
-                // This avoids relying on a potentially differently typed ID
-                // from the public branch response.
-                const memberBranch = await api(
-                  '/api/branches/id/' + encodeURIComponent(currentUser.branchId)
-                );
-
-                if (memberBranch && String(memberBranch.slug) === String(branchSlug)) {
-                  restoredUser = currentUser;
-                }
-              }
-              restoreError = null;
-              break;
-            } catch (sessionError) {
-              restoreError = sessionError;
-              const transient = sessionError &&
-                (sessionError.code === 'NETWORK_ERROR' ||
-                 sessionError.status >= 500 ||
-                 sessionError.status === 429);
-
-              if (!transient || attempt === 4) break;
-
-              showRetryingState(
-                'Restoring your saved session (' + (attempt + 1) + '/5)…'
-              );
-              await new Promise(function(resolve) {
-                setTimeout(resolve, 1200 * (attempt + 1));
-              });
-            }
-          }
-
-          if (restoredUser) {
-            window.location.replace(
-              '/saver/dashboard.html?branch=' + encodeURIComponent(branchSlug)
-            );
-            return;
-          }
-
-          // A transient failure is not evidence that the member has logged
-          // out. Keep the community page available, retain tokens, and show
-          // the connection warning. Definitive auth failures are handled by
-          // the shared API client, which clears invalid sessions.
-          if (restoreError && restoreError.code === 'NETWORK_ERROR') {
-            showNetworkBanner();
-          }
-        }
+        // Keep the public community page available even when a saver is already
+        // signed in. This allows the same device/browser to register another co-saver
+        // and select a group instead of being redirected away before the Join flow.
 
         render(b);
       } catch (err) {
@@ -1441,16 +1381,16 @@
       const configSelect = document.getElementById('circle-configuration-select');
       const configSummary = document.getElementById('circle-configuration-summary');
       api('/api/circle-configurations/' + encodeURIComponent(slug)).then(function (rows) {
-        configSelect.innerHTML = '<option value="">Choose a configuration</option>' + (rows || []).map(function (c) {
+        configSelect.innerHTML = '<option value="">Choose a group</option>' + (rows || []).map(function (c) {
           return '<option value="' + escapeHtml(c.id) + '">' + escapeHtml(c.name) + ' — ' + escapeHtml(c.contributionFrequency) + ' — ' + escapeHtml(penceToGbp(c.contributionAmountPence)) + ' / contribution — ' + c.memberCapacity + ' co-savers — approx. ' + c.tenureDurationDays + ' days total</option>';
         }).join('');
-        if (!rows || !rows.length) { configSelect.innerHTML = '<option value="">No configurations available</option>'; configSummary.textContent = 'This community has not published a savings-circle configuration yet. Please contact the Community Admin.'; }
+        if (!rows || !rows.length) { configSelect.innerHTML = '<option value="">No groups available</option>'; configSummary.textContent = 'This community has not published a savings group yet. Please contact the Community Admin.'; }
         update();
-      }).catch(function () { configSelect.innerHTML = '<option value="">Unable to load configurations</option>'; configSummary.textContent = 'Please refresh this page or contact the Community Admin.'; update(); });
+      }).catch(function () { configSelect.innerHTML = '<option value="">Unable to load groups</option>'; configSummary.textContent = 'Please refresh this page or contact the Community Admin.'; update(); });
       configSelect.addEventListener('change', function () {
         selectedCircleConfigurationId = configSelect.value;
         const option = configSelect.options[configSelect.selectedIndex];
-        configSummary.textContent = option && option.value ? option.textContent + '. Your registration will be allocated only within this configuration.' : 'Select a configuration to continue.';
+        configSummary.textContent = option && option.value ? option.textContent + '. Your registration will be allocated only within this group.' : 'Select a group to continue.';
         update();
       });
 
@@ -1462,7 +1402,7 @@
           msg.textContent = 'You can now create your account.';
           msg.style.color = 'var(--brand-primary, #00daf3)';
         } else {
-          msg.textContent = selectedCircleConfigurationId ? 'Tick all three boxes above to continue.' : 'Select a circle configuration and tick all three boxes to continue.';
+          msg.textContent = selectedCircleConfigurationId ? 'Tick all three boxes above to continue.' : 'Select a savings group and tick all three boxes to continue.';
           msg.style.color = 'var(--on-surface-variant, #94a3b8)';
         }
       }
