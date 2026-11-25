@@ -2708,7 +2708,7 @@ footer a:hover { color: var(--g); }
         String(expectedAmount)
       );
       if (amtStr === null || amtStr.trim() === '') return;
-      if (!/^\\d+$/.test(amtStr.trim())) {
+      if (!/^\d+$/.test(amtStr.trim())) {
         toast('Amount must be a positive whole number of pence.', 'error');
         return;
       }
