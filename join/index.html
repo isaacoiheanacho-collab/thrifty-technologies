@@ -780,14 +780,14 @@
     <section class="section section--center" id="circle-configuration">
       <div class="section__inner section__inner--narrow">
         <div class="section__eyebrow">Choose your savings arrangement</div>
-        <h2>Select a circle configuration</h2>
-        <p class="section__lede" style="text-align:center;">Choose the contribution arrangement you are joining. Members are grouped only with co-savers who selected the same configuration.</p>
+        <h2>Select a savings group</h2>
+        <p class="section__lede" style="text-align:center;">Choose the contribution arrangement you are joining. Members are grouped only with co-savers who selected the same group.</p>
         <div class="consent-gate" style="text-align:left;">
-          <label class="form-label" for="circle-configuration-select">Available configurations</label>
+          <label class="form-label" for="circle-configuration-select">Available groups</label>
           <select id="circle-configuration-select" class="form-input" style="width:100%;padding:14px;border-radius:10px;">
             <option value="">Loading configurations…</option>
           </select>
-          <div id="circle-configuration-summary" class="consent-gate__sub" style="margin:12px 0 0;">Loading community circle arrangements…</div>
+          <div id="circle-configuration-summary" class="consent-gate__sub" style="margin:12px 0 0;">Loading available savings groups…</div>
         </div>
       </div>
     </section>
@@ -1384,13 +1384,13 @@
         configSelect.innerHTML = '<option value="">Choose a configuration</option>' + (rows || []).map(function (c) {
           return '<option value="' + escapeHtml(c.id) + '">' + escapeHtml(c.name) + ' — ' + escapeHtml(c.contributionFrequency) + ' — ' + escapeHtml(penceToGbp(c.contributionAmountPence)) + ' / contribution — ' + c.memberCapacity + ' co-savers — approx. ' + c.tenureDurationDays + ' days total</option>';
         }).join('');
-        if (!rows || !rows.length) { configSelect.innerHTML = '<option value="">No configurations available</option>'; configSummary.textContent = 'This community has not published a savings-circle configuration yet. Please contact the Community Admin.'; }
+        if (!rows || !rows.length) { configSelect.innerHTML = '<option value="">No groups available</option>'; configSummary.textContent = 'This community has not published a savings group yet. Please contact the Community Admin.'; }
         update();
       }).catch(function () { configSelect.innerHTML = '<option value="">Unable to load configurations</option>'; configSummary.textContent = 'Please refresh this page or contact the Community Admin.'; update(); });
       configSelect.addEventListener('change', function () {
         selectedCircleConfigurationId = configSelect.value;
         const option = configSelect.options[configSelect.selectedIndex];
-        configSummary.textContent = option && option.value ? option.textContent + '. Your registration will be allocated only within this configuration.' : 'Select a configuration to continue.';
+        configSummary.textContent = option && option.value ? option.textContent + '. Your registration will be allocated only within this group.' : 'Select a group to continue.';
         update();
       });
 
@@ -1402,7 +1402,7 @@
           msg.textContent = 'You can now create your account.';
           msg.style.color = 'var(--brand-primary, #00daf3)';
         } else {
-          msg.textContent = selectedCircleConfigurationId ? 'Tick all three boxes above to continue.' : 'Select a circle configuration and tick all three boxes to continue.';
+          msg.textContent = selectedCircleConfigurationId ? 'Tick all three boxes above to continue.' : 'Select a savings group and tick all three boxes to continue.';
           msg.style.color = 'var(--on-surface-variant, #94a3b8)';
         }
       }
