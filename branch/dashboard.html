@@ -1936,11 +1936,18 @@ footer a:hover { color: var(--g); }
       const barsEl = document.getElementById('chart-bars');
 
       // 1. Scale the chart to the largest configured circle pool.
-      const maxPoolPence = Math.max(100, ...(tenants || []).map(t => Number(t.contributionAmountPence || 0) * Number(t.memberCapacity || 0)));
-      const maxPoolGbp = Math.ceil((maxPoolPence / 100) / 1000) * 1000 || 1000;
+      const poolValuesGbp = (tenants || []).map(t =>
+        (Number(t.contributionAmountPence || 0) * Number(t.memberCapacity || 0)) / 100
+      );
+      const largestPoolGbp = Math.max(0, ...poolValuesGbp);
+      const rawStep = largestPoolGbp > 0 ? largestPoolGbp / 4 : 1;
+      const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
+      const normalizedStep = rawStep / magnitude;
+      const niceStep = (normalizedStep <= 1 ? 1 : normalizedStep <= 2 ? 2 : normalizedStep <= 2.5 ? 2.5 : normalizedStep <= 5 ? 5 : 10) * magnitude;
+      const maxPoolGbp = niceStep * 4;
       const yLabels = [];
-      for (let i = 12; i >= 0; i--) {
-        yLabels.push('£' + Math.round((maxPoolGbp * i) / 12).toLocaleString());
+      for (let i = 4; i >= 0; i--) {
+        yLabels.push('£' + (maxPoolGbp * i / 4).toLocaleString('en-GB', { maximumFractionDigits: 2 }));
       }
       yAxis.innerHTML = yLabels.map(v => `<div>${v}</div>`).join('');
 
@@ -1985,15 +1992,15 @@ footer a:hover { color: var(--g); }
         });
       } catch (e) {}
 
-      // 5. Build 50 slots
-      const MAX_TENANTS = 50;
-      const slots = [];
-      for (let i = 0; i < MAX_TENANTS; i++) {
-        const t = enriched[i];
-        slots.push(t ? { filled: true, ...t } : { filled: false, index: i });
+      // Render only tenants belonging to the selected group. The chart is
+      // driven by the real tenant collection, never a fixed branch-wide 50 slots.
+      if (!enriched.length) {
+        barsEl.innerHTML = '<div style="padding:24px;color:var(--muted);font-size:13px;">No circles have been generated in this group yet. Co-savers will be placed into circles using this group’s configured capacity.</div>';
+        return;
       }
+      const slots = enriched.map((tenant, index) => ({ filled: true, ...tenant, index }));
 
-      // 6. Render bars
+      // Render bars
       barsEl.innerHTML = slots.map((s, idx) => {
         const tnLabel = `Tn ${idx + 1}`;
 
@@ -2545,7 +2552,7 @@ footer a:hover { color: var(--g); }
           const receiptBtn = i.receipt ? '<a class="btn btn--ghost btn--sm" href="' + escapeHtml(i.receipt.objectUrl) + '" target="_blank">View</a>' : '<span style="color:var(--muted);">none</span>';
           return `
             <tr>
-              <td data-label="Tenant & Saver"><strong>${escapeHtml(i.tenantName || 'Unassigned')}</strong><br><span style="font-size:12px;color:var(--muted);">${escapeHtml(i.userName || 'Unknown')}</span></td>
+              <td data-label="Tenant & Saver"><strong>${escapeHtml(i.tenantName || 'Awaiting tenant allocation')}</strong><br><span style="font-size:12px;color:var(--muted);">${escapeHtml(i.userName || 'Saver identity unavailable')}</span></td>
               <td data-label="Reference"><code>${escapeHtml(i.reference)}</code></td>
               <td data-label="Cycle">${i.cycle}</td>
               <td data-label="Amount">${amt}</td>
