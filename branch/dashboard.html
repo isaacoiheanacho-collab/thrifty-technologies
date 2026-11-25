@@ -947,34 +947,34 @@ footer a:hover { color: var(--g); }
         </div>
 
         <div id="overview-body" style="display: none;">
-          <div role="note" style="padding:12px 16px;border-radius:12px;margin-bottom:18px;background:#e0edff;border:1px solid #8ab4f8;color:#174ea6;line-height:1.5;"><strong>Branch-wide overview:</strong> All figures, charts and activity on this page cover every circle configuration in this branch. They do not change when you switch the selected configuration.</div>
+          <div role="note" id="overview-scope-note" style="padding:12px 16px;border-radius:12px;margin-bottom:18px;background:#e0edff;border:1px solid #8ab4f8;color:#174ea6;line-height:1.5;"><strong id="overview-scope-title">Selected group overview</strong><span id="overview-scope-description"> Figures, tenant bars, payouts and recent activity below are limited to the selected group.</span></div>
           <!-- TOP COUNTERS -->
           <div class="stat-grid">
             <div class="stat-card">
               <div class="stat-icon bg-green">♟</div>
               <div class="stat-info">
-                <div class="stat-label">Branch tenants (all configurations)</div>
+                <div class="stat-label">Group circles</div>
                 <div class="stat-value" id="stat-total-tenants">0</div>
               </div>
             </div>
             <div class="stat-card">
               <div class="stat-icon bg-teal">♟</div>
               <div class="stat-info">
-                <div class="stat-label">Active branch tenants</div>
+                <div class="stat-label">Active group circles</div>
                 <div class="stat-value" id="stat-active-tenants">0</div>
               </div>
             </div>
             <div class="stat-card">
               <div class="stat-icon bg-blue">▣</div>
               <div class="stat-info">
-                <div class="stat-label">Branch co-savers (all configurations)</div>
+                <div class="stat-label">Group co-savers</div>
                 <div class="stat-value" id="stat-total-members">0</div>
               </div>
             </div>
             <div class="stat-card">
               <div class="stat-icon bg-gold">★</div>
               <div class="stat-info">
-                <div class="stat-label">Branch pending KYC</div>
+                <div class="stat-label">Group pending KYC</div>
                 <div class="stat-value" id="stat-pending-kyc">0</div>
               </div>
             </div>
@@ -982,10 +982,10 @@ footer a:hover { color: var(--g); }
 
           <!-- SECOND ROW COUNTERS -->
           <div class="stat-grid" style="grid-template-columns: repeat(4, 1fr);">
-            <div class="stat-card"><div class="stat-info"><div class="stat-label">Branch pending receipts</div><div class="stat-value" id="stat-pending-contribs" style="color: #d97706;">0</div></div></div>
-            <div class="stat-card"><div class="stat-info"><div class="stat-label">Branch pending payouts</div><div class="stat-value" id="stat-pending-payouts" style="color: #d97706;">0</div></div></div>
-            <div class="stat-card"><div class="stat-info"><div class="stat-label">Branch contributions (month)</div><div class="stat-value" id="stat-contribs-month" style="color: var(--g);">£0</div></div></div>
-            <div class="stat-card"><div class="stat-info"><div class="stat-label">Branch payouts (month)</div><div class="stat-value" id="stat-payouts-month" style="color: var(--g);">£0</div></div></div>
+            <div class="stat-card"><div class="stat-info"><div class="stat-label">Group pending receipts</div><div class="stat-value" id="stat-pending-contribs" style="color: #d97706;">0</div></div></div>
+            <div class="stat-card"><div class="stat-info"><div class="stat-label">Group pending payouts</div><div class="stat-value" id="stat-pending-payouts" style="color: #d97706;">0</div></div></div>
+            <div class="stat-card"><div class="stat-info"><div class="stat-label">Group contributions (month)</div><div class="stat-value" id="stat-contribs-month" style="color: var(--g);">£0</div></div></div>
+            <div class="stat-card"><div class="stat-info"><div class="stat-label">Group payouts (month)</div><div class="stat-value" id="stat-payouts-month" style="color: var(--g);">£0</div></div></div>
           </div>
 
           <div class="dash-grid-main">
@@ -1894,7 +1894,8 @@ footer a:hover { color: var(--g); }
       document.getElementById('overview-empty').style.display = 'none';
 
       try {
-        const stats = await api('/api/branch-admin/stats');
+        if (!selectedConfigurationId) throw new Error('Select a group to view its overview.');
+        const stats = await api('/api/branch-admin/stats?configurationId=' + encodeURIComponent(selectedConfigurationId));
         document.getElementById('stat-total-tenants').textContent = stats.tenants.total;
         document.getElementById('stat-active-tenants').textContent = stats.tenants.active;
         document.getElementById('stat-total-members').textContent = stats.members.total;
@@ -1907,7 +1908,7 @@ footer a:hover { color: var(--g); }
 
       try {
         const summary = await api('/api/branch-admin/tenants/summary');
-        state.tenants = summary.tenants || [];
+        state.tenants = (summary.tenants || []).filter(t => t.configurationId === selectedConfigurationId);
         await renderContributionChart(state.tenants);
       } catch (err) {
         console.error('[dashboard] tenants failed', err);
@@ -1975,7 +1976,7 @@ footer a:hover { color: var(--g); }
       let payoutsByTenant = {};
       try {
         const res = await api('/api/branch-admin/payouts?limit=100'); 
-        (res.intents || []).forEach(p => {
+        (res.intents || []).filter(p => enriched.some(t => t.id === p.tenantId)).forEach(p => {
           if (p.state !== 'CONFIRMED' && !payoutsByTenant[p.tenantId]) {
             payoutsByTenant[p.tenantId] = p;
           }
@@ -2077,7 +2078,8 @@ footer a:hover { color: var(--g); }
       tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px;">Loading…</td></tr>';
       try {
         const result = await api('/api/branch-admin/payouts?limit=100');
-        let intents = (result.intents || []).filter(p => p.state !== 'CONFIRMED');
+        const groupTenantIds = new Set(selectedTenantIds());
+        let intents = (result.intents || []).filter(p => groupTenantIds.has(p.tenantId) && p.state !== 'CONFIRMED');
         intents.sort((a, b) => new Date(a.dueDate || a.createdAt) - new Date(b.dueDate || b.createdAt));
         intents = intents.slice(0, 5);
 
@@ -2114,8 +2116,8 @@ footer a:hover { color: var(--g); }
       const safe = fn => fn().catch(err => { console.warn('[activity]', err); return null; });
 
       const [kycRes, contribRes, payoutRes] = await Promise.all([
-        safe(() => api('/api/branch-admin/kyc?limit=20')),
-        safe(() => api('/api/branch-admin/contributions?status=CONFIRMED&limit=20')),
+        safe(() => api('/api/branch-admin/kyc?limit=100&configurationId=' + encodeURIComponent(selectedConfigurationId))),
+        safe(() => fetchTenantScopedRows('/api/branch-admin/contributions', selectedTenantIds(), 'CONFIRMED', 'contributions').then(contributions => ({ contributions }))),
         safe(() => api('/api/branch-admin/payouts?limit=20')),
       ]);
 
@@ -2146,7 +2148,7 @@ footer a:hover { color: var(--g); }
         });
       }
       if (payoutRes && payoutRes.intents) {
-        payoutRes.intents.forEach(p => {
+        payoutRes.intents.filter(p => selectedTenantIds().includes(p.tenantId)).forEach(p => {
           if (p.state === 'CONFIRMED') {
             events.push({
               ts: p.confirmedAt || p.updatedAt || p.createdAt,
@@ -2393,9 +2395,11 @@ footer a:hover { color: var(--g); }
       tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted);">Loading…</td></tr>';
       
       try {
-        const contextIds=selectedTenantIds();
-        const tenantIds=tenantFilter&&contextIds.includes(tenantFilter)?[tenantFilter]:contextIds;
-        const subs=await fetchTenantScopedRows('/api/branch-admin/kyc',tenantIds,statusFilter,'submissions');
+        const q=new URLSearchParams({limit:'100',offset:'0',configurationId:selectedConfigurationId});
+        if(statusFilter&&statusFilter!=='ALL')q.set('status',statusFilter);
+        if(tenantFilter&&selectedTenantIds().includes(tenantFilter))q.set('tenantId',tenantFilter);
+        const response=await api('/api/branch-admin/kyc?'+q.toString());
+        const subs=response.submissions||[];
         if (!subs.length) {
           tbody.innerHTML = '<tr><td colspan="5"><div class="empty"><h3>No records found</h3><p>Try changing the filters.</p></div></td></tr>';
           return;
