@@ -711,7 +711,7 @@
             <div class="feature__body">
               <div class="feature__num">02 — Payout</div>
               <h3>One collection per cycle</h3>
-              <p>At each collection cycle, one member receives the whole pot. Slot numbers are assigned randomly — no favouritism, no negotiation. The collection schedule follows the configuration selected by the co-saver.</p>
+              <p>At each collection cycle, one member receives the whole pot. Slot numbers are assigned randomly — no favouritism, no negotiation. The collection schedule follows the group selected by the co-saver.</p>
             </div>
           </div>
           <div class="feature reveal reveal--delay-2">
@@ -785,7 +785,7 @@
         <div class="consent-gate" style="text-align:left;">
           <label class="form-label" for="circle-configuration-select">Available groups</label>
           <select id="circle-configuration-select" class="form-input" style="width:100%;padding:14px;border-radius:10px;">
-            <option value="">Loading configurations…</option>
+            <option value="">Loading groups…</option>
           </select>
           <div id="circle-configuration-summary" class="consent-gate__sub" style="margin:12px 0 0;">Loading available savings groups…</div>
         </div>
@@ -1381,12 +1381,12 @@
       const configSelect = document.getElementById('circle-configuration-select');
       const configSummary = document.getElementById('circle-configuration-summary');
       api('/api/circle-configurations/' + encodeURIComponent(slug)).then(function (rows) {
-        configSelect.innerHTML = '<option value="">Choose a configuration</option>' + (rows || []).map(function (c) {
+        configSelect.innerHTML = '<option value="">Choose a group</option>' + (rows || []).map(function (c) {
           return '<option value="' + escapeHtml(c.id) + '">' + escapeHtml(c.name) + ' — ' + escapeHtml(c.contributionFrequency) + ' — ' + escapeHtml(penceToGbp(c.contributionAmountPence)) + ' / contribution — ' + c.memberCapacity + ' co-savers — approx. ' + c.tenureDurationDays + ' days total</option>';
         }).join('');
         if (!rows || !rows.length) { configSelect.innerHTML = '<option value="">No groups available</option>'; configSummary.textContent = 'This community has not published a savings group yet. Please contact the Community Admin.'; }
         update();
-      }).catch(function () { configSelect.innerHTML = '<option value="">Unable to load configurations</option>'; configSummary.textContent = 'Please refresh this page or contact the Community Admin.'; update(); });
+      }).catch(function () { configSelect.innerHTML = '<option value="">Unable to load groups</option>'; configSummary.textContent = 'Please refresh this page or contact the Community Admin.'; update(); });
       configSelect.addEventListener('change', function () {
         selectedCircleConfigurationId = configSelect.value;
         const option = configSelect.options[configSelect.selectedIndex];
