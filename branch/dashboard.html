@@ -2691,34 +2691,27 @@ footer a:hover { color: var(--g); }
     loadContributionReminderPreview();
 
     async function confirmContribution(intentId, expectedAmountPence) {
-      // The pending-intent API supplies this amount from the persisted intent,
-      // which was created using the selected group's configured contribution.
-      // Never fall back to the historic £1,000 / 100,000-pence default.
-      const expectedAmount = Number(expectedAmountPence);
-      if (!Number.isSafeInteger(expectedAmount) || expectedAmount <= 0) {
+      // The pending-intent API supplies the amount persisted from the selected
+      // circle configuration. Do not allow a manual override or a historic
+      // fixed £1,000 default to reach the confirmation endpoint.
+      const amount = Number(expectedAmountPence);
+      if (!Number.isSafeInteger(amount) || amount <= 0) {
         toast('The configured contribution amount could not be loaded. Refresh the list before confirming.', 'error');
         return;
       }
-      const expectedGbp = (expectedAmount / 100).toLocaleString('en-GB', {
+      const expectedGbp = (amount / 100).toLocaleString('en-GB', {
         style: 'currency', currency: 'GBP'
       });
-      const amtStr = window.prompt(
-        'Confirm the amount received in pence. This group contribution is ' +
-          expectedGbp + ' (' + expectedAmount.toLocaleString('en-GB') + ' pence):',
-        String(expectedAmount)
-      );
-      if (amtStr === null || amtStr.trim() === '') return;
-      if (!/^\d+$/.test(amtStr.trim())) {
-        toast('Amount must be a positive whole number of pence.', 'error');
-        return;
-      }
-      const amount = Number(amtStr.trim());
-      if (!Number.isSafeInteger(amount) || amount <= 0) {
-        toast('Amount must be a positive whole number of pence.', 'error');
-        return;
-      }
+      if (!window.confirm(
+        'Confirm receipt of the configured contribution of ' + expectedGbp +
+        '? The amount is fixed by this circle configuration.'
+      )) return;
+
       try {
-        await api('/api/branch-admin/contributions/' + intentId + '/confirm', { method: 'POST', body: { intentId, amount } });
+        await api('/api/branch-admin/contributions/' + intentId + '/confirm', {
+          method: 'POST',
+          body: { intentId, amount }
+        });
         toast('Contribution confirmed', 'success');
         await loadContributions();
       } catch (err) { toast('Confirm failed: ' + err.message, 'error'); }
