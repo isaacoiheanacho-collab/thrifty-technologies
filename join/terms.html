@@ -482,7 +482,7 @@
         <p><strong>2.9. Contribution:</strong> The amount each Co-Saver agrees to pay into a Savings Circle at the agreed intervals.</p>
         <p><strong>2.10. Collection Position or Slot:</strong> The position assigned to a Co-Saver in the agreed order of receiving the Circle's adjusted Payout.</p>
         <p><strong>2.11. Payout:</strong> The amount allocated to a Co-Saver for their collection position after the applicable TVC adjustment and before deduction of the Platform Maintenance Fee.</p>
-        <p><strong>2.12. TVC:</strong> Time Value Collection, the adjustment calculated using the agreed annual rate and the difference between a Co-Saver's Collection Position and the Circle's pivot position.</p>
+        <p><strong>2.12. TVC:</strong> Time-Value Collection, the position-based adjustment to a Circle's Payout. The adjustment is calculated by reference to the individual Contribution amount, the total number of Co-Savers and the Co-Saver's Collection Position, subject to a maximum absolute adjustment of 50% of one Contribution.</p>
         <p><strong>2.13. Platform Maintenance Fee:</strong> The fee charged for the provision, maintenance and operation of the Platform, calculated at 1.5% of the Payout after the TVC adjustment.</p>
         <p><strong>2.14. User:</strong> Any person accessing or using the Platform, including a Community Partner, Community Admin or Co-Saver.</p>
 
@@ -617,40 +617,32 @@
         <p>10.9. The Circle Rules must explain how the Circle will deal with missed or late Contributions, withdrawal requests, defaults and a Co-Saver who receives a Payout but subsequently fails to fulfil their remaining Contribution obligations.</p>
         <p>10.10. Thrifty is not responsible for a shortfall arising from a Co-Saver's default, a Community Admin's failure to administer the Circle properly or the misappropriation of funds by a person controlling the Circle Account, except to the extent that the loss is caused by Thrifty's own breach of its legal obligations.</p>
 
-        <h4>11. Time value collection (TVC)</h4>
-        <p>11.1. The Platform incorporates a Time Value Collection adjustment ("TVC") into the calculation of Savings Circle Payouts.</p>
-        <p>11.2. TVC is intended to recognise the difference in collection timing between Co-Savers occupying different Collection Positions in a Circle.</p>
-        <p>11.3. In a standard 12-Co-Saver Circle, the maximum TVC adjustment is 50% of one monthly Contribution. The adjustment for each Co-Saver depends on their Collection Position and is zero at the midpoint.</p>
-        <p>11.4. The monthly calculation factor used in the standard 12-member formula is:</p>
-        <div class="formula">r = 0.007575</div>
-        <p>11.5. The TVC calculation uses the number of Co-Savers in the Circle, the monthly Contribution amount, the Co-Saver's Collection Position and the Circle's pivot position.</p>
-        <p>11.6. The formula is as follows:</p>
-        <p><strong>A. Base Pool</strong></p>
-        <div class="formula">P = N × M</div>
-        <p><strong>B. Pivot Position</strong></p>
+        <h4>11. Time-Value Collection (TVC)</h4>
+        <p>11.1. The Platform incorporates a Time-Value Collection adjustment ("TVC") into the calculation of Savings Circle Payouts.</p>
+        <p>11.2. TVC recognises the difference in collection timing between Co-Savers occupying different Collection Positions. Earlier collection positions receive a negative adjustment to the gross pool; later positions receive a positive adjustment.</p>
+        <p>11.3. The maximum absolute TVC adjustment for any Co-Saver is 50% of that Co-Saver's individual Contribution for one collection period. The adjustment is not calculated as a percentage of the total pool or gross Payout.</p>
+        <p>11.4. The calculation is based on the actual number of Co-Savers in the Circle and the Co-Saver's Collection Position. It is not restricted to a fixed membership size.</p>
+        <p>11.5. The Circle's pivot position is:</p>
         <div class="formula">Pivot = (N + 1) / 2</div>
-        <p><strong>C. TVC Adjustment</strong></p>
-        <div class="formula">Adjustment = (T − Pivot) × M × r × N</div>
-        <p><strong>D. Adjusted Payout</strong></p>
-        <div class="formula">P_net = P + Adjustment</div>
-        <p><strong>E. Equivalent Factored Formula</strong></p>
-        <div class="formula">P_net = P × [1 + r × (T − Pivot)]</div>
-        <p>11.7. For this calculation:</p>
+        <p>11.6. The TVC adjustment is:</p>
+        <div class="formula">TVC Adjustment = M × (T − Pivot) / (N − 1)</div>
+        <p>11.7. The adjusted Payout before deduction of the Platform Maintenance Fee is:</p>
+        <div class="formula">Gross Pool = N × M<br>Adjusted Payout = Gross Pool + TVC Adjustment</div>
+        <p>11.8. For this calculation:</p>
         <ul>
           <li><strong>N</strong> = total number of Co-Savers in the Circle;</li>
-          <li><strong>M</strong> = monthly Contribution per Co-Saver;</li>
+          <li><strong>M</strong> = individual Contribution amount for one collection period;</li>
           <li><strong>T</strong> = the Co-Saver's Collection Position, numbered from 1 to N;</li>
-          <li><strong>r</strong> = the monthly calculation factor, currently 0.007575;</li>
-          <li><strong>P</strong> = base pool, calculated as N × M;</li>
-          <li><strong>P_net</strong> = adjusted Payout after applying the TVC adjustment.</li>
+          <li><strong>Pivot</strong> = the midpoint position, calculated as (N + 1) / 2;</li>
+          <li><strong>TVC Adjustment</strong> = the amount added to or deducted from the gross pool for that Collection Position.</li>
         </ul>
-        <p>11.8. Where the Collection Position is earlier than the pivot position, the formula produces a negative adjustment. Where the Collection Position is later than the pivot position, the formula produces a positive adjustment.</p>
-        <p>11.9. A Collection Position equal to the pivot position produces no TVC adjustment.</p>
-        <p>11.10. The TVC is an adjustment in the distribution of the Circle's Payouts. It is not a separate fee charged by Thrifty.</p>
-        <p>11.11. Neither Thrifty nor the Community Admin separately receives, holds, collects or distributes TVC as a standalone payment. It is reflected through the Payout calculation and the corresponding allocation of the Circle pool.</p>
-        <p>11.12. Thrifty provides the software calculation and display of TVC. The Community Admin remains responsible for administering the Circle and ensuring that the calculation is applied in accordance with the agreed Circle Rules.</p>
-        <p>11.13. The TVC calculation must be disclosed to Co-Savers before they join a Circle.</p>
-        <p>11.14. Any change to the maximum TVC adjustment or calculation method must be communicated to affected Co-Savers and agreed where required before being applied to an existing Circle.</p>
+        <p>11.9. The first Collection Position receives an adjustment equal to minus 50% of one Contribution, and the final Collection Position receives an adjustment equal to plus 50% of one Contribution. The adjustment changes progressively between those positions.</p>
+        <p>11.10. Where a Circle has an odd number of Co-Savers, the middle position has no TVC adjustment. Where a Circle has an even number of Co-Savers, the two positions nearest the midpoint have equal adjustments in opposite directions.</p>
+        <p>11.11. Across all Collection Positions in a fully configured Circle, the TVC adjustments balance to zero. TVC therefore reallocates the gross pool between collection positions; it does not create additional Circle funds or a separate payment to Thrifty.</p>
+        <p>11.12. TVC is not interest, a loan, a separate platform fee or a payment collected by Thrifty. It is reflected in the allocation of the Circle's Payouts.</p>
+        <p>11.13. Thrifty provides the software calculation and display of TVC. The Community Admin remains responsible for administering the Circle and ensuring that the calculation is applied in accordance with the agreed Circle Rules.</p>
+        <p>11.14. The TVC calculation must be disclosed to Co-Savers before they join a Circle.</p>
+        <p>11.15. Any change to the maximum TVC adjustment or calculation method must be communicated to affected Co-Savers and agreed where required before being applied to an existing Circle.</p>
 
         <h4>12. Platform maintenance fee</h4>
         <p>12.1. The Platform Maintenance Fee is charged for the provision, maintenance and operation of the Thrifty software application.</p>

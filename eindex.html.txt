@@ -574,12 +574,12 @@
 
       <div class="hero__stats">
         <div class="hero__stat">
-          <span class="hero__stat-value" data-count="12">12</span>
-          <span class="hero__stat-label">Members per circle</span>
+          <span class="hero__stat-value">Configurable</span>
+          <span class="hero__stat-label">Circle membership</span>
         </div>
         <div class="hero__stat">
-          <span class="hero__stat-value" data-count="12">12</span>
-          <span class="hero__stat-label">Months per tenure</span>
+          <span class="hero__stat-value">Flexible</span>
+          <span class="hero__stat-label">Collection schedule</span>
         </div>
         <div class="hero__stat">
           <span class="hero__stat-value" data-count="1.5" data-suffix="%">1.5%</span>
@@ -597,8 +597,8 @@
         A ROSCA — Rotating Savings and Credit Association — is a savings
         tradition used across the world. A small group contributes a fixed
         amount every month. Each month, one member receives the whole pool.
-        Over 12 months, everyone contributes the same total and receives
-        the pool exactly once.
+        Across the configured collection schedule, every member contributes
+        the agreed amount and receives the pool once.
       </p>
 
       <div class="feature-grid">
@@ -608,8 +608,8 @@
           </div>
           <div class="feature__body">
             <div class="feature__num">01 — Members</div>
-            <h3>12 people, one circle</h3>
-            <p>A circle is exactly 12 verified members. Every member contributes the same amount every month. After 12 months, everyone has contributed twelve times and received once.</p>
+            <h3>One configured circle</h3>
+            <p>Each circle has a membership capacity selected by its Community Admin. Every member contributes the agreed amount at the configured frequency, and each member receives one collection position.</p>
           </div>
         </div>
         <div class="feature reveal reveal--delay-1">
@@ -619,7 +619,7 @@
           <div class="feature__body">
             <div class="feature__num">02 — Payout</div>
             <h3>One collection per month</h3>
-            <p>Each month, one member receives the whole pot. Slot numbers are assigned randomly — no favouritism, no negotiation. Slot 1 collects in month 1, slot 12 in month 12.</p>
+            <p>At each configured collection interval, one member receives the pool. Collection positions are assigned during circle formation, and the schedule follows the number of positions configured for that circle.</p>
           </div>
         </div>
         <div class="feature reveal reveal--delay-2">
@@ -662,7 +662,7 @@
           <div class="pillar reveal">
             <div class="pillar__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></div>
             <h3>Shared visibility</h3>
-            <p>All 12 members see the same contributions, receipts, and progress. No private balances.</p>
+            <p>All members in the circle see the same contributions, receipts, and progress. No private balances.</p>
           </div>
           <div class="pillar reveal reveal--delay-1">
             <div class="pillar__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
@@ -744,12 +744,12 @@
       <div class="term-columns">
         <details class="accordion__item"><summary class="accordion__summary">ROSCA</summary><div class="accordion__content"><p>Rotating Savings and Credit Association. A savings tradition where a group of people contribute a fixed amount at regular intervals, and each period one member receives the whole pool.</p></div></details>
         <details class="accordion__item"><summary class="accordion__summary">Branch</summary><div class="accordion__content"><p>A local group running its own circles — typically a church branch or community organisation. Each branch has its own bank account, admin, and members.</p></div></details>
-        <details class="accordion__item"><summary class="accordion__summary">Circle (Tenant)</summary><div class="accordion__content"><p>One group of exactly 12 members saving together. A branch can run multiple circles. We use "tenant" internally, "circle" on most screens.</p></div></details>
-        <details class="accordion__item"><summary class="accordion__summary">Slot</summary><div class="accordion__content"><p>Your position in the circle, 1 to 12. Slots are assigned randomly at formation. Slot 1 receives in cycle 1, slot 12 in cycle 12.</p></div></details>
-        <details class="accordion__item"><summary class="accordion__summary">Cycle</summary><div class="accordion__content"><p>One month of the circle's run. Cycle 1 is the first month, cycle 12 the last. Each cycle, one member receives the pool.</p></div></details>
-        <details class="accordion__item"><summary class="accordion__summary">Tenure</summary><div class="accordion__content"><p>A full 12-cycle run — one year. When it ends, members vote on whether to renew for another year with the same slots.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Circle (Tenant)</summary><div class="accordion__content"><p>One group of co-savers saving together under a selected circle configuration. A branch can run multiple circles. We use "tenant" internally, "circle" on most screens.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Slot</summary><div class="accordion__content"><p>Your assigned collection position within the circle, from the first position through the final position configured for that circle. Each position corresponds to its matching collection cycle.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Cycle</summary><div class="accordion__content"><p>One collection interval in the circle's schedule. Cycle 1 is the first interval and the final cycle is determined by the configured number of collection positions. Each cycle, one member receives the pool.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Tenure</summary><div class="accordion__content"><p>The complete run of the configured collection cycles. When it ends, members follow the circle's renewal process for any subsequent tenure.</p></div></details>
         <details class="accordion__item"><summary class="accordion__summary">Contribution</summary><div class="accordion__content"><p>The fixed amount each member pays every cycle. On this platform typically £1,000/month, though your branch may set a different amount.</p></div></details>
-        <details class="accordion__item"><summary class="accordion__summary">Pool (Pot)</summary><div class="accordion__content"><p>The total collected from all 12 members in one cycle. For £1,000 contributions, the pool is £12,000.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Pool (Pot)</summary><div class="accordion__content"><p>The total collected from all participating members in one cycle, calculated using the circle's configured membership capacity and contribution amount.</p></div></details>
         <details class="accordion__item"><summary class="accordion__summary">Payout</summary><div class="accordion__content"><p>The amount paid to the cycle's recipient. Pool, adjusted for TVC, minus the platform fee.</p></div></details>
         <details class="accordion__item"><summary class="accordion__summary">TVC</summary><div class="accordion__content"><p>Time-Value Contribution. A small adjustment so later receivers are compensated for time their money spent in the pool. 2% per year, scaled to slot position.</p></div></details>
         <details class="accordion__item"><summary class="accordion__summary">Platform fee</summary><div class="accordion__content"><p>1.5% of the post-TVC pool, deducted at payout time. Retained by Thrifty Technologies for running the ledger and support.</p></div></details>
@@ -757,7 +757,7 @@
         <details class="accordion__item"><summary class="accordion__summary">Receipt</summary><div class="accordion__content"><p>Photo or screenshot of a bank transfer. Members upload them for contributions, admins for payouts.</p></div></details>
         <details class="accordion__item"><summary class="accordion__summary">KYC</summary><div class="accordion__content"><p>Know Your Customer. Identity verification — full legal name, home address, bank details — required before joining a circle.</p></div></details>
         <details class="accordion__item"><summary class="accordion__summary">Ledger</summary><div class="accordion__content"><p>Append-only record of every contribution, payout, and fee. Cannot be edited or deleted by anyone.</p></div></details>
-        <details class="accordion__item"><summary class="accordion__summary">Renewal vote</summary><div class="accordion__content"><p>When a tenure ends, every member votes on continuing another year. All 12 must agree to renew.</p></div></details>
+        <details class="accordion__item"><summary class="accordion__summary">Renewal vote</summary><div class="accordion__content"><p>When a tenure ends, members follow the renewal decision process configured for their circle.</p></div></details>
         <details class="accordion__item"><summary class="accordion__summary">Branch admin</summary><div class="accordion__content"><p>The person at your branch who runs the circle. Verifies contributions, confirms payouts, handles issues.</p></div></details>
         <details class="accordion__item"><summary class="accordion__summary">Platform operator</summary><div class="accordion__content"><p>Thrifty Technologies — provides the ledger, storage, notifications, support. Does not hold or move money.</p></div></details>
       </div>

@@ -626,7 +626,7 @@ footer a:hover { color: var(--g); }
       <section class="section" id="section-tenant">
         <div class="page-header">
           <h1>Circle Status</h1>
-          <p>See how the other 11 members are doing.</p>
+          <p>See how your co-savers are doing.</p>
         </div>
         <div class="table-wrap">
           <table class="table" id="tenant-table">
@@ -684,15 +684,17 @@ footer a:hover { color: var(--g); }
           <div style="margin-top: 24px; padding: 16px; background: var(--bg); border-radius: 8px; border: 1px solid var(--line); font-size: 13px; color: var(--muted); line-height: 1.8;">
             <strong style="color: var(--ink); display: block; margin-bottom: 12px;">Payout Mathematical Formula</strong>
             <div style="margin-bottom: 8px; font-family: monospace; color: var(--g);">
-              P_net = P + [ ( T - (N + 1) / 2 ) × M × r × N ]
+              TVC Adjustment = M × (T − Pivot) / (N − 1)<br>
+              Adjusted Payout = (N × M) + TVC Adjustment
             </div>
             <p style="margin-bottom: 16px; font-size: 12px;">
               <strong>Where:</strong><br>
               P = Base Pool (N × M)<br>
               N = Number of members<br>
-              M = Monthly contribution<br>
-              T = Recipient's position (Slot)<br>
-              r = Monthly calculation factor (currently 0.007575)
+              M = Individual contribution for one collection period<br>
+              T = Recipient's collection position<br>
+              Pivot = (N + 1) / 2<br>
+              Maximum absolute adjustment = 50% of M
             </p>
             <div id="math-calculation-strings" style="padding-top: 12px; border-top: 1px dashed var(--line);"></div>
           </div>
