@@ -100,7 +100,7 @@ GET	/tenants/:tenantId/cycle	Cycle status
 POST	/tenants/:tenantId/remind	Send reminder
 Tenant Visibility (any authenticated member, mounted at /api/tenants/me)
 Method	Path	Purpose
-GET	/contributions	All 12 members' statuses
+GET	/contributions	All configured Co-Savers' statuses
 GET	/ledger	Tenant ledger
 GET	/receipts	Receipt gallery
 Receipts (/api/receipts)
