@@ -105,7 +105,7 @@ Overview (tenant status, cycle, slot, next payout)
 
 My contribution (current intent, reference, target account, upload receipt)
 
-Tenant status (all 12 members, who has contributed, has receipt)
+Tenant status (all configured Co-Savers, who has contributed, has receipt)
 
 Ledger (tenant ledger entries)
 
