@@ -595,7 +595,7 @@
             <div class="chart-area">
               <div class="chart-legend">
                 <div><span class="dot dot-g"></span>Revenue per Branch</div>
-                <div><span class="dot dot-gray"></span>12 Cycle Target</div>
+                
               </div>
               <div class="chart-shell">
                 <div class="chart-yaxis" id="chart-yaxis"></div>
@@ -1367,69 +1367,44 @@
     function renderRevenueChart(feeData) {
       const yAxis = document.getElementById('chart-yaxis');
       const barsEl = document.getElementById('chart-bars');
-      
-      const UNIT_FEE = 178.35; 
-      const MAX_CYCLES = 12;
-      const MAX_VAL = UNIT_FEE * MAX_CYCLES;
+      const realBranches = Array.isArray(feeData) ? feeData : [];
       const MAX_BARS = 50;
-
+      const values = realBranches.map(branch => Math.max(0, Number(branch.feesPaidPence || 0) / 100));
+      const dataMax = Math.max(0, ...values);
+      const axisMax = dataMax > 0 ? Math.ceil(dataMax / 4) * 4 : 4;
       const yLabels = [];
-      for (let i = MAX_CYCLES; i >= 0; i--) {
-        yLabels.push('£' + (i * UNIT_FEE).toFixed(2));
-      }
-      yAxis.innerHTML = yLabels.map(v => `<div>${v}</div>`).join('');
-
-      let realBranches = Array.isArray(feeData) ? feeData : [];
+      for (let i = 4; i >= 0; i--) yLabels.push('£' + (axisMax * i / 4).toFixed(2));
+      yAxis.innerHTML = yLabels.map(value => `<div>${value}</div>`).join('');
 
       const slots = [];
       for (let i = 0; i < MAX_BARS; i++) {
         const branch = realBranches[i];
         if (branch) {
-          const val = parseFloat(branch.feesPaidPence || 0) / 100;
-          slots.push({
-            filled: true,
-            name: branch.branchName,
-            value: val
-          });
+          slots.push({ filled: true, name: branch.branchName, value: Math.max(0, Number(branch.feesPaidPence || 0) / 100) });
         } else {
-          slots.push({
-            filled: false,
-            name: `Branch ${i + 1}`,
-            value: 0
-          });
+          slots.push({ filled: false, name: `Branch ${i + 1}`, value: 0 });
         }
       }
 
-      barsEl.innerHTML = slots.map((s) => {
-        const pct = Math.min(100, (s.value / MAX_VAL) * 100);
-
-        if (!s.filled) {
-           return `
+      barsEl.innerHTML = slots.map(slot => {
+        const pct = Math.min(100, (slot.value / axisMax) * 100);
+        if (!slot.filled) {
+          return `
             <div class="chart-slot is-empty">
               <div class="chart-cycle-tip"></div>
               <div class="chart-track"><div class="chart-bar" style="height: 0%;"></div></div>
             </div>
           `;
         }
-        
         return `
           <div class="chart-slot">
-            <div class="chart-cycle-tip" style="font-size: 10px; color: var(--muted);">£${s.value.toFixed(2)}</div>
+            <div class="chart-cycle-tip" style="font-size: 10px; color: var(--muted);">£${slot.value.toFixed(2)}</div>
             <div class="chart-track"><div class="chart-bar" style="height: ${pct}%;"></div></div>
-            
             <div class="hover-card">
-              <div style="font-weight: 800; color: #8de54c; margin-bottom: 6px;">${escapeHtml(s.name)}</div>
-              <div style="display: flex; justify-content: space-between; gap: 16px; margin-bottom: 4px;">
-                <span style="color: #cbd5e1;">Platform Fees</span>
-                <span style="font-weight: 600;">£${s.value.toFixed(2)}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between; gap: 16px; margin-bottom: 4px;">
-                <span style="color: #cbd5e1;">Target (12 Cycles)</span>
-                <span style="font-weight: 600;">£${MAX_VAL.toFixed(2)}</span>
-              </div>
+              <div style="font-weight: 800; color: #8de54c; margin-bottom: 6px;">${escapeHtml(slot.name)}</div>
               <div style="display: flex; justify-content: space-between; gap: 16px;">
-                <span style="color: #cbd5e1;">Completion</span>
-                <span style="font-weight: 600; color: #8de54c;">${pct.toFixed(1)}%</span>
+                <span style="color: #cbd5e1;">Platform Fees</span>
+                <span style="font-weight: 600;">£${slot.value.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -1576,7 +1551,7 @@
                       <td><strong>${escapeHtml(t.name || 'Unnamed Circle')}</strong></td>
                       <td><span class="badge badge--${t.status === 'ACTIVE' ? 'success' : 'warning'}">${t.status}</span></td>
                       <td>${t.currentCycle}</td>
-                      <td>${t.memberCount} / 12</td>
+                      <td>${tenantCapacityLabel(t, t.memberCount)}</td>
                     </tr>
                   `).join('')}
                 </tbody>
@@ -1855,6 +1830,12 @@
       }
     }
 
+    function tenantCapacityLabel(tenant, memberCount) {
+      const capacity = Number(tenant && (tenant.memberCapacity ?? tenant.member_capacity ?? tenant.collectionPositions ?? tenant.collection_positions));
+      const count = Number(memberCount ?? (tenant && (tenant.memberCount ?? tenant.member_count)) ?? 0);
+      return Number.isFinite(capacity) && capacity > 0 ? `${count} / ${capacity}` : String(count);
+    }
+
     // ── All Tenants ──────────────────────────────────────────
     async function loadTenants() {
       const tbody = document.querySelector('#tenants-table tbody');
@@ -1975,11 +1956,11 @@
           <div class="stat-grid" style="margin-bottom: 24px; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
             <div class="stat"><div class="stat__label">Status</div><div class="stat__value" style="font-size: 18px;">${data.status}</div></div>
             <div class="stat"><div class="stat__label">Cycle</div><div class="stat__value" style="font-size: 18px;">${data.currentCycle}</div></div>
-            <div class="stat"><div class="stat__label">Members</div><div class="stat__value" style="font-size: 18px;">${data.memberCount} / 12</div></div>
+            <div class="stat"><div class="stat__label">Members</div><div class="stat__value" style="font-size: 18px;">${tenantCapacityLabel(data, data.memberCount)}</div></div>
             
             <div class="stat">
               <div class="stat__label">Contributions</div>
-              <div class="stat__value stat__value--success" style="font-size: 18px;">${currentCycleContributionsCount} / 12</div>
+              <div class="stat__value stat__value--success" style="font-size: 18px;">${tenantCapacityLabel(data, currentCycleContributionsCount)}</div>
               <div style="font-size: 12px; color: var(--muted); margin-top: 4px;">£${contribGbp}</div>
             </div>
             
