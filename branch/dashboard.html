@@ -1260,7 +1260,7 @@ footer a:hover { color: var(--g); }
               <div class="form-row"><label class="form-label" for="circle-config-name">Group name</label><input class="form-input" id="circle-config-name" required maxlength="80" placeholder="e.g. Orange"></div>
               <div class="form-row"><label class="form-label" for="circle-config-amount">Contribution amount (£)</label><input class="form-input" id="circle-config-amount" type="number" min="0.01" step="0.01" required placeholder="1000.00"></div>
               <div class="form-row"><label class="form-label" for="circle-config-frequency">Contribution frequency</label><select class="form-input" id="circle-config-frequency"><option value="WEEKLY">Weekly</option><option value="MONTHLY">Monthly</option></select></div>
-              <div class="form-row"><label class="form-label" for="circle-config-members">Maximum co-savers / collection positions</label><input class="form-input" id="circle-config-members" type="number" min="2" max="100" step="1" required value="12"></div>
+              <div class="form-row"><label class="form-label" for="circle-config-members">Maximum co-savers / collection positions</label><input class="form-input" id="circle-config-members" type="number" min="2" max="100" step="1" required placeholder="e.g. 10"></div>
               <div class="form-row"><label class="form-label" for="circle-config-window">Contribution window (days)</label><input class="form-input" id="circle-config-window" type="number" value="5" readonly aria-readonly="true"><span class="form-hint">Automatically set by contribution frequency.</span></div>
               <div class="form-row"><label class="form-label" for="circle-config-duration">Cycle duration (days)</label><input class="form-input" id="circle-config-duration" type="number" value="7" readonly aria-readonly="true"><span class="form-hint">Payout is due on the final day of each cycle.</span></div>
             </div>
@@ -3102,7 +3102,7 @@ footer a:hover { color: var(--g); }
         status.textContent = 'Configuration created. Its tenants will be generated automatically as co-savers join.';
         status.style.color = 'var(--g)';
         document.getElementById('circle-config-form').reset();
-        document.getElementById('circle-config-members').value = 12;
+        document.getElementById('circle-config-members').value = '';
         document.getElementById('circle-config-frequency').value = 'WEEKLY';
         document.getElementById('circle-config-window').value = 5;
         document.getElementById('circle-config-duration').value = 7;
