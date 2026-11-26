@@ -1831,7 +1831,8 @@
     }
 
     function tenantCapacityLabel(tenant, memberCount) {
-      const capacity = Number(tenant && (tenant.memberCapacity ?? tenant.member_capacity ?? tenant.collectionPositions ?? tenant.collection_positions));
+      const configuration = tenant && (tenant.configuration || tenant.circleConfiguration || tenant.circle_configuration);
+      const capacity = Number(tenant && (tenant.memberCapacity ?? tenant.member_capacity ?? tenant.collectionPositions ?? tenant.collection_positions ?? configuration?.memberCapacity ?? configuration?.member_capacity ?? configuration?.collectionPositions ?? configuration?.collection_positions));
       const count = Number(memberCount ?? (tenant && (tenant.memberCount ?? tenant.member_count)) ?? 0);
       return Number.isFinite(capacity) && capacity > 0 ? `${count} / ${capacity}` : String(count);
     }
