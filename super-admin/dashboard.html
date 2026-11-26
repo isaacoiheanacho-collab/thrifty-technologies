@@ -1858,7 +1858,7 @@
             '<td><span class="badge badge--' + statusBadge + '">' + t.status + '</span></td>' +
             '<td>' + t.current_cycle + '</td>' +
             '<td>' + t.current_tenure + '</td>' +
-            '<td>' + t.member_count + ' / 12</td>' +
+            '<td>' + tenantCapacityLabel(t, t.member_count) + '</td>' +
             '<td><div class="table__actions">' +
               '<button class="btn btn--primary btn--sm" data-tenant-id="' + t.id + '" data-tenant-name="' + escapeHtml(t.name || 'Tenant') + '">View Members</button>' +
             '</div></td>' +
